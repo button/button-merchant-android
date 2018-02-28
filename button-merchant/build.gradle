@@ -1,0 +1,106 @@
+/*
+ * build.gradle
+ *
+ * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+
+group = 'com.usebutton.merchant'
+version = sdkVersionName
+
+apply plugin: 'com.github.dcendents.android-maven'
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion '26.0.3'
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+ext {
+    supportLibVersion = '26.1.0'
+    playServicesVersion = '12.0.0'
+
+    junitVersion = '4.12'
+    mockitoVersion = '2.16.0'
+    espressoVersion = '3.0.1'
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "com.android.support:support-annotations:$supportLibVersion"
+    implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
+    testImplementation 'org.json:json:20171018'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
+}
+
+bintray {
+    user = project.hasProperty('bintrayUsername') ? project.property('bintrayUsername') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+
+    configurations = ['archives']
+    publish = true
+    override = sdkVersionName.endsWith("-SNAPSHOT")
+
+    pkg {
+        repo = 'Internal'
+        name = 'android-merchant-library'
+        desc = "Button Merchant Library for Android v${sdkVersionName}"
+        userOrg = 'button'
+        websiteUrl = 'https://github.com/button/button-merchant-android'
+        issueTrackerUrl = 'https://github.com/button/button-merchant-android/issues'
+        vcsUrl = 'https://github.com/button/button-merchant-android.git'
+        labels = ['aar', 'android', 'button']
+        publicDownloadNumbers = false
+        licenses = ['MIT']
+
+        version {
+            name = sdkVersionName
+        }
+    }
+}
