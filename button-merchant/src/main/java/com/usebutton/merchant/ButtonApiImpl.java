@@ -56,22 +56,24 @@ final class ButtonApiImpl implements ButtonApi {
     private static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
     private static final String CONTENT_TYPE_JSON = "application/json";
 
+    private final String userAgent;
+
     @VisibleForTesting
-    String BASE_URL = "https://api.usebutton.com";
+    String baseUrl = "https://api.usebutton.com";
 
     private static ButtonApi buttonApi;
 
-    static ButtonApi getInstance() {
+    static ButtonApi getInstance(String userAgent) {
         if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl();
+            buttonApi = new ButtonApiImpl(userAgent);
         }
 
         return buttonApi;
     }
 
     @VisibleForTesting
-    ButtonApiImpl() {
-
+    ButtonApiImpl(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     @Nullable
@@ -91,7 +93,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("signals", new JSONObject(signalsMap));
 
             // setup url connection
-            final URL url = new URL(BASE_URL + "/v1/web/deferred-deeplink");
+            final URL url = new URL(baseUrl + "/v1/web/deferred-deeplink");
             urlConnection = (HttpURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
@@ -104,7 +106,7 @@ final class ButtonApiImpl implements ButtonApi {
             Log.d(TAG, "Request Body: " + requestBody);
             Log.d(TAG, "Response Code: " + urlConnection.getResponseCode());
             // check if it's successful
-            if (!(urlConnection.getResponseCode() >= 400)) {
+            if (urlConnection.getResponseCode() < 400) {
                 // read response body
                 final InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 final BufferedReader reader =
@@ -131,12 +133,17 @@ final class ButtonApiImpl implements ButtonApi {
                     JSONObject attributionJson = responseJson.optJSONObject("attribution");
                     if (attributionJson != null) {
                         String btnRef = attributionJson.getString("btn_ref");
-                        String utmSource = attributionJson.getString("utm_source");
+                        String utmSource = attributionJson.optString("utm_source", null);
                         attribution = new PostInstallLink.Attribution(btnRef, utmSource);
                     }
 
                     return new PostInstallLink(match, id, action, attribution);
                 }
+            } else {
+                String message =
+                        "Unsuccessful Request. HTTP StatusCode: " + urlConnection.getResponseCode();
+                Log.e(TAG, message);
+                throw new ButtonNetworkException(message);
             }
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException has occurred", e);
@@ -195,7 +202,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("order", orderJson);
 
             // setup url connection
-            final URL url = new URL(BASE_URL + "/v2/session/useractivity");
+            final URL url = new URL(baseUrl + "/v2/session/useractivity");
             urlConnection = (HttpURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
@@ -227,13 +234,13 @@ final class ButtonApiImpl implements ButtonApi {
                 String status = responseJson.optJSONObject("meta").optString("status");
                 if (status.equals("error")) {
                     String error = responseJson.optJSONObject("error").optString("message");
-                    throw new ButtonNetworkException(new Exception(error));
+                    throw new ButtonNetworkException(error);
                 }
             } else {
                 String message =
                         "Unsuccessful Request. HTTP StatusCode: " + urlConnection.getResponseCode();
                 Log.e(TAG, message);
-                throw new ButtonNetworkException(new Exception(message));
+                throw new ButtonNetworkException(message);
             }
         } catch (MalformedURLException e) {
             Log.e(TAG, "MalformedURLException has occurred", e);
@@ -254,7 +261,6 @@ final class ButtonApiImpl implements ButtonApi {
     }
 
     private String getUserAgent() {
-        //TODO: Add User Agent
-        return "";
+        return userAgent;
     }
 }

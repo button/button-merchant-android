@@ -30,4 +30,8 @@ public class ButtonNetworkException extends Exception {
     public ButtonNetworkException(Exception e) {
         super(e);
     }
+
+    public ButtonNetworkException(String message) {
+        super(message);
+    }
 }

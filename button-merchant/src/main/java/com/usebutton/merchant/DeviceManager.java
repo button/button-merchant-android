@@ -50,4 +50,6 @@ interface DeviceManager {
      * @return true if the app was installed more than 12 hours ago.
      */
     boolean isOldInstallation();
+
+    String getUserAgent();
 }

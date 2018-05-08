@@ -27,19 +27,19 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 
 group = 'com.usebutton.merchant'
-version = sdkVersionName
+version = libraryVersionName
 
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.3'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -56,15 +56,6 @@ android {
     }
 }
 
-ext {
-    supportLibVersion = '26.1.0'
-    playServicesVersion = '12.0.0'
-
-    junitVersion = '4.12'
-    mockitoVersion = '2.16.0'
-    espressoVersion = '3.0.1'
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -74,23 +65,25 @@ dependencies {
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
     testImplementation 'org.json:json:20171018'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
 }
 
 bintray {
-    user = project.hasProperty('bintrayUsername') ? project.property('bintrayUsername') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    user = project.hasProperty('bintrayUsername') ? project.property('bintrayUsername') :
+            System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') :
+            System.getenv('BINTRAY_API_KEY')
 
     configurations = ['archives']
     publish = true
-    override = sdkVersionName.endsWith("-SNAPSHOT")
+    override = libraryVersionName.endsWith("-SNAPSHOT")
 
     pkg {
         repo = 'Internal'
         name = 'android-merchant-library'
-        desc = "Button Merchant Library for Android v${sdkVersionName}"
+        desc = "Button Merchant Library for Android v${libraryVersionName}"
         userOrg = 'button'
         websiteUrl = 'https://github.com/button/button-merchant-android'
         issueTrackerUrl = 'https://github.com/button/button-merchant-android/issues'
@@ -100,7 +93,7 @@ bintray {
         licenses = ['MIT']
 
         version {
-            name = sdkVersionName
+            name = libraryVersionName
         }
     }
 }

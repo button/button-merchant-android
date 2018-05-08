@@ -5,6 +5,7 @@ set -o pipefail
 
 echo "running tests"
 ./gradlew clean
+./gradlew checkstyle
 ./gradlew check
 ./gradlew testDebugUnitTest
 

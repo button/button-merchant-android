@@ -36,6 +36,6 @@ public class SampleApplication extends Application {
         super.onCreate();
 
         // Replace with your application ID
-        ButtonMerchant.configure(this, "app-1234567890abcdef");
+        ButtonMerchant.configure(this, BuildConfig.BUTTON_MERCHANT_APP_ID);
     }
 }

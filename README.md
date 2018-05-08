@@ -15,3 +15,9 @@ git clone https://github.com/button/button-merchant-android.git
 cd button-merchant-android
 ./gradlew clean installDebug
 ```
+
+In order to get the sample app to compile and run, you will need to define your Button App ID in your global or local `gradle.properties` file.
+
+```groovy
+buttonMerchantAppId="__YOUR_APP_ID__"
+```

@@ -28,6 +28,7 @@ package com.usebutton.merchant;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
@@ -46,7 +47,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.usebutton.merchant.DeviceManagerImpl.ISO_8601;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -181,5 +184,32 @@ public class DeviceManagerImplTest {
 
         SimpleDateFormat isoDateFormat = new SimpleDateFormat(ISO_8601, Locale.US);
         assertEquals(deviceManager.getTimeStamp(), isoDateFormat.format(currentTime));
+    }
+
+    @Test
+    public void getUserAgent_verifyUserAgent() throws Exception {
+        PackageManager packageManager = mock(PackageManager.class);
+        PackageInfo packageInfo = mock(PackageInfo.class);
+        Resources resources = mock(Resources.class);
+        DisplayMetrics displayMetrics = mock(DisplayMetrics.class);
+        packageInfo.packageName = "com.usebutton.app";
+        packageInfo.versionName = "1.1.0";
+        packageInfo.versionCode = 11;
+        displayMetrics.density = 2;
+        Locale.setDefault(Locale.US);
+
+        when(context.getPackageName()).thenReturn("com.usebutton.merchant");
+        when(context.getPackageManager()).thenReturn(packageManager);
+        when(packageManager.getPackageInfo(eq("com.usebutton.merchant"), anyInt())).thenReturn(
+                packageInfo);
+        when(context.getResources()).thenReturn(resources);
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
+
+        String userAgent = deviceManager.getUserAgent();
+        String sdkVersionName = BuildConfig.VERSION_NAME;
+        int sdkVersionCode = BuildConfig.VERSION_CODE;
+
+        String expectedUserAgent = String.format("com.usebutton.merchant/%s+%d (Android null; null null; com.usebutton.app/1.1.0+11; Scale/2.0; en_us)", sdkVersionName, sdkVersionCode);
+        assertEquals(expectedUserAgent, userAgent);
     }
 }

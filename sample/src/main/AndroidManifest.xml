@@ -47,9 +47,16 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="https" android:host="sample-merchant.usebutton.com"/>
+
+                <data
+                    android:host="sample-merchant.usebutton.com"
+                    android:scheme="https"/>
+                <data
+                    android:host="btnmerchant.bttn.io"
+                    android:scheme="https"/>
             </intent-filter>
         </activity>
 

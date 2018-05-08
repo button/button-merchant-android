@@ -62,7 +62,8 @@ public final class ButtonMerchant {
     /**
      * Checks the passed {@code Intent} for a Button attribution and if present stores the token.
      *
-     * @param context a {@link Context) instance that can be used to access app resources like SharedPreferences.
+     * @param context a {@link Context) instance that can be used to access app resources like
+     * SharedPreferences.
      * @param intent An intent that has entered your app from a third party source.
      */
     public static void trackIncomingIntent(@NonNull Context context, @NonNull Intent intent) {
@@ -82,14 +83,17 @@ public final class ButtonMerchant {
     }
 
     /**
-     * The `attributionToken` from the last inbound Button attributed {@link Intent}.
+     * The {@code attributionToken} from the last inbound Button attributed {@link Intent}.
      *
      * For attribution to work correctly, you must:
-     * -Always access this token directly—*never cache it*.
-     * -Never manage the lifecycle of this token—Button manages the token validity window server-side.
-     * -Always include this value when reporting orders to your order API
+     * <ul>
+     *     <li>Always access this token directly—*never cache it*.</li>
+     *     <li>Never manage the lifecycle of this token—Button manages the token validity window
+     *         server-side.</li>
+     *     <li>Always include this value when reporting orders to your order API.</li>
+     * </ul>
      *
-     * @return the last tracked Button attribution token.
+     *  @return the last tracked Button attribution token.
      **/
     @Nullable
     public static String getAttributionToken(@NonNull Context context) {
@@ -130,15 +134,17 @@ public final class ButtonMerchant {
     /**
      * Checks to see if the user visited a url prior to installing your app.
      *
-     * If a url is found, {@link PostInstallIntentListener#onPostInstallIntent(Intent)} will be called on the listener you passed and you
-     * are responsible for navigating the user to the relevant content in your app. If a url is not found
-     * or an error occurs, {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)}  will be called on your listener and you can continue
-     * with your normal launch sequence.
+     * If a url is found, {@link PostInstallIntentListener#onPostInstallIntent(Intent)} will be
+     * called on the listener you passed and you are responsible for navigating the user to the
+     * relevant content in your app. If a url is not found or an error occurs,
+     * {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} will be called on your
+     * listener and you can continue with your normal launch sequence.
      *
-     * This method checks for a post-install url exactly *one time* after a user has installed your app.
-     * Subsequent calls will result in a call to {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} on your listener. You do not need to wait
-     * for the listener before continuing with your normal launch sequence but you should be prepared to handle
-     * an intent if a post-install url is found.
+     * This method checks for a post-install url exactly *one time* after a user has installed your
+     * app. Subsequent calls will result in a call to
+     * {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} on your listener. You do
+     * not need to wait for the listener before continuing with your normal launch sequence but you
+     * should be prepared to handle an intent if a post-install url is found.
      *
      * @param context context
      * @param listener The listener for be notified when a post install url is found.
@@ -152,7 +158,10 @@ public final class ButtonMerchant {
     private static ButtonRepository getButtonRepository(Context context) {
         PersistenceManager persistenceManager =
                 PersistenceManagerImpl.getInstance(context.getApplicationContext());
-        ButtonApi buttonApi = ButtonApiImpl.getInstance();
+
+        DeviceManager deviceManager = getDeviceManager(context);
+
+        ButtonApi buttonApi = ButtonApiImpl.getInstance(deviceManager.getUserAgent());
 
         return ButtonRepositoryImpl.getInstance(buttonApi, persistenceManager, executorService);
     }

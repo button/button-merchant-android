@@ -27,6 +27,10 @@ package com.usebutton.merchant;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -45,35 +50,47 @@ public class ButtonMerchantTest {
     @Mock
     private ButtonInternal buttonInternal;
 
+    @Mock
+    private Context context;
+
+    @Mock
+    private PackageManager packageManager;
+
+    @Mock
+    private PackageInfo packageInfo;
+
+    @Mock
+    private DisplayMetrics displayMetrics;
+
+    @Mock
+    private Resources resources;
+
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         ButtonMerchant.buttonInternal = buttonInternal;
+
+        when(context.getApplicationContext()).thenReturn(context);
+        when(context.getPackageManager()).thenReturn(packageManager);
+        when(packageManager.getPackageInfo(anyString(), anyInt())).thenReturn(packageInfo);
+        when(context.getResources()).thenReturn(resources);
+        when(resources.getDisplayMetrics()).thenReturn(displayMetrics);
     }
 
     @Test
     public void configure_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.configure(context, "valid_application_id");
         verify(buttonInternal).configure(any(ButtonRepository.class), eq("valid_application_id"));
     }
 
     @Test
     public void trackIncomingIntent_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.trackIncomingIntent(context, mock(Intent.class));
         verify(buttonInternal).trackIncomingIntent(any(ButtonRepository.class), any(Intent.class));
     }
 
     @Test
     public void trackOrder_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.trackOrder(context, mock(Order.class), mock(UserActivityListener.class));
         verify(buttonInternal).trackOrder(any(ButtonRepository.class), any(DeviceManager.class),
                 any(Order.class), any(UserActivityListener.class));
@@ -81,17 +98,12 @@ public class ButtonMerchantTest {
 
     @Test
     public void getAttributionToken_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.getAttributionToken(context);
         verify(buttonInternal).getAttributionToken(any(ButtonRepository.class));
     }
 
     @Test
     public void addAttributionTokenListener_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
         ButtonMerchant.AttributionTokenListener listener = mock(
                 ButtonMerchant.AttributionTokenListener.class);
 
@@ -102,9 +114,6 @@ public class ButtonMerchantTest {
 
     @Test
     public void removeAttributionTokenListener_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.removeAttributionTokenListener(context, mock(
                 ButtonMerchant.AttributionTokenListener.class));
 
@@ -114,9 +123,6 @@ public class ButtonMerchantTest {
 
     @Test
     public void clearAllData_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
-
         ButtonMerchant.clearAllData(context);
 
         verify(buttonInternal).clearAllData(any(ButtonRepository.class));
@@ -124,8 +130,6 @@ public class ButtonMerchantTest {
 
     @Test
     public void handlePostInstallIntent_verifyButtonInternal() {
-        Context context = mock(Context.class);
-        when(context.getApplicationContext()).thenReturn(context);
         when(context.getPackageName()).thenReturn("com.usebutton.merchant");
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
 
