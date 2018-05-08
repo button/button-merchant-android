@@ -167,18 +167,111 @@ final class DeviceManagerImpl implements DeviceManager {
 
     @Override
     public boolean isOldInstallation() {
+        PackageInfo packageInfo = getPackageInfo();
+
+        return packageInfo != null
+                && (packageInfo.firstInstallTime + TimeUnit.HOURS.toMillis(12)) < clock.get();
+    }
+
+    @Override
+    public String getUserAgent() {
+        // $App/$Version ($OS $OSVersion; $HardwareType; $MerchantId/$MerchantVersion;
+        // Scale/$screenScale; )
+
+        // "com.usebutton.merchant/1.0.1+12 "
+        final StringBuilder sb = new StringBuilder();
+        sb.append("com.usebutton.merchant/");
+        sb.append(getSdkVersionName());
+        sb.append('+');
+        sb.append(getSdkVersionCode());
+        sb.append(' ');
+
+        // "(Android 4.0.1; "
+        sb.append("(Android ");
+        sb.append(getAndroidVersionName());
+        sb.append("; ");
+
+        // "Samsung Galaxy S5; "
+        sb.append(getDeviceManufacturer());
+        sb.append(' ');
+        sb.append(getDeviceModel());
+        sb.append("; ");
+
+        // "com.example.wheelsapp/1.2.3+41; "
+        sb.append(getPackageName());
+        sb.append('/');
+        sb.append(getVersionName());
+        sb.append('+');
+        sb.append(getVersionCode());
+        sb.append("; ");
+
+        // "Scale/2.0;
+        sb.append(String.format(Locale.US, "Scale/%.1f; ", getScreenDensity()));
+
+        // en_us)
+        final Locale locale = getLocale();
+        sb.append(locale.getLanguage()).append('_').append(locale.getCountry().toLowerCase())
+                .append(')');
+
+        return sb.toString();
+    }
+
+    private String getSdkVersionName() {
+        return BuildConfig.VERSION_NAME;
+    }
+
+    private int getSdkVersionCode() {
+        return BuildConfig.VERSION_CODE;
+    }
+
+    private String getAndroidVersionName() {
+        return Build.VERSION.RELEASE;
+    }
+
+    private String getDeviceManufacturer() {
+        return Build.MANUFACTURER;
+    }
+
+    private String getDeviceModel() {
+        return Build.MODEL;
+    }
+
+    @Nullable
+    private String getPackageName() {
+        PackageInfo packageInfo = getPackageInfo();
+        return packageInfo != null ? packageInfo.packageName : null;
+    }
+
+    @Nullable
+    private String getVersionName() {
+        PackageInfo packageInfo = getPackageInfo();
+        return packageInfo != null ? packageInfo.versionName : null;
+    }
+
+    private int getVersionCode() {
+        PackageInfo packageInfo = getPackageInfo();
+        return packageInfo != null ? packageInfo.versionCode : -1;
+    }
+
+    private float getScreenDensity() {
+        return context.getResources().getDisplayMetrics().density;
+    }
+
+    private Locale getLocale() {
+        return Locale.getDefault();
+    }
+
+    @Nullable
+    private PackageInfo getPackageInfo() {
         try {
             String packageName = context.getPackageName();
             PackageManager packageManager = context.getPackageManager();
-            PackageInfo packageInfo = packageManager.getPackageInfo(packageName, 0);
-            if (packageInfo != null
-                    && (packageInfo.firstInstallTime + TimeUnit.HOURS.toMillis(12)) < clock.get()) {
-                // More than 12 hours since we were installed
-                return true;
-            }
+            return packageManager.getPackageInfo(packageName, 0);
+
         } catch (PackageManager.NameNotFoundException ignored) {
+
         }
 
-        return false;
+        return null;
     }
 }

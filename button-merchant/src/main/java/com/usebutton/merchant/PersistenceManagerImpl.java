@@ -39,7 +39,7 @@ final class PersistenceManagerImpl implements PersistenceManager {
     private static PersistenceManager persistenceManager;
 
     static PersistenceManager getInstance(Context context) {
-        if(persistenceManager == null) {
+        if (persistenceManager == null) {
             persistenceManager = new PersistenceManagerImpl(context);
         }
 
@@ -50,7 +50,8 @@ final class PersistenceManagerImpl implements PersistenceManager {
 
     @VisibleForTesting
     PersistenceManagerImpl(Context context) {
-        sharedPreferences = context.getSharedPreferences("button_shared_preferences", Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences("button_shared_preferences",
+                Context.MODE_PRIVATE);
     }
 
     @Override
@@ -76,7 +77,8 @@ final class PersistenceManagerImpl implements PersistenceManager {
 
     @Override
     public void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink) {
-        sharedPreferences.edit().putBoolean(Key.CHECKED_DEFERRED_DEEP_LINK, checkedDeferredDeepLink).apply();
+        sharedPreferences.edit().putBoolean(Key.CHECKED_DEFERRED_DEEP_LINK,
+                checkedDeferredDeepLink).apply();
     }
 
     /**

@@ -37,7 +37,8 @@ import java.util.ArrayList;
 
 /**
  * ButtonInternalImpl class should implement everything needed for {@link ButtonMerchant}
- * The methods in the ButtonInternalImpl class should never be public because it will only be used by {@link ButtonMerchant}.
+ * The methods in the ButtonInternalImpl class should never be public because it will only be used
+ * by {@link ButtonMerchant}.
  */
 
 final class ButtonInternalImpl implements ButtonInternal {

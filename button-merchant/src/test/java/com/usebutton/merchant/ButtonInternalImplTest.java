@@ -167,7 +167,7 @@ public class ButtonInternalImplTest {
     public void trackOrder_validateUserActivityListenerOnError() {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         final UserActivityListener listener = mock(UserActivityListener.class);
-        final Throwable throwable = new ButtonNetworkException(new Exception());
+        final Throwable throwable = new ButtonNetworkException("");
 
         doAnswer(new Answer() {
             @Override
@@ -366,7 +366,7 @@ public class ButtonInternalImplTest {
         verify(buttonRepository).getPendingLink(listenerArgumentCaptor.capture(),
                 eq(deviceManager));
 
-        listenerArgumentCaptor.getValue().onTaskError(new ButtonNetworkException(new Exception()));
+        listenerArgumentCaptor.getValue().onTaskError(new ButtonNetworkException(""));
 
         verify(postInstallIntentListener).onNoPostInstallIntent(any(ButtonNetworkException.class));
         verify(postInstallIntentListener, never()).onPostInstallIntent(any(Intent.class));

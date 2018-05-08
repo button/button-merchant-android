@@ -66,7 +66,10 @@ public class MainActivity extends AppCompatActivity {
         ButtonMerchant.handlePostInstallIntent(this, new PostInstallIntentListener() {
             @Override
             public void onPostInstallIntent(@NonNull Intent intent) {
-                Log.d(TAG, "onPostInstallIntent: " + intent);
+                if (intent.getData() != null) {
+                    Log.d(TAG, "onPostInstallIntent: " + intent + " btn_ref: "
+                            + intent.getData().getQueryParameter("btn_ref"));
+                }
             }
 
             @Override
@@ -129,8 +132,8 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 intent.setData(
-                        Uri.parse("https://sample-merchant.usebutton.com/?btn_ref=srctok-test" +
-                                new Random().nextInt(100000)));
+                        Uri.parse("https://sample-merchant.usebutton.com/?btn_ref=srctok-test"
+                                + new Random().nextInt(100000)));
                 ButtonMerchant.trackIncomingIntent(v.getContext(), intent);
             }
         });
@@ -139,9 +142,14 @@ public class MainActivity extends AppCompatActivity {
         ButtonMerchant.addAttributionTokenListener(this,
                 new ButtonMerchant.AttributionTokenListener() {
                     @Override
-                    public void onAttributionTokenChanged(@NonNull String token) {
-                        TextView textView = findViewById(R.id.attribution_token);
-                        textView.setText(token);
+                    public void onAttributionTokenChanged(@NonNull final String token) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TextView textView = findViewById(R.id.attribution_token);
+                                textView.setText(token);
+                            }
+                        });
                     }
                 });
     }

@@ -28,7 +28,8 @@ package com.usebutton.merchant.exception;
 import com.usebutton.merchant.PostInstallIntentListener;
 
 /**
- * Exception is passed back in {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} when the application id is not set and it is required
+ * Exception is passed back in {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)}
+ * when the application id is not set and it is required.
  */
 public class ApplicationIdNotFoundException extends IllegalStateException {
 

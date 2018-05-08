@@ -32,7 +32,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
 
@@ -50,4 +50,28 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+subprojects {
+    apply plugin: 'checkstyle'
+
+    task('checkstyle', type: Checkstyle) {
+        group 'verification'
+        configFile rootProject.file('checkstyle.xml')
+        source 'src/main/java'
+        ignoreFailures false
+        showViolations true
+        include '**/*.java'
+
+        classpath = files()
+    }
+}
+
+ext {
+    supportLibVersion = '27.1.1'
+    playServicesVersion = '15.0.0'
+    junitVersion = '4.12'
+    mockitoVersion = '2.16.0'
+    espressoVersion = '3.0.2'
+    testRunnerVersion = '1.0.2'
 }

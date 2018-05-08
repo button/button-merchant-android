@@ -46,12 +46,12 @@ abstract class Task<T> implements Runnable {
         try {
             T object = execute();
 
-            if(listener != null) {
+            if (listener != null) {
                 listener.onTaskComplete(object);
             }
 
         } catch (Exception e) {
-            if(listener != null) {
+            if (listener != null) {
                 listener.onTaskError(e);
             }
         }

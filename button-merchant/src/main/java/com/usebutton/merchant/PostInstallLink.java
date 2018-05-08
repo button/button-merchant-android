@@ -38,7 +38,8 @@ final class PostInstallLink {
     @Nullable
     private Attribution attribution;
 
-    PostInstallLink(boolean match, String id, @Nullable String action, @Nullable Attribution attribution) {
+    PostInstallLink(boolean match, String id, @Nullable String action,
+            @Nullable Attribution attribution) {
         this.match = match;
         this.id = id;
         this.action = action;

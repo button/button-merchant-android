@@ -42,12 +42,13 @@ import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class ButtonApiImplTest {
 
+    private final String userAgent = "valid_user_agent";
+
     private MockWebServer server = new MockWebServer();
-    private ButtonApiImpl buttonApi = new ButtonApiImpl();
+    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent);
 
     @Before
     public void setUp() throws Exception {
@@ -55,7 +56,7 @@ public class ButtonApiImplTest {
 
         HttpUrl baseUrl = server.url("");
         String url = baseUrl.url().toString();
-        buttonApi.BASE_URL = url.substring(0, url.length() - 1);
+        buttonApi.baseUrl = url.substring(0, url.length() - 1);
     }
 
     @After
@@ -110,7 +111,7 @@ public class ButtonApiImplTest {
         assertEquals("POST", recordedRequest.getMethod());
 
         // headers
-        assertEquals("", headers.get("User-Agent"));
+        assertEquals(userAgent, headers.get("User-Agent"));
         assertEquals("application/json", headers.get("Accept"));
         assertEquals("application/json", headers.get("Content-Type"));
 
@@ -121,8 +122,8 @@ public class ButtonApiImplTest {
         assertEquals("value", signalsJson.getString("key"));
     }
 
-    @Test
-    public void getPendingLink_returnInvalidResponse_validatePostInstallLink() throws Exception {
+    @Test(expected = ButtonNetworkException.class)
+    public void getPendingLink_returnErrorResponseStatusCodeOver400_catchException() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -130,11 +131,7 @@ public class ButtonApiImplTest {
             }
         });
 
-        PostInstallLink postInstallLink =
-                buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
-                        Collections.<String, String>emptyMap());
-
-        assertNull(postInstallLink);
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true, Collections.<String, String>emptyMap());
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -157,7 +154,7 @@ public class ButtonApiImplTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnErrorResponseStatusCodeOver400() throws Exception {
+    public void postUserActivity_returnErrorResponseStatusCodeOver400_catchException() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -211,7 +208,7 @@ public class ButtonApiImplTest {
         assertEquals("POST", recordedRequest.getMethod());
 
         // headers
-        assertEquals("", headers.get("User-Agent"));
+        assertEquals(userAgent, headers.get("User-Agent"));
         assertEquals("application/json", headers.get("Accept"));
         assertEquals("application/json", headers.get("Content-Type"));
 

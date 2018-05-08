@@ -52,6 +52,6 @@ interface ButtonInternal {
 
     void clearAllData(ButtonRepository buttonRepository);
 
-    void handlePostInstallIntent(ButtonRepository buttonRepository, PostInstallIntentListener listener,
-            String packageName, DeviceManager deviceManager);
+    void handlePostInstallIntent(ButtonRepository buttonRepository,
+            PostInstallIntentListener listener, String packageName, DeviceManager deviceManager);
 }
