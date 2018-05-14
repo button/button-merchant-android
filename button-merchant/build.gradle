@@ -25,6 +25,8 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.kt3k.coveralls'
+apply plugin: 'jacoco-android'
 
 group = 'com.usebutton.merchant'
 version = libraryVersionName
@@ -56,6 +58,45 @@ android {
     }
 }
 
+configurations {
+    jaxDoclet
+    classpaths
+}
+
+task javadocJar(type: Jar, dependsOn: "generateProductionJavadoc") {
+    classifier = 'javadoc'
+    from new File(project(':button-merchant').buildDir, "/docs/javadoc/")
+}
+
+android.libraryVariants.all { variant ->
+
+    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+        source = variant.javaCompile.source
+        title = null
+        List<File> pathList = new ArrayList<File>()
+        pathList.add(file('./doclava-1.0.6.jar'))
+        options.docletpath = pathList
+        options.classpath = configurations.classpaths.files.asType(List)
+        options {
+            doclet "com.google.doclava.Doclava"
+            bootClasspath new File(System.getenv('JAVA_HOME') + "/jre/lib/rt.jar")
+            addStringOption "hdf project.name", "Button Merchant Library ${libraryVersionName}"
+            addStringOption "public"
+            addStringOption "templatedir", "javadoc"
+            addStringOption "verbose"
+
+            addStringOption "federate jdk", "http://download.oracle.com/javase/6/docs/api/index.html?"
+            addStringOption "federationxml jdk", "http://doclava.googlecode.com/svn/static/api/openjdk-6.xml"
+            addStringOption "federate android", "http://d.android.com/reference"
+            addStringOption "federationxml android", "http://doclava.googlecode.com/svn/static/api/android-10.xml"
+        }
+        exclude '**/BuildConfig.java'
+        exclude '**/R.java'
+        exclude '**/internal/**'
+        exclude '**/thirdparty/**'
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -81,7 +122,7 @@ bintray {
     override = libraryVersionName.endsWith("-SNAPSHOT")
 
     pkg {
-        repo = 'Internal'
+        repo = 'Public'
         name = 'android-merchant-library'
         desc = "Button Merchant Library for Android v${libraryVersionName}"
         userOrg = 'button'
@@ -96,4 +137,12 @@ bintray {
             name = libraryVersionName
         }
     }
+}
+
+coveralls {
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml"
+}
+
+tasks.coveralls {
+    dependsOn 'jacocoTestDebugUnitTestReport'
 }

@@ -5,6 +5,10 @@ env:
     - ANDROID_API_LEVEL=27
     - ANDROID_BUILD_TOOLS_VERSION=27.0.3
 
+branches:
+  only:
+    - master
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -40,4 +44,5 @@ script:
   - bash ./scripts/travis/run_tests.sh
 
 after_success:
+  - bash ./scripts/travis/coveralls.sh
   - bash ./scripts/travis/deploy_to_bintray.sh
