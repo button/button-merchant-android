@@ -27,6 +27,9 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
+/**
+ * Internal model for post-install link server response.
+ */
 final class PostInstallLink {
 
     private boolean match;
@@ -64,6 +67,9 @@ final class PostInstallLink {
         return attribution;
     }
 
+    /**
+     * Attribution and referrer tokens.
+     */
     static final class Attribution {
         private String btnRef;
         @Nullable

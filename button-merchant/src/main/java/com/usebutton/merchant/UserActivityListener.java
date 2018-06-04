@@ -25,13 +25,12 @@
 
 package com.usebutton.merchant;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 
 /**
  * Callbacks for tracking user activity.
  *
- * @see ButtonMerchant#trackOrder(Context, Order, UserActivityListener)
+ * @see ButtonMerchant#trackOrder(android.content.Context, Order, UserActivityListener)
  */
 public interface UserActivityListener {
     void onSuccess();

@@ -45,6 +45,9 @@ import com.usebutton.merchant.UserActivityListener;
 
 import java.util.Random;
 
+/**
+ * Sample app main activity.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();

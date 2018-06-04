@@ -30,6 +30,9 @@ import android.support.annotation.WorkerThread;
 
 import java.util.Map;
 
+/**
+ * Internal interface for querying device characteristics.
+ */
 interface DeviceManager {
 
     @WorkerThread

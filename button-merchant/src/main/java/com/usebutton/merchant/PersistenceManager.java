@@ -27,6 +27,9 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
+/**
+ * Internal interface for storage layer.
+ */
 interface PersistenceManager {
     void setSourceToken(String sourceToken);
 

@@ -29,6 +29,9 @@ import android.app.Application;
 
 import com.usebutton.merchant.ButtonMerchant;
 
+/**
+ * Sample app custom application class.
+ */
 public class SampleApplication extends Application {
 
     @Override

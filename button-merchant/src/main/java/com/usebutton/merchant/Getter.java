@@ -25,6 +25,11 @@
 
 package com.usebutton.merchant;
 
+/**
+ * Generic factory interface.
+ *
+ * @param <T> value type.
+ */
 interface Getter<T> {
     T get();
 }

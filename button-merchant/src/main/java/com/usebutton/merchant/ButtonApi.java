@@ -32,6 +32,9 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
 
 import java.util.Map;
 
+/**
+ * Button API endpoints.
+ */
 interface ButtonApi {
 
     @Nullable
