@@ -5,9 +5,9 @@
 <!-- List the high-level objectives of this pull request. -->
 <!-- Include any relevant context. -->
 
-### Implementation Details :construction:
+### Implementation :construction:
 <!-- Explain the reasoning behind any architectural changes. -->
 <!-- Highlight any new functionality. -->
 
-### Testing Details :mag:
+### Testing :mag:
 <!-- Describe what tests you've added for your changes. -->
