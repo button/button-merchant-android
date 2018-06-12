@@ -60,6 +60,11 @@ abstract class Task<T> implements Runnable {
     @Nullable
     abstract T execute() throws Exception;
 
+    /**
+     * Internal task callbacks.
+     *
+     * @param <T> task response type.
+     */
     interface Listener<T> {
         void onTaskComplete(@Nullable T object);
         void onTaskError(Throwable throwable);

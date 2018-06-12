@@ -27,7 +27,10 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
-public class UserActivityTask extends Task<Void> {
+/**
+ * Asynchronous task used to report user activity to the Button API.
+ */
+class UserActivityTask extends Task<Void> {
 
     private final ButtonApi buttonApi;
     private final String applicationId;

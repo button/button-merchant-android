@@ -1,5 +1,5 @@
 /*
- * SampleApplication.java
+ * package-info.java
  *
  * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
  *
@@ -23,22 +23,8 @@
  *
  */
 
-package com.usebutton.merchant.sample;
-
-import android.app.Application;
-
-import com.usebutton.merchant.ButtonMerchant;
-
 /**
- * Sample app custom application class.
+ * An open source client library for Button merchants.
  */
-public class SampleApplication extends Application {
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Replace with your application ID
-        ButtonMerchant.configure(this, BuildConfig.BUTTON_MERCHANT_APP_ID);
-    }
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package com.usebutton.merchant;

@@ -60,6 +60,9 @@ public class Order {
         return currencyCode;
     }
 
+    /**
+     * Builder class for tracking a customer {@link Order}.
+     */
     public static class Builder {
         @NonNull
         private String id;

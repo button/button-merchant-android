@@ -48,6 +48,9 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Button API endpoint request implementations.
+ */
 final class ButtonApiImpl implements ButtonApi {
 
     private static final String TAG = ButtonApiImpl.class.getSimpleName();

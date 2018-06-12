@@ -27,6 +27,9 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
+/**
+ * Internal data layer interface.
+ */
 interface ButtonRepository {
 
     void setApplicationId(String applicationId);

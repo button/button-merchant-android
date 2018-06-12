@@ -25,6 +25,9 @@
 
 package com.usebutton.merchant.exception;
 
+/**
+ * Network error encountered when communicating with the Button API.
+ */
 public class ButtonNetworkException extends Exception {
 
     public ButtonNetworkException(Exception e) {
