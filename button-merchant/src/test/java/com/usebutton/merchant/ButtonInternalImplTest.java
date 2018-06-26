@@ -121,7 +121,7 @@ public class ButtonInternalImplTest {
         buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
                 listener);
 
-        verify(listener).onError(any(ApplicationIdNotFoundException.class));
+        verify(listener).onResult(any(ApplicationIdNotFoundException.class));
         verify(buttonRepository, never()).postUserActivity(any(DeviceManager.class),
                 any(Order.class),
                 any(Task.Listener.class));
@@ -160,7 +160,7 @@ public class ButtonInternalImplTest {
 
         buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
                 listener);
-        verify(listener).onSuccess();
+        verify(listener).onResult(null);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class ButtonInternalImplTest {
 
         buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
                 listener);
-        verify(listener).onError(throwable);
+        verify(listener).onResult(throwable);
     }
 
     @Test

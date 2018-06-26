@@ -82,7 +82,7 @@ final class ButtonInternalImpl implements ButtonInternal {
             @NonNull Order order, @Nullable final UserActivityListener listener) {
         if (buttonRepository.getApplicationId() == null) {
             if (listener != null) {
-                listener.onError(new ApplicationIdNotFoundException());
+                listener.onResult(new ApplicationIdNotFoundException());
             }
 
             return;
@@ -93,14 +93,14 @@ final class ButtonInternalImpl implements ButtonInternal {
             @Override
             public void onTaskComplete(@Nullable Object object) {
                 if (listener != null) {
-                    listener.onSuccess();
+                    listener.onResult(null);
                 }
             }
 
             @Override
             public void onTaskError(Throwable throwable) {
                 if (listener != null) {
-                    listener.onError(throwable);
+                    listener.onResult(throwable);
                 }
             }
         };

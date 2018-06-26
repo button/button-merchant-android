@@ -33,7 +33,5 @@ import android.support.annotation.Nullable;
  * @see ButtonMerchant#trackOrder(android.content.Context, Order, UserActivityListener)
  */
 public interface UserActivityListener {
-    void onSuccess();
-
-    void onError(@Nullable Throwable t);
+    void onResult(@Nullable Throwable t);
 }
