@@ -137,12 +137,12 @@ final class ButtonInternalImpl implements ButtonInternal {
             DeviceManager deviceManager) {
 
         if (buttonRepository.getApplicationId() == null) {
-            listener.onNoPostInstallIntent(new ApplicationIdNotFoundException());
+            listener.onResult(null, new ApplicationIdNotFoundException());
             return;
         }
 
         if (deviceManager.isOldInstallation() || buttonRepository.checkedDeferredDeepLink()) {
-            listener.onNoPostInstallIntent(null);
+            listener.onResult(null, null);
             return;
         }
 
@@ -162,16 +162,16 @@ final class ButtonInternalImpl implements ButtonInternal {
                         setAttributionToken(buttonRepository, attribution.getBtnRef());
                     }
 
-                    listener.onPostInstallIntent(deepLinkIntent);
+                    listener.onResult(deepLinkIntent, null);
                     return;
                 }
 
-                listener.onNoPostInstallIntent(null);
+                listener.onResult(null, null);
             }
 
             @Override
             public void onTaskError(Throwable throwable) {
-                listener.onNoPostInstallIntent(throwable);
+                listener.onResult(null, throwable);
             }
         }, deviceManager);
     }

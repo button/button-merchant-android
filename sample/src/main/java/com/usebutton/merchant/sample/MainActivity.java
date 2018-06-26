@@ -68,16 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         ButtonMerchant.handlePostInstallIntent(this, new PostInstallIntentListener() {
             @Override
-            public void onPostInstallIntent(@NonNull Intent intent) {
-                if (intent.getData() != null) {
-                    Log.d(TAG, "onPostInstallIntent: " + intent + " btn_ref: "
-                            + intent.getData().getQueryParameter("btn_ref"));
+            public void onResult(@Nullable Intent intent, @Nullable Throwable t) {
+                if (intent != null) {
+                    startActivity(intent);
+                } else if (t != null) {
+                    Log.e(TAG, "Error checking post install intent", t);
                 }
-            }
-
-            @Override
-            public void onNoPostInstallIntent(@Nullable Throwable t) {
-                Log.d(TAG, "onNoPostInstallIntent", t);
             }
         });
 

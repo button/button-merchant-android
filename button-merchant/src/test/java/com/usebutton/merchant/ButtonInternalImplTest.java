@@ -297,8 +297,7 @@ public class ButtonInternalImplTest {
 
         listenerArgumentCaptor.getValue().onTaskComplete(postInstallLink);
 
-        verify(postInstallIntentListener).onPostInstallIntent(any(Intent.class));
-        verify(postInstallIntentListener, never()).onNoPostInstallIntent(any(Throwable.class));
+        verify(postInstallIntentListener).onResult(any(Intent.class), (Throwable) isNull());
         verify(buttonRepository).setSourceToken("valid_source_token");
     }
 
@@ -324,8 +323,7 @@ public class ButtonInternalImplTest {
 
         listenerArgumentCaptor.getValue().onTaskComplete(postInstallLink);
 
-        verify(postInstallIntentListener, never()).onPostInstallIntent(any(Intent.class));
-        verify(postInstallIntentListener).onNoPostInstallIntent((Throwable) isNull());
+        verify(postInstallIntentListener).onResult(null, null);
         verify(buttonRepository, never()).setSourceToken(anyString());
     }
 
@@ -343,9 +341,8 @@ public class ButtonInternalImplTest {
 
         verify(buttonRepository, never()).getPendingLink(any(Task.Listener.class),
                 any(DeviceManager.class));
-        verify(postInstallIntentListener, never()).onPostInstallIntent(any(Intent.class));
         verify(buttonRepository, never()).setSourceToken(anyString());
-        verify(postInstallIntentListener).onNoPostInstallIntent(
+        verify(postInstallIntentListener).onResult((Intent) isNull(),
                 any(ApplicationIdNotFoundException.class));
     }
 
@@ -368,8 +365,8 @@ public class ButtonInternalImplTest {
 
         listenerArgumentCaptor.getValue().onTaskError(new ButtonNetworkException(""));
 
-        verify(postInstallIntentListener).onNoPostInstallIntent(any(ButtonNetworkException.class));
-        verify(postInstallIntentListener, never()).onPostInstallIntent(any(Intent.class));
+        verify(postInstallIntentListener).onResult((Intent) isNull(),
+                any(ButtonNetworkException.class));
     }
 
     @Test
@@ -404,7 +401,7 @@ public class ButtonInternalImplTest {
                 "com.usebutton.merchant",
                 deviceManager);
 
-        verify(postInstallIntentListener).onNoPostInstallIntent((Throwable) isNull());
+        verify(postInstallIntentListener).onResult(null, null);
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
     }
 
@@ -422,7 +419,7 @@ public class ButtonInternalImplTest {
                 "com.usebutton.merchant",
                 deviceManager);
 
-        verify(postInstallIntentListener).onNoPostInstallIntent((Throwable) isNull());
+        verify(postInstallIntentListener).onResult((Intent) isNull(), (Throwable) isNull());
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
     }
 }
