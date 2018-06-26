@@ -88,23 +88,17 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 ButtonMerchant.trackOrder(context, order, new UserActivityListener() {
                     @Override
-                    public void onSuccess() {
+                    public void onResult(@Nullable final Throwable t) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(context, "Order track success",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(@Nullable Throwable t) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "Order track error",
-                                        Toast.LENGTH_SHORT).show();
+                                if (t == null) {
+                                    Toast.makeText(context, "Order track success",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Order track error",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
