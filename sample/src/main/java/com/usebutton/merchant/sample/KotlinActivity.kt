@@ -12,9 +12,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.usebutton.merchant.ButtonMerchant
-import com.usebutton.merchant.Order
 import com.usebutton.merchant.Order.Builder
-import com.usebutton.merchant.UserActivityListener
 import com.usebutton.merchant.sample.R.id
 import java.util.Random
 

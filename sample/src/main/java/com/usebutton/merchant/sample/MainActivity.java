@@ -169,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
                 finish();
                 startActivity(i);
                 break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
