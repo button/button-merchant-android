@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -102,5 +104,27 @@ class KotlinActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "KotlinActivity"
         private const val TEST_URL = "https://sample-merchant.usebutton.com/?btn_ref=srctok-test"
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        val kotlinItem = menu.findItem(R.id.action_switch_kotlin)
+        val javaItem = menu.findItem(R.id.action_switch_java)
+        kotlinItem.isVisible = false
+        javaItem.isVisible = true
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_switch_kotlin -> {
+            }
+            R.id.action_switch_java -> {
+                val i = Intent(this@KotlinActivity, MainActivity::class.java)
+                finish()
+                startActivity(i)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
