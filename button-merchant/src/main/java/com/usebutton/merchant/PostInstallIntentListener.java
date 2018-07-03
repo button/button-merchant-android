@@ -26,22 +26,22 @@
 package com.usebutton.merchant;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
  * Callbacks for post-install intent handler.
  */
 public interface PostInstallIntentListener {
-
     /**
-     * A post-install url was found. You are responsible for navigating the user
-     * -to the appropriate content by starting the attached intent.
+     * This callback is used to notify the application that the request to check for a post-app
+     * install deep link is complete. If a deep link was found, it will be returned here. If an
+     * error was encountered while making the request, it will optionally be returned here.
+     *
+     * @param intent if a post-install link was found it will be returned here in the intent data.
+     * The intent can be started to navigate the user to the appropriate location in the app. If no
+     * post-install intent was found, this param will be {@code null}.
+     * @param t if an error was encountered while making the request it will be returned in this
+     * param, otherwise {@code null}.
      */
-    void onPostInstallIntent(@NonNull Intent intent);
-
-    /**
-     * No post-install url was found. Continue with your normal launch sequence.
-     */
-    void onNoPostInstallIntent(@Nullable Throwable t);
+    void onResult(@Nullable Intent intent, @Nullable Throwable t);
 }

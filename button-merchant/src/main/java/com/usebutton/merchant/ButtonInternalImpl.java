@@ -82,7 +82,7 @@ final class ButtonInternalImpl implements ButtonInternal {
             @NonNull Order order, @Nullable final UserActivityListener listener) {
         if (buttonRepository.getApplicationId() == null) {
             if (listener != null) {
-                listener.onError(new ApplicationIdNotFoundException());
+                listener.onResult(new ApplicationIdNotFoundException());
             }
 
             return;
@@ -93,14 +93,14 @@ final class ButtonInternalImpl implements ButtonInternal {
             @Override
             public void onTaskComplete(@Nullable Object object) {
                 if (listener != null) {
-                    listener.onSuccess();
+                    listener.onResult(null);
                 }
             }
 
             @Override
             public void onTaskError(Throwable throwable) {
                 if (listener != null) {
-                    listener.onError(throwable);
+                    listener.onResult(throwable);
                 }
             }
         };
@@ -137,12 +137,12 @@ final class ButtonInternalImpl implements ButtonInternal {
             DeviceManager deviceManager) {
 
         if (buttonRepository.getApplicationId() == null) {
-            listener.onNoPostInstallIntent(new ApplicationIdNotFoundException());
+            listener.onResult(null, new ApplicationIdNotFoundException());
             return;
         }
 
         if (deviceManager.isOldInstallation() || buttonRepository.checkedDeferredDeepLink()) {
-            listener.onNoPostInstallIntent(null);
+            listener.onResult(null, null);
             return;
         }
 
@@ -162,16 +162,16 @@ final class ButtonInternalImpl implements ButtonInternal {
                         setAttributionToken(buttonRepository, attribution.getBtnRef());
                     }
 
-                    listener.onPostInstallIntent(deepLinkIntent);
+                    listener.onResult(deepLinkIntent, null);
                     return;
                 }
 
-                listener.onNoPostInstallIntent(null);
+                listener.onResult(null, null);
             }
 
             @Override
             public void onTaskError(Throwable throwable) {
-                listener.onNoPostInstallIntent(throwable);
+                listener.onResult(null, throwable);
             }
         }, deviceManager);
     }

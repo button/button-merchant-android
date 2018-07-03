@@ -34,6 +34,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,16 +70,12 @@ public class MainActivity extends AppCompatActivity {
 
         ButtonMerchant.handlePostInstallIntent(this, new PostInstallIntentListener() {
             @Override
-            public void onPostInstallIntent(@NonNull Intent intent) {
-                if (intent.getData() != null) {
-                    Log.d(TAG, "onPostInstallIntent: " + intent + " btn_ref: "
-                            + intent.getData().getQueryParameter("btn_ref"));
+            public void onResult(@Nullable Intent intent, @Nullable Throwable t) {
+                if (intent != null) {
+                    startActivity(intent);
+                } else if (t != null) {
+                    Log.e(TAG, "Error checking post install intent", t);
                 }
-            }
-
-            @Override
-            public void onNoPostInstallIntent(@Nullable Throwable t) {
-                Log.d(TAG, "onNoPostInstallIntent", t);
             }
         });
 
@@ -92,23 +90,17 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 ButtonMerchant.trackOrder(context, order, new UserActivityListener() {
                     @Override
-                    public void onSuccess() {
+                    public void onResult(@Nullable final Throwable t) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(context, "Order track success",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(@Nullable Throwable t) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "Order track error",
-                                        Toast.LENGTH_SHORT).show();
+                                if (t == null) {
+                                    Toast.makeText(context, "Order track success",
+                                            Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Order track error",
+                                            Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
                     }
@@ -155,5 +147,31 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuItem javaItem = menu.findItem(R.id.action_switch_java);
+        MenuItem kotlinItem = menu.findItem(R.id.action_switch_kotlin);
+        javaItem.setVisible(false);
+        kotlinItem.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_switch_java:
+                break;
+            case R.id.action_switch_kotlin:
+                Intent i = new Intent(MainActivity.this, KotlinActivity.class);
+                finish();
+                startActivity(i);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
