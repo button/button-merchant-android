@@ -45,7 +45,6 @@ interface ButtonApi {
 
     @Nullable
     @WorkerThread
-    Void postActivity(String applicationId, String sourceToken, String ifa,
-            boolean limitAdTrackingEnabled, String timestamp,
-            Order order) throws ButtonNetworkException;
+    Void postActivity(String applicationId, String sourceToken, String timestamp, Order order)
+            throws ButtonNetworkException;
 }

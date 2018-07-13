@@ -59,12 +59,9 @@ public class UserActivityTaskTest {
 
     @Test
     public void execute_verifyApiCall() throws Exception {
-        when(deviceManager.getAdvertisingId()).thenReturn("valid_ifa");
-        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(true);
         when(deviceManager.getTimeStamp()).thenReturn("valid_ts");
 
         task.execute();
-        verify(buttonApi).postActivity(applicationId, sourceToken, "valid_ifa",
-                true, "valid_ts", order);
+        verify(buttonApi).postActivity(applicationId, sourceToken, "valid_ts", order);
     }
 }

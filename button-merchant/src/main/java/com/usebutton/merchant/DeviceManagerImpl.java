@@ -267,7 +267,6 @@ final class DeviceManagerImpl implements DeviceManager {
             String packageName = context.getPackageName();
             PackageManager packageManager = context.getPackageManager();
             return packageManager.getPackageInfo(packageName, 0);
-
         } catch (PackageManager.NameNotFoundException ignored) {
 
         }

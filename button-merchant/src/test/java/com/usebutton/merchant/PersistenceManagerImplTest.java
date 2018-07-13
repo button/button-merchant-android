@@ -55,7 +55,8 @@ public class PersistenceManagerImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(context.getSharedPreferences("button_shared_preferences", Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
+        when(context.getSharedPreferences("button_shared_preferences",
+                Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
         when(editor.putString(anyString(), anyString())).thenReturn(editor);
         when(editor.putBoolean(anyString(), anyBoolean())).thenReturn(editor);
@@ -90,7 +91,8 @@ public class PersistenceManagerImplTest {
 
     @Test
     public void checkedDeferredDeepLink_returnTrue() {
-        when(sharedPreferences.getBoolean(PersistenceManagerImpl.Key.CHECKED_DEFERRED_DEEP_LINK, false)).thenReturn(true);
+        when(sharedPreferences.getBoolean(PersistenceManagerImpl.Key.CHECKED_DEFERRED_DEEP_LINK,
+                false)).thenReturn(true);
         boolean checkedDeferredDeepLink = persistenceManager.checkedDeferredDeepLink();
         assertEquals(true, checkedDeferredDeepLink);
     }

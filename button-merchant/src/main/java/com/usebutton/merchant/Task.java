@@ -49,7 +49,6 @@ abstract class Task<T> implements Runnable {
             if (listener != null) {
                 listener.onTaskComplete(object);
             }
-
         } catch (Exception e) {
             if (listener != null) {
                 listener.onTaskError(e);
@@ -67,6 +66,7 @@ abstract class Task<T> implements Runnable {
      */
     interface Listener<T> {
         void onTaskComplete(@Nullable T object);
+
         void onTaskError(Throwable throwable);
     }
 }

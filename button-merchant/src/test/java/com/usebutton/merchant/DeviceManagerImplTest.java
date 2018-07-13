@@ -209,7 +209,9 @@ public class DeviceManagerImplTest {
         String sdkVersionName = BuildConfig.VERSION_NAME;
         int sdkVersionCode = BuildConfig.VERSION_CODE;
 
-        String expectedUserAgent = String.format("com.usebutton.merchant/%s+%d (Android null; null null; com.usebutton.app/1.1.0+11; Scale/2.0; en_us)", sdkVersionName, sdkVersionCode);
+        String expectedUserAgent = String.format(
+                "com.usebutton.merchant/%s+%d (Android null; null null; com.usebutton.app/1.1.0+11; Scale/2.0; en_us)",
+                sdkVersionName, sdkVersionCode);
         assertEquals(expectedUserAgent, userAgent);
     }
 }

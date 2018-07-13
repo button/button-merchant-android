@@ -177,35 +177,23 @@ final class ButtonApiImpl implements ButtonApi {
     }
 
     @Override
-    public Void postActivity(String applicationId, String sourceToken, String ifa,
-            boolean limitAdTrackingEnabled,
-            String timestamp, Order order)
-            throws ButtonNetworkException {
+    public Void postActivity(String applicationId, String sourceToken, String timestamp,
+            Order order) throws ButtonNetworkException {
         HttpURLConnection urlConnection = null;
 
         try {
-            // create order json object
-            JSONObject orderJson = new JSONObject();
-            orderJson.put("order_id", order.getId());
-            orderJson.put("amount", order.getAmount());
-            orderJson.put("currency_code", order.getCurrencyCode());
-
-            // create device json object
-            JSONObject deviceJson = new JSONObject();
-            deviceJson.put("ifa", ifa);
-            deviceJson.put("ifa_limited", limitAdTrackingEnabled);
-
             // create request body
             JSONObject requestBody = new JSONObject();
-            requestBody.put("application_id", applicationId);
-            requestBody.put("device", deviceJson);
+            requestBody.put("app_id", applicationId);
             requestBody.put("user_local_time", timestamp);
-            requestBody.put("type", "order-checkout");
             requestBody.put("btn_ref", sourceToken);
-            requestBody.put("order", orderJson);
+            requestBody.put("order_id", order.getId());
+            requestBody.put("total", order.getAmount());
+            requestBody.put("currency", order.getCurrencyCode());
+            requestBody.put("source", "merchant-library");
 
             // setup url connection
-            final URL url = new URL(baseUrl + "/v2/session/useractivity");
+            final URL url = new URL(baseUrl + "/v1/activity/order");
             urlConnection = (HttpURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
