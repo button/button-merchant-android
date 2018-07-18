@@ -123,7 +123,8 @@ public class ButtonApiImplTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void getPendingLink_returnErrorResponseStatusCodeOver400_catchException() throws Exception {
+    public void getPendingLink_returnErrorResponseStatusCodeOver400_catchException()
+            throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -131,7 +132,8 @@ public class ButtonApiImplTest {
             }
         });
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true, Collections.<String, String>emptyMap());
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+                Collections.<String, String>emptyMap());
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -154,7 +156,16 @@ public class ButtonApiImplTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnErrorResponseStatusCodeOver400_catchException() throws Exception {
+    public void getPendingLink_invalidUrl_catchException() throws Exception {
+        buttonApi.baseUrl = "invalid_url";
+
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+                Collections.<String, String>emptyMap());
+    }
+
+    @Test(expected = ButtonNetworkException.class)
+    public void postUserActivity_returnErrorResponseStatusCodeOver400_catchException()
+            throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -163,16 +174,15 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid",
-                "valid_ifa", true, "valid_ts", order);
+        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnErrorMessage() throws Exception {
+    public void postUserActivity_returnErrorMessage_catchException() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v2/session/useractivity") && request.getMethod()
+                if (request.getPath().equals("/v1/activity/order") && request.getMethod()
                         .equals("POST")) {
                     return new MockResponse()
                             .setResponseCode(200)
@@ -184,8 +194,15 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid",
-                "valid_ifa", true, "valid_ts", order);
+        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+    }
+
+    @Test(expected = ButtonNetworkException.class)
+    public void postUserActivity_invalidUrl_catchException() throws Exception {
+        buttonApi.baseUrl = "invalid_url";
+
+        Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
+        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
     }
 
     @Test
@@ -194,16 +211,12 @@ public class ButtonApiImplTest {
                 .setBody("{\"meta\":{\"status\":\"ok\"}}\n"));
 
         Order order = new Order.Builder("123").setAmount(999).setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid",
-                "valid_ifa", true, "valid_ts", order);
+        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
 
         RecordedRequest recordedRequest = server.takeRequest();
         Headers headers = recordedRequest.getHeaders();
         String body = recordedRequest.getBody().readUtf8();
-        JSONObject bodyJson = new JSONObject(body);
-        JSONObject orderJson = bodyJson.getJSONObject("order");
-        JSONObject deviceJson = bodyJson.getJSONObject("device");
-
+        JSONObject requestBodyJson = new JSONObject(body);
         // method
         assertEquals("POST", recordedRequest.getMethod());
 
@@ -213,19 +226,13 @@ public class ButtonApiImplTest {
         assertEquals("application/json", headers.get("Content-Type"));
 
         // request body
-        assertEquals("valid_application_id", bodyJson.getString("application_id"));
-        assertEquals("valid_aid", bodyJson.getString("btn_ref"));
-        assertEquals("order-checkout", bodyJson.getString("type"));
-        assertEquals("valid_ts", bodyJson.getString("user_local_time"));
-
-        // order body
-        assertEquals("123", orderJson.getString("order_id"));
-        assertEquals(999, orderJson.getLong("amount"));
-        assertEquals("AUG", orderJson.getString("currency_code"));
-
-        // device body
-        assertEquals("valid_ifa", deviceJson.getString("ifa"));
-        assertEquals(true, deviceJson.getBoolean("ifa_limited"));
+        assertEquals("valid_application_id", requestBodyJson.getString("app_id"));
+        assertEquals("valid_ts", requestBodyJson.getString("user_local_time"));
+        assertEquals("valid_aid", requestBodyJson.getString("btn_ref"));
+        assertEquals("123", requestBodyJson.getString("order_id"));
+        assertEquals(999, requestBodyJson.getLong("total"));
+        assertEquals("AUG", requestBodyJson.getString("currency"));
+        assertEquals("merchant-library", requestBodyJson.getString("source"));
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -233,7 +240,7 @@ public class ButtonApiImplTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v2/session/useractivity") && request.getMethod()
+                if (request.getPath().equals("/v1/activity/order") && request.getMethod()
                         .equals("POST")) {
                     return new MockResponse()
                             .setResponseCode(200)
@@ -244,7 +251,6 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid",
-                "valid_ifa", true, "valid_ts", order);
+        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
     }
 }

@@ -70,5 +70,4 @@ public class TaskTest {
         verify(listener).onTaskError(any(RuntimeException.class));
         verifyNoMoreInteractions(listener);
     }
-
 }

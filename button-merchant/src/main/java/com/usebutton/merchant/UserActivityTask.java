@@ -52,7 +52,7 @@ class UserActivityTask extends Task<Void> {
     @Nullable
     @Override
     Void execute() throws Exception {
-        return buttonApi.postActivity(applicationId, sourceToken, deviceManager.getAdvertisingId(),
-                deviceManager.isLimitAdTrackingEnabled(), deviceManager.getTimeStamp(), order);
+        return buttonApi.postActivity(applicationId, sourceToken, deviceManager.getTimeStamp(),
+                order);
     }
 }
