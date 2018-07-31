@@ -63,7 +63,7 @@ configurations {
     classpaths
 }
 
-task javadocJar(type: Jar, dependsOn: "generateProductionJavadoc") {
+task javadocJar(type: Jar, dependsOn: "generateReleaseJavadoc") {
     classifier = 'javadoc'
     from new File(project(':button-merchant').buildDir, "/docs/javadoc/")
 }
@@ -138,6 +138,10 @@ bintray {
             name = libraryVersionName
         }
     }
+}
+
+artifacts {
+    archives javadocJar
 }
 
 coveralls {
