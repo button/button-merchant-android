@@ -27,6 +27,7 @@ package com.usebutton.merchant;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 import com.usebutton.merchant.exception.ButtonNetworkException;
@@ -36,6 +37,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -54,10 +57,12 @@ import static org.mockito.Mockito.when;
 public class ButtonInternalImplTest {
 
     private ButtonInternalImpl buttonInternal;
+    private Executor executor;
 
     @Before
     public void setUp() {
-        buttonInternal = new ButtonInternalImpl();
+        executor = new TestMainThreadExecutor();
+        buttonInternal = new ButtonInternalImpl(executor);
     }
 
     @Test
@@ -421,5 +426,13 @@ public class ButtonInternalImplTest {
 
         verify(postInstallIntentListener).onResult((Intent) isNull(), (Throwable) isNull());
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
+    }
+
+    private class TestMainThreadExecutor implements Executor {
+
+        @Override
+        public void execute(@NonNull Runnable command) {
+            command.run();
+        }
     }
 }
