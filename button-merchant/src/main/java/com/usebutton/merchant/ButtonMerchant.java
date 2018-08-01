@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,8 +44,9 @@ public final class ButtonMerchant {
 
     }
 
+    private static Executor executor = new MainThreadExecutor();
     @VisibleForTesting
-    static ButtonInternal buttonInternal = new ButtonInternalImpl();
+    static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -87,13 +89,13 @@ public final class ButtonMerchant {
      *
      * For attribution to work correctly, you must:
      * <ul>
-     *     <li>Always access this token directly—*never cache it*.</li>
-     *     <li>Never manage the lifecycle of this token—Button manages the token validity window
-     *         server-side.</li>
-     *     <li>Always include this value when reporting orders to your order API.</li>
+     * <li>Always access this token directly—*never cache it*.</li>
+     * <li>Never manage the lifecycle of this token—Button manages the token validity window
+     * server-side.</li>
+     * <li>Always include this value when reporting orders to your order API.</li>
      * </ul>
      *
-     *  @return the last tracked Button attribution token.
+     * @return the last tracked Button attribution token.
      **/
     @Nullable
     public static String getAttributionToken(@NonNull Context context) {
