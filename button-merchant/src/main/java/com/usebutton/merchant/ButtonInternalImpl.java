@@ -34,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
 
 /**
  * ButtonInternalImpl class should implement everything needed for {@link ButtonMerchant}
@@ -52,8 +53,16 @@ final class ButtonInternalImpl implements ButtonInternal {
     @VisibleForTesting
     ArrayList<ButtonMerchant.AttributionTokenListener> attributionTokenListeners;
 
-    ButtonInternalImpl() {
+    /**
+     * An {@link Executor} that ensures callbacks are run on the main thread.
+     *
+     * @see MainThreadExecutor
+     */
+    private final Executor executor;
+
+    ButtonInternalImpl(Executor executor) {
         this.attributionTokenListeners = new ArrayList<>();
+        this.executor = executor;
     }
 
     public void configure(ButtonRepository buttonRepository, String applicationId) {
@@ -82,7 +91,12 @@ final class ButtonInternalImpl implements ButtonInternal {
             @NonNull Order order, @Nullable final UserActivityListener listener) {
         if (buttonRepository.getApplicationId() == null) {
             if (listener != null) {
-                listener.onResult(new ApplicationIdNotFoundException());
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onResult(new ApplicationIdNotFoundException());
+                    }
+                });
             }
 
             return;
@@ -93,14 +107,24 @@ final class ButtonInternalImpl implements ButtonInternal {
             @Override
             public void onTaskComplete(@Nullable Object object) {
                 if (listener != null) {
-                    listener.onResult(null);
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResult(null);
+                        }
+                    });
                 }
             }
 
             @Override
-            public void onTaskError(Throwable throwable) {
+            public void onTaskError(final Throwable throwable) {
                 if (listener != null) {
-                    listener.onResult(throwable);
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResult(throwable);
+                        }
+                    });
                 }
             }
         };
@@ -137,12 +161,22 @@ final class ButtonInternalImpl implements ButtonInternal {
             DeviceManager deviceManager) {
 
         if (buttonRepository.getApplicationId() == null) {
-            listener.onResult(null, new ApplicationIdNotFoundException());
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onResult(null, new ApplicationIdNotFoundException());
+                }
+            });
             return;
         }
 
         if (deviceManager.isOldInstallation() || buttonRepository.checkedDeferredDeepLink()) {
-            listener.onResult(null, null);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onResult(null, null);
+                }
+            });
             return;
         }
 
@@ -153,7 +187,7 @@ final class ButtonInternalImpl implements ButtonInternal {
                 if (postInstallLink != null
                         && postInstallLink.isMatch()
                         && postInstallLink.getAction() != null) {
-                    Intent deepLinkIntent =
+                    final Intent deepLinkIntent =
                             new Intent(Intent.ACTION_VIEW, Uri.parse(postInstallLink.getAction()));
                     deepLinkIntent.setPackage(packageName);
 
@@ -162,16 +196,31 @@ final class ButtonInternalImpl implements ButtonInternal {
                         setAttributionToken(buttonRepository, attribution.getBtnRef());
                     }
 
-                    listener.onResult(deepLinkIntent, null);
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onResult(deepLinkIntent, null);
+                        }
+                    });
                     return;
                 }
 
-                listener.onResult(null, null);
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onResult(null, null);
+                    }
+                });
             }
 
             @Override
-            public void onTaskError(Throwable throwable) {
-                listener.onResult(null, throwable);
+            public void onTaskError(final Throwable throwable) {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onResult(null, throwable);
+                    }
+                });
             }
         }, deviceManager);
     }
@@ -183,15 +232,22 @@ final class ButtonInternalImpl implements ButtonInternal {
      * @param buttonRepository {@link ButtonRepository}
      * @param attributionToken The attributionToken.
      */
-    private void setAttributionToken(ButtonRepository buttonRepository, String attributionToken) {
+    private void setAttributionToken(ButtonRepository buttonRepository,
+            final String attributionToken) {
         if (attributionToken != null && !attributionToken.isEmpty()) {
 
             // check if the sourceToken has changed
             if (!attributionToken.equals(getAttributionToken(buttonRepository))) {
                 // notify all listeners that the attributionToken has changed
-                for (ButtonMerchant.AttributionTokenListener listener : attributionTokenListeners) {
+                for (final ButtonMerchant.AttributionTokenListener listener
+                        : attributionTokenListeners) {
                     if (listener != null) {
-                        listener.onAttributionTokenChanged(attributionToken);
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onAttributionTokenChanged(attributionToken);
+                            }
+                        });
                     }
                 }
             }
