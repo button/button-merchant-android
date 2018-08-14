@@ -91,18 +91,13 @@ public class MainActivity extends AppCompatActivity {
                 ButtonMerchant.trackOrder(context, order, new UserActivityListener() {
                     @Override
                     public void onResult(@Nullable final Throwable t) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (t == null) {
-                                    Toast.makeText(context, "Order track success",
-                                            Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Order track error",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
+                        if (t == null) {
+                            Toast.makeText(context, "Order track success",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Order track error",
+                                    Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }
@@ -138,13 +133,8 @@ public class MainActivity extends AppCompatActivity {
                 new ButtonMerchant.AttributionTokenListener() {
                     @Override
                     public void onAttributionTokenChanged(@NonNull final String token) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                TextView textView = findViewById(R.id.attribution_token);
-                                textView.setText(token);
-                            }
-                        });
+                        TextView textView = findViewById(R.id.attribution_token);
+                        textView.setText(token);
                     }
                 });
     }

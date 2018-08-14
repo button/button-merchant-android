@@ -87,16 +87,12 @@ class KotlinActivity : AppCompatActivity() {
 
     private fun initAttributionTokenListener() {
         ButtonMerchant.addAttributionTokenListener(this) { token ->
-            runOnUiThread {
-                findViewById<TextView>(id.attribution_token).text = token
-            }
+            findViewById<TextView>(id.attribution_token).text = token
         }
     }
 
     private fun toastify(message: String) {
-        runOnUiThread {
-            Toast.makeText(this@KotlinActivity, message, Toast.LENGTH_SHORT).show()
-        }
+        Toast.makeText(this@KotlinActivity, message, Toast.LENGTH_SHORT).show()
     }
 
     companion object {
