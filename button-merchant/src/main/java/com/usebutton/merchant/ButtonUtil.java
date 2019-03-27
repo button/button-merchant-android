@@ -25,6 +25,9 @@
 
 package com.usebutton.merchant;
 
+/**
+ * Utility Class
+ */
 class ButtonUtil {
     /**
      * Valid App Id Regex
