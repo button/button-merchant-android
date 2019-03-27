@@ -45,6 +45,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class ButtonApiImplTest {
 
+    private static final String APPLICATION_ID = "app-124567890abcdef";
     private final String userAgent = "valid_user_agent";
 
     private MockWebServer server = new MockWebServer();
@@ -81,7 +82,7 @@ public class ButtonApiImplTest {
         });
 
         PostInstallLink postInstallLink =
-                buttonApi.getPendingLink("valid_application_id", "valid_ifa",
+                buttonApi.getPendingLink(APPLICATION_ID, "valid_ifa",
                         true, Collections.<String, String>emptyMap());
 
         assertNotNull(postInstallLink);
@@ -98,7 +99,7 @@ public class ButtonApiImplTest {
     public void getPendingLink_validateRequest() throws Exception {
         server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa",
+        buttonApi.getPendingLink(APPLICATION_ID, "valid_ifa",
                 true, Collections.singletonMap("key", "value"));
 
         RecordedRequest recordedRequest = server.takeRequest();
@@ -116,7 +117,7 @@ public class ButtonApiImplTest {
         assertEquals("application/json", headers.get("Content-Type"));
 
         // request body
-        assertEquals("valid_application_id", bodyJson.getString("application_id"));
+        assertEquals(APPLICATION_ID, bodyJson.getString("application_id"));
         assertEquals("valid_ifa", bodyJson.getString("ifa"));
         assertEquals(true, bodyJson.getBoolean("ifa_limited"));
         assertEquals("value", signalsJson.getString("key"));
@@ -132,7 +133,7 @@ public class ButtonApiImplTest {
             }
         });
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+        buttonApi.getPendingLink(APPLICATION_ID, "valid_ifa", true,
                 Collections.<String, String>emptyMap());
     }
 
@@ -151,7 +152,7 @@ public class ButtonApiImplTest {
             }
         });
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+        buttonApi.getPendingLink(APPLICATION_ID, "valid_ifa", true,
                 Collections.<String, String>emptyMap());
     }
 
@@ -159,7 +160,7 @@ public class ButtonApiImplTest {
     public void getPendingLink_invalidUrl_catchException() throws Exception {
         buttonApi.baseUrl = "invalid_url";
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+        buttonApi.getPendingLink(APPLICATION_ID, "valid_ifa", true,
                 Collections.<String, String>emptyMap());
     }
 
@@ -174,7 +175,7 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        buttonApi.postActivity(APPLICATION_ID, "valid_aid", "valid_ts", order);
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -194,7 +195,7 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        buttonApi.postActivity(APPLICATION_ID, "valid_aid", "valid_ts", order);
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -202,7 +203,7 @@ public class ButtonApiImplTest {
         buttonApi.baseUrl = "invalid_url";
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        buttonApi.postActivity(APPLICATION_ID, "valid_aid", "valid_ts", order);
     }
 
     @Test
@@ -211,7 +212,7 @@ public class ButtonApiImplTest {
                 .setBody("{\"meta\":{\"status\":\"ok\"}}\n"));
 
         Order order = new Order.Builder("123").setAmount(999).setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        buttonApi.postActivity(APPLICATION_ID, "valid_aid", "valid_ts", order);
 
         RecordedRequest recordedRequest = server.takeRequest();
         Headers headers = recordedRequest.getHeaders();
@@ -226,7 +227,7 @@ public class ButtonApiImplTest {
         assertEquals("application/json", headers.get("Content-Type"));
 
         // request body
-        assertEquals("valid_application_id", requestBodyJson.getString("app_id"));
+        assertEquals(APPLICATION_ID, requestBodyJson.getString("app_id"));
         assertEquals("valid_ts", requestBodyJson.getString("user_local_time"));
         assertEquals("valid_aid", requestBodyJson.getString("btn_ref"));
         assertEquals("123", requestBodyJson.getString("order_id"));
@@ -251,6 +252,17 @@ public class ButtonApiImplTest {
         });
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        buttonApi.postActivity(APPLICATION_ID, "valid_aid", "valid_ts", order);
+    }
+
+    @Test()
+    public void getBaseUrl_validateApplicationIdInUrl() {
+        // Reinitialize the buttonApi variable to reset the baseUrl back to the original.
+        buttonApi = new ButtonApiImpl(userAgent);
+
+        final String expectedUrl = "https://" +  APPLICATION_ID + ".mobileapi.usebutton.com";
+        final String actualUrl = buttonApi.getBaseUrl(APPLICATION_ID);
+
+        assertEquals(expectedUrl, actualUrl);
     }
 }
