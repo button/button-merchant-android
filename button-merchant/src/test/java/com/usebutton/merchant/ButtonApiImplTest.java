@@ -40,12 +40,12 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static com.usebutton.merchant.TestHelper.APPLICATION_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class ButtonApiImplTest {
 
-    private static final String APPLICATION_ID = "app-124567890abcdef";
     private final String userAgent = "valid_user_agent";
 
     private MockWebServer server = new MockWebServer();
