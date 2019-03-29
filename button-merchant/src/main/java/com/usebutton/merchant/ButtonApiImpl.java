@@ -62,7 +62,7 @@ final class ButtonApiImpl implements ButtonApi {
     private final String userAgent;
 
     @VisibleForTesting
-    String baseUrl = "https://api.usebutton.com";
+    String baseUrl = "https://%s.mobileapi.usebutton.com";
 
     private static ButtonApi buttonApi;
 
@@ -96,7 +96,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("signals", new JSONObject(signalsMap));
 
             // setup url connection
-            final URL url = new URL(baseUrl + "/v1/web/deferred-deeplink");
+            final URL url = new URL(getBaseUrl(applicationId) + "/v1/web/deferred-deeplink");
             urlConnection = (HttpURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
@@ -193,7 +193,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("source", "merchant-library");
 
             // setup url connection
-            final URL url = new URL(baseUrl + "/v1/activity/order");
+            final URL url = new URL(getBaseUrl(applicationId) + "/v1/activity/order");
             urlConnection = (HttpURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
@@ -249,6 +249,10 @@ final class ButtonApiImpl implements ButtonApi {
         }
 
         return null;
+    }
+
+    String getBaseUrl(String applicationId) {
+        return String.format(baseUrl, applicationId);
     }
 
     private String getUserAgent() {

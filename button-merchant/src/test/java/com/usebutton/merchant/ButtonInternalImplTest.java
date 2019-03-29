@@ -40,6 +40,7 @@ import org.mockito.stubbing.Answer;
 
 import java.util.concurrent.Executor;
 
+import static com.usebutton.merchant.TestHelper.APPLICATION_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -69,17 +70,25 @@ public class ButtonInternalImplTest {
     public void configure_saveApplicationIdInMemory() {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
 
-        buttonInternal.configure(buttonRepository, "valid_application_id");
-        verify(buttonRepository).setApplicationId("valid_application_id");
+        buttonInternal.configure(buttonRepository, APPLICATION_ID);
+        verify(buttonRepository).setApplicationId(APPLICATION_ID);
+    }
+
+    @Test
+    public void configure_shouldNotSaveApplicationIdInMemory_InvalidAppId() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+
+        buttonInternal.configure(buttonRepository, "invalid_application_id");
+        verify(buttonRepository, never()).setApplicationId(APPLICATION_ID);
     }
 
     @Test
     public void getApplicationId_retrieveFromRepository() {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
 
         String applicationId = buttonInternal.getApplicationId(buttonRepository);
-        assertEquals("valid_application_id", applicationId);
+        assertEquals(APPLICATION_ID, applicationId);
     }
 
     @Test
@@ -283,7 +292,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
 
         buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
                 "com.usebutton.merchant",
@@ -312,7 +321,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
 
         buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
                 "com.usebutton.merchant",
@@ -357,7 +366,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
 
         buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
                 "com.usebutton.merchant",
@@ -380,7 +389,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
         when(deviceManager.isOldInstallation()).thenReturn(false);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(false);
 
@@ -398,7 +407,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
         when(deviceManager.isOldInstallation()).thenReturn(true);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(false);
 
@@ -416,7 +425,7 @@ public class ButtonInternalImplTest {
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
 
-        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getApplicationId()).thenReturn(APPLICATION_ID);
         when(deviceManager.isOldInstallation()).thenReturn(false);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(true);
 
