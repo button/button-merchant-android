@@ -30,7 +30,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
-import android.util.Log;
 
 import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 
@@ -42,9 +41,8 @@ import java.util.concurrent.Executor;
  * The methods in the ButtonInternalImpl class should never be public because it will only be used
  * by {@link ButtonMerchant}.
  */
-final class ButtonInternalImpl implements ButtonInternal {
 
-    private static final String TAG = ButtonInternal.class.getSimpleName();
+final class ButtonInternalImpl implements ButtonInternal {
 
     /**
      * A list of {@link ButtonMerchant.AttributionTokenListener}. All listeners will be notified of
@@ -68,15 +66,6 @@ final class ButtonInternalImpl implements ButtonInternal {
     }
 
     public void configure(ButtonRepository buttonRepository, String applicationId) {
-        final boolean isApplicationIdValid = ButtonUtil.isApplicationIdValid(applicationId);
-        if (!isApplicationIdValid) {
-            final String errorMessage = String.format(
-                    "Button App ID '%s' is not valid. You can find your App ID in the dashboard by"
-                            + " logging in at https://app.usebutton.com/", applicationId);
-            Log.e(TAG, errorMessage);
-            return;
-        }
-
         buttonRepository.setApplicationId(applicationId);
     }
 
