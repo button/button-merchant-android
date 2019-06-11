@@ -201,10 +201,16 @@ public class Order {
         }
     }
 
+    /**
+     * Represents a line item in the order {@link Order#lineItems}
+     */
     public class LineItem {
 
     }
 
+    /**
+     * Represents a customer in the order {@link Order#customer}
+     */
     public class Customer {
 
     }
