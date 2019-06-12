@@ -32,6 +32,8 @@ import android.util.Log;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,10 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -58,8 +62,14 @@ final class ButtonApiImpl implements ButtonApi {
     private static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
     private static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
     private static final String CONTENT_TYPE_JSON = "application/json";
+    private static final String[] CERTIFICATE_PATHS = {
+            "/res/raw/cert_acm_ca1.pem",
+            "/res/raw/cert_acm_ca2.pem",
+            "/res/raw/cert_acm_ca3.pem",
+    };
 
     private final String userAgent;
+    private final SSLManager sslManager;
 
     @VisibleForTesting
     String baseUrl = "https://api.usebutton.com";
@@ -74,9 +84,15 @@ final class ButtonApiImpl implements ButtonApi {
         return buttonApi;
     }
 
-    @VisibleForTesting
-    ButtonApiImpl(String userAgent) {
+    private ButtonApiImpl(String userAgent) {
         this.userAgent = userAgent;
+        this.sslManager = new SSLManager(CERTIFICATE_PATHS, null);
+    }
+
+    @VisibleForTesting
+    ButtonApiImpl(String userAgent, SSLManager sslManager) {
+        this.userAgent = userAgent;
+        this.sslManager = sslManager;
     }
 
     @Nullable
@@ -85,7 +101,7 @@ final class ButtonApiImpl implements ButtonApi {
     public PostInstallLink getPendingLink(String applicationId, String ifa,
             boolean limitAdTrackingEnabled, Map<String, String> signalsMap) throws
             ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
+        HttpsURLConnection urlConnection = null;
 
         try {
             // create request body
@@ -97,7 +113,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             // setup url connection
             final URL url = new URL(baseUrl + "/v1/web/deferred-deeplink");
-            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpsURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
             // write request body
@@ -157,6 +173,9 @@ final class ButtonApiImpl implements ButtonApi {
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
             throw new ButtonNetworkException(e);
+        } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+            Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
+            throw new ButtonNetworkException(e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -166,7 +185,11 @@ final class ButtonApiImpl implements ButtonApi {
         return null;
     }
 
-    private void initializeUrlConnection(HttpURLConnection urlConnection) throws ProtocolException {
+    private void initializeUrlConnection(HttpsURLConnection urlConnection) throws
+            CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException,
+            KeyManagementException {
+        SSLContext sslContext = sslManager.getSecureContext();
+        urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
         urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
         urlConnection.setReadTimeout(READ_TIMEOUT);
         urlConnection.setRequestProperty("User-Agent", getUserAgent());
@@ -179,7 +202,7 @@ final class ButtonApiImpl implements ButtonApi {
     @Override
     public Void postActivity(String applicationId, String sourceToken, String timestamp,
             Order order) throws ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
+        HttpsURLConnection urlConnection = null;
 
         try {
             // create request body
@@ -194,7 +217,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             // setup url connection
             final URL url = new URL(baseUrl + "/v1/activity/order");
-            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpsURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
             // write request body
@@ -241,6 +264,9 @@ final class ButtonApiImpl implements ButtonApi {
             throw new ButtonNetworkException(e);
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
+            throw new ButtonNetworkException(e);
+        } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+            Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
             throw new ButtonNetworkException(e);
         } finally {
             if (urlConnection != null) {

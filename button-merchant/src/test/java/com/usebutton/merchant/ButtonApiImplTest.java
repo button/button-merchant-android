@@ -48,10 +48,12 @@ public class ButtonApiImplTest {
     private final String userAgent = "valid_user_agent";
 
     private MockWebServer server = new MockWebServer();
-    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent);
+    private SSLManager sslManager = new MockSSLManager();
+    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent, sslManager);
 
     @Before
     public void setUp() throws Exception {
+        server.useHttps(sslManager.getSecureContext().getSocketFactory(), false);
         server.start();
 
         HttpUrl baseUrl = server.url("");
