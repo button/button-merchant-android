@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -106,5 +107,90 @@ public class OrderTest {
                 .build();
 
         assertEquals(order.getCustomer(), customer);
+    }
+
+    @Test
+    public void orderLineItem_verifyDefaultValues() {
+        Order.LineItem lineItem = new Order.LineItem.Builder("123").build();
+
+        assertEquals(lineItem.getId(), "123");
+        assertEquals(lineItem.getTotal(), 0);
+        assertEquals(lineItem.getQuantity(), 0);
+        assertNull(lineItem.getDescription());
+        assertNull(lineItem.getSku());
+        assertNull(lineItem.getUpc());
+        assertNull(lineItem.getCategory());
+        assertNull(lineItem.getAttributes());
+    }
+
+    @Test
+    public void orderLineItem_setTotal_verify() {
+        long total = 1000;
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setTotal(total)
+                .build();
+
+        assertEquals(lineItem.getTotal(), total);
+    }
+
+    @Test
+    public void orderLineItem_setQuantity_verify() {
+        int quantity = 5;
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setQuantity(quantity)
+                .build();
+
+        assertEquals(lineItem.getQuantity(), quantity);
+    }
+
+    @Test
+    public void orderLineItem_setDescription_verify() {
+        String description = "valid_description";
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setDescription(description)
+                .build();
+
+        assertEquals(lineItem.getDescription(), description);
+    }
+
+    @Test
+    public void orderLineItem_setSku_verify() {
+        String sku = "valid_sku";
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setSku(sku)
+                .build();
+
+        assertEquals(lineItem.getSku(), sku);
+    }
+
+    @Test
+    public void orderLineItem_setUpc_verify() {
+        String upc = "valid_upc";
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setUpc(upc)
+                .build();
+
+        assertEquals(lineItem.getUpc(), upc);
+    }
+
+    @Test
+    public void orderLineItem_setCategory_verify() {
+        List<String> category = Collections.singletonList("valid_category");
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setCategory(category)
+                .build();
+
+        assertEquals(lineItem.getCategory(), category);
+    }
+
+    @Test
+    public void orderLineItem_setAttributes_verify() {
+        Map<String, String> attributes =
+                Collections.singletonMap("valid_attribute_key", "valid_attribute_value");
+        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+                .setAttributes(attributes)
+                .build();
+
+        assertEquals(lineItem.getAttributes(), attributes);
     }
 }

@@ -29,6 +29,7 @@ import android.support.annotation.Nullable;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an order placed by the user to be tracked using ButtonMerchant.trackOrder(order).
@@ -178,8 +179,166 @@ public class Order {
     /**
      * Represents a line item in the order {@link Order#lineItems}
      */
-    public class LineItem {
+    public static class LineItem {
 
+        private String id;
+        private long total;
+        private int quantity;
+        @Nullable
+        private String description;
+        @Nullable
+        private String sku;
+        @Nullable
+        private String upc;
+        @Nullable
+        private List<String> category;
+        @Nullable
+        private Map<String, String> attributes;
+
+        private LineItem(Builder builder) {
+            this.id = builder.id;
+            this.total = builder.total;
+            this.quantity = builder.quantity;
+            this.description = builder.description;
+            this.sku = builder.sku;
+            this.upc = builder.upc;
+            this.category = builder.category;
+            this.attributes = builder.attributes;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public long getTotal() {
+            return total;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        @Nullable
+        public String getDescription() {
+            return description;
+        }
+
+        @Nullable
+        public String getSku() {
+            return sku;
+        }
+
+        @Nullable
+        public String getUpc() {
+            return upc;
+        }
+
+        @Nullable
+        public List<String> getCategory() {
+            return category;
+        }
+
+        @Nullable
+        public Map<String, String> getAttributes() {
+            return attributes;
+        }
+
+        /**
+         * Builder class for order line item {@link Order.LineItem}.
+         */
+        public static class Builder {
+
+            private String id;
+            private long total = 0;
+            private int quantity;
+            @Nullable
+            private String description;
+            @Nullable
+            private String sku;
+            @Nullable
+            private String upc;
+            @Nullable
+            private List<String> category;
+            @Nullable
+            private Map<String, String> attributes;
+
+            /**
+             * Constructor.
+             *
+             * @param id The unique identifier for this line item,
+             * within the scope of this order. (required)
+             */
+            public Builder(String id) {
+                this.id = id;
+            }
+
+            /**
+             * The total price of all items bought in a particular line item (required)
+             * (e.g. if 3 bananas were purchased for $3.00 each, total would be 900)
+             */
+            public Builder setTotal(long total) {
+                this.total = total;
+                return this;
+            }
+
+            /**
+             * The number of unique units represented by this line item
+             */
+            public Builder setQuantity(int quantity) {
+                this.quantity = quantity;
+                return this;
+            }
+
+            /**
+             * Text describing the line item
+             */
+            public Builder setDescription(String description) {
+                this.description = description;
+                return this;
+            }
+
+            /**
+             * The Stock Keeping Unit of the line item
+             */
+            public Builder setSku(String sku) {
+                this.sku = sku;
+                return this;
+            }
+
+            /**
+             * The Universal Product Code of the line item
+             */
+            public Builder setUpc(String upc) {
+                this.upc = upc;
+                return this;
+            }
+
+            /**
+             * The category of the line item.
+             * An ordered list of strings, starting with the topmost (or most general) category.
+             */
+            public Builder setCategory(List<String> category) {
+                this.category = category;
+                return this;
+            }
+
+            /**
+             * A key/value store for strings to specify additional information about a line item
+             */
+            public Builder setAttributes(Map<String, String> attributes) {
+                this.attributes = attributes;
+                return this;
+            }
+
+            /**
+             * Builds and returns an Order line item Object
+             *
+             * @return {@link Order.LineItem}
+             */
+            public Order.LineItem build() {
+                return new LineItem(this);
+            }
+        }
     }
 
     /**
