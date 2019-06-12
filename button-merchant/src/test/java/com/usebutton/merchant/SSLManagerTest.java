@@ -41,6 +41,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
@@ -57,7 +58,7 @@ public class SSLManagerTest {
 
     @Before
     public void setUp() {
-        sslManager = new SSLManager(CERTIFICATE_PATHS, "localhost".toCharArray());
+        sslManager = new SSLManagerImpl(CERTIFICATE_PATHS, "localhost".toCharArray());
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -68,16 +69,40 @@ public class SSLManagerTest {
         });
     }
 
+    @After
+    public void tearDown() throws Exception {
+        server.close();
+    }
+
+    @Test
+    public void getInstance_shouldReturnNewInstanceOnChangedCertificates() throws Exception {
+        String[] chain1 = { "/raw/ca.pem" };
+        String[] chain2 = { "/raw/cert_local.pem" };
+
+        SSLManager sslManager1 = SSLManagerImpl.getInstance(chain1);
+        SSLManager sslManager2 = SSLManagerImpl.getInstance(chain2);
+
+        assertNotSame(sslManager1, sslManager2);
+    }
+
+    @Test
+    public void getInstance_shouldReturnNewInstanceOnChangedPassword() throws Exception {
+        SSLManager sslManager1 = SSLManagerImpl.getInstance(CERTIFICATE_PATHS, "abc".toCharArray());
+        SSLManager sslManager2 = SSLManagerImpl.getInstance(CERTIFICATE_PATHS, "123".toCharArray());
+
+        assertNotSame(sslManager1, sslManager2);
+    }
+
     @Test(expected = IllegalStateException.class)
     public void initialization_shouldAssertMinimumCertificates() throws Exception {
-        new SSLManager(new String[0], null);
+        new SSLManagerImpl(new String[0], null);
     }
 
     @Test(expected = CertificateException.class)
     public void initialization_shouldCheckCertificatePaths() throws Exception {
-        String[] paths = {"/raw/wrong_file.pem"};
+        String[] paths = { "/raw/wrong_file.pem" };
 
-        SSLManager sslManager = new SSLManager(paths, null);
+        SSLManager sslManager = new SSLManagerImpl(paths, null);
         sslManager.getKeyStore();
     }
 
@@ -113,5 +138,4 @@ public class SSLManagerTest {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         assertEquals(reader.readLine(), "Sample response");
     }
-
 }

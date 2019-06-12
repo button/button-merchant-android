@@ -62,11 +62,6 @@ final class ButtonApiImpl implements ButtonApi {
     private static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
     private static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
     private static final String CONTENT_TYPE_JSON = "application/json";
-    private static final String[] CERTIFICATE_PATHS = {
-            "/res/raw/cert_acm_ca1.pem",
-            "/res/raw/cert_acm_ca2.pem",
-            "/res/raw/cert_acm_ca3.pem",
-    };
 
     private final String userAgent;
     private final SSLManager sslManager;
@@ -76,17 +71,12 @@ final class ButtonApiImpl implements ButtonApi {
 
     private static ButtonApi buttonApi;
 
-    static ButtonApi getInstance(String userAgent) {
+    static ButtonApi getInstance(String userAgent, SSLManager sslManager) {
         if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl(userAgent);
+            buttonApi = new ButtonApiImpl(userAgent, sslManager);
         }
 
         return buttonApi;
-    }
-
-    private ButtonApiImpl(String userAgent) {
-        this.userAgent = userAgent;
-        this.sslManager = new SSLManager(CERTIFICATE_PATHS, null);
     }
 
     @VisibleForTesting
@@ -173,7 +163,8 @@ final class ButtonApiImpl implements ButtonApi {
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
             throw new ButtonNetworkException(e);
-        } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (CertificateException | KeyStoreException
+                | NoSuchAlgorithmException | KeyManagementException e) {
             Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
             throw new ButtonNetworkException(e);
         } finally {
@@ -265,7 +256,8 @@ final class ButtonApiImpl implements ButtonApi {
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
             throw new ButtonNetworkException(e);
-        } catch (CertificateException | KeyStoreException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (CertificateException | KeyStoreException
+                | NoSuchAlgorithmException | KeyManagementException e) {
             Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
             throw new ButtonNetworkException(e);
         } finally {

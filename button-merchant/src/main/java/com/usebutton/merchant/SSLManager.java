@@ -25,123 +25,26 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Network helper class that provides {@link KeyStore}s and {@link SSLContext} for use in secure
- * socket communications.
+ * Internal interface to enable secure socket communication.
  */
-class SSLManager {
-
-    private KeyStore keyStore;
-    private SSLContext sslContext;
-    private Exception pendingException;
-
-    private final char[] password;
-
-    SSLManager(@NonNull String[] certificates, @Nullable char[] password) {
-        if (certificates.length < 1) {
-            throw new IllegalStateException(
-                    "Must provide at least one certificate to pin network connections to!");
-        }
-        this.password = password;
-        init(certificates);
-    }
+interface SSLManager {
 
     KeyStore getKeyStore()
-            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException,
-            KeyManagementException {
-        checkExceptions();
-        return keyStore;
-    }
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
+            IOException, KeyManagementException;
 
     SSLContext getSecureContext()
-            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException,
-            KeyManagementException {
-        checkExceptions();
-        return sslContext;
-    }
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
+            IOException, KeyManagementException;
 
-    KeyStore getKeyStore(String[] certPaths)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, password);
-
-        CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        for (String certPath : certPaths) {
-            Pattern p = Pattern.compile("(?<=raw/).*?(?=.pem|.jks|.crt)");
-            Matcher m = p.matcher(certPath);
-            if (!m.find()) {
-                continue;
-            }
-
-            String certName = m.group();
-            InputStream ca = this.getClass().getResourceAsStream(certPath);
-            X509Certificate certificate = (X509Certificate) cf.generateCertificate(ca);
-            keyStore.setCertificateEntry(certName, certificate);
-        }
-
-        return keyStore;
-    }
-
-    private void init(String[] certPaths) {
-        try {
-            keyStore = getKeyStore(certPaths);
-
-            String kmfAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfAlgorithm);
-            kmf.init(keyStore, password);
-
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(kmfAlgorithm);
-            trustManagerFactory.init(keyStore);
-
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(kmf.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
-
-            sslContext = context;
-            pendingException = null;
-        } catch (GeneralSecurityException | IOException e) {
-            pendingException = e;
-        }
-    }
-
-    private void checkExceptions()
-            throws CertificateException, KeyStoreException, NoSuchAlgorithmException,
-            KeyManagementException, IOException {
-        if (pendingException != null) {
-            if (pendingException instanceof CertificateException) {
-                throw (CertificateException) pendingException;
-            }
-            if (pendingException instanceof KeyStoreException) {
-                throw (KeyStoreException) pendingException;
-            }
-            if (pendingException instanceof NoSuchAlgorithmException) {
-                throw (NoSuchAlgorithmException) pendingException;
-            }
-            if (pendingException instanceof KeyManagementException) {
-                throw (KeyManagementException) pendingException;
-            }
-            if (pendingException instanceof IOException) {
-                throw (IOException) pendingException;
-            }
-        }
-    }
 }

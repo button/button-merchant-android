@@ -49,6 +49,11 @@ public final class ButtonMerchant {
     static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final String[] CERTIFICATE_PATHS = {
+            "/res/raw/cert_acm_ca1.pem",
+            "/res/raw/cert_acm_ca2.pem",
+            "/res/raw/cert_acm_ca3.pem",
+    };
 
     /**
      * Configures {@link ButtonMerchant} with your application Id.
@@ -163,7 +168,9 @@ public final class ButtonMerchant {
 
         DeviceManager deviceManager = getDeviceManager(context);
 
-        ButtonApi buttonApi = ButtonApiImpl.getInstance(deviceManager.getUserAgent());
+        SSLManager sslManager = SSLManagerImpl.getInstance(CERTIFICATE_PATHS);
+
+        ButtonApi buttonApi = ButtonApiImpl.getInstance(deviceManager.getUserAgent(), sslManager);
 
         return ButtonRepositoryImpl.getInstance(buttonApi, persistenceManager, executorService);
     }

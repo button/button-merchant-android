@@ -35,7 +35,7 @@ import java.security.cert.CertificateException;
 /**
  * Helper test class to provide a pre-generated KeyStore for localhost
  */
-class MockSSLManager extends SSLManager {
+class MockSSLManager extends SSLManagerImpl {
 
     MockSSLManager() {
         super(new String[1], "localhost".toCharArray());
