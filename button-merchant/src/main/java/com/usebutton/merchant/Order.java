@@ -39,9 +39,7 @@ public class Order {
     @Deprecated
     private long amount;
     private String currencyCode;
-    @Nullable
     private Date purchaseDate;
-    @Nullable
     private List<LineItem> lineItems;
     @Nullable
     private String sourceToken;
@@ -79,12 +77,10 @@ public class Order {
         return currencyCode;
     }
 
-    @Nullable
     public Date getPurchaseDate() {
         return purchaseDate;
     }
 
-    @Nullable
     public List<LineItem> getLineItems() {
         return lineItems;
     }
@@ -113,9 +109,7 @@ public class Order {
         @Deprecated
         private long amount = 0;
         private String currencyCode = "USD";
-        @Nullable
         private Date purchaseDate;
-        @Nullable
         private List<LineItem> lineItems;
         @Nullable
         private String sourceToken;
@@ -129,8 +123,22 @@ public class Order {
          *
          * @param id The order identifier (required).
          */
+        @Deprecated
         public Builder(String id) {
             this.id = id;
+        }
+
+        /**
+         * Constructor.
+         *
+         * @param id The order identifier (required).
+         * @param purchaseDate The time the purchase was made by the user (required)
+         * @param lineItems A list of the line item details that comprise the order (required)
+         */
+        public Builder(String id, Date purchaseDate, List<LineItem> lineItems) {
+            this.id = id;
+            this.purchaseDate = purchaseDate;
+            this.lineItems = lineItems;
         }
 
         /**
@@ -148,22 +156,6 @@ public class Order {
          */
         public Builder setCurrencyCode(String currencyCode) {
             this.currencyCode = currencyCode;
-            return this;
-        }
-
-        /**
-         * The time the purchase was made by the user (required)
-         */
-        public Builder setPurchaseDate(Date purchaseDate) {
-            this.purchaseDate = purchaseDate;
-            return this;
-        }
-
-        /**
-         * A list of the line item details that comprise the order (required)
-         */
-        public Builder setLineItems(List<LineItem> lineItems) {
-            this.lineItems = lineItems;
             return this;
         }
 
