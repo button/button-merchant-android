@@ -397,7 +397,7 @@ public class Order {
             }
 
             /**
-             * The email of the transacting customer’s lowercase email
+             * The email of the transacting customer
              */
             public Builder setEmail(String email) {
                 this.email = email;
