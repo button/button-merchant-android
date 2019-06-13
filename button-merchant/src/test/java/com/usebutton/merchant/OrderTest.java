@@ -111,10 +111,10 @@ public class OrderTest {
 
     @Test
     public void orderLineItem_verifyDefaultValues() {
-        Order.LineItem lineItem = new Order.LineItem.Builder("123").build();
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100).build();
 
         assertEquals(lineItem.getId(), "123");
-        assertEquals(lineItem.getTotal(), 0);
+        assertEquals(lineItem.getTotal(), 100);
         assertEquals(lineItem.getQuantity(), 0);
         assertNull(lineItem.getDescription());
         assertNull(lineItem.getSku());
@@ -124,19 +124,9 @@ public class OrderTest {
     }
 
     @Test
-    public void orderLineItem_setTotal_verify() {
-        long total = 1000;
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
-                .setTotal(total)
-                .build();
-
-        assertEquals(lineItem.getTotal(), total);
-    }
-
-    @Test
     public void orderLineItem_setQuantity_verify() {
         int quantity = 5;
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setQuantity(quantity)
                 .build();
 
@@ -146,7 +136,7 @@ public class OrderTest {
     @Test
     public void orderLineItem_setDescription_verify() {
         String description = "valid_description";
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setDescription(description)
                 .build();
 
@@ -156,7 +146,7 @@ public class OrderTest {
     @Test
     public void orderLineItem_setSku_verify() {
         String sku = "valid_sku";
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setSku(sku)
                 .build();
 
@@ -166,7 +156,7 @@ public class OrderTest {
     @Test
     public void orderLineItem_setUpc_verify() {
         String upc = "valid_upc";
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setUpc(upc)
                 .build();
 
@@ -176,7 +166,7 @@ public class OrderTest {
     @Test
     public void orderLineItem_setCategory_verify() {
         List<String> category = Collections.singletonList("valid_category");
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setCategory(category)
                 .build();
 
@@ -187,7 +177,7 @@ public class OrderTest {
     public void orderLineItem_setAttributes_verify() {
         Map<String, String> attributes =
                 Collections.singletonMap("valid_attribute_key", "valid_attribute_value");
-        Order.LineItem lineItem = new Order.LineItem.Builder("123")
+        Order.LineItem lineItem = new Order.LineItem.Builder("123", 100)
                 .setAttributes(attributes)
                 .build();
 

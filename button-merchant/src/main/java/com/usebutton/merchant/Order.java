@@ -267,18 +267,12 @@ public class Order {
              *
              * @param id The unique identifier for this line item,
              * within the scope of this order. (required)
+             * @param total The total price of all items bought in a particular line item
+             * (e.g. if 3 bananas were purchased for $3.00 each, total would be 900) (required)
              */
-            public Builder(String id) {
+            public Builder(String id, long total) {
                 this.id = id;
-            }
-
-            /**
-             * The total price of all items bought in a particular line item (required)
-             * (e.g. if 3 bananas were purchased for $3.00 each, total would be 900)
-             */
-            public Builder setTotal(long total) {
                 this.total = total;
-                return this;
             }
 
             /**
