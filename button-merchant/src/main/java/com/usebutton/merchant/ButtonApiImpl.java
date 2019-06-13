@@ -35,18 +35,7 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Button API endpoint request implementations.
@@ -54,29 +43,21 @@ import java.util.concurrent.TimeUnit;
 final class ButtonApiImpl implements ButtonApi {
 
     private static final String TAG = ButtonApiImpl.class.getSimpleName();
-
-    private static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
-    private static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(15);
-    private static final String CONTENT_TYPE_JSON = "application/json";
-
-    private final String userAgent;
-
-    @VisibleForTesting
-    String baseUrl = "https://api.usebutton.com";
-
     private static ButtonApi buttonApi;
 
-    static ButtonApi getInstance(String userAgent) {
+    private final ConnectionManager connectionManager;
+
+    static ButtonApi getInstance(ConnectionManager connectionManager) {
         if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl(userAgent);
+            buttonApi = new ButtonApiImpl(connectionManager);
         }
 
         return buttonApi;
     }
 
     @VisibleForTesting
-    ButtonApiImpl(String userAgent) {
-        this.userAgent = userAgent;
+    ButtonApiImpl(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
     }
 
     @Nullable
@@ -85,173 +66,63 @@ final class ButtonApiImpl implements ButtonApi {
     public PostInstallLink getPendingLink(String applicationId, String ifa,
             boolean limitAdTrackingEnabled, Map<String, String> signalsMap) throws
             ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
 
         try {
-            // create request body
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("application_id", applicationId);
-            requestBody.put("ifa", ifa);
-            requestBody.put("ifa_limited", limitAdTrackingEnabled);
-            requestBody.put("signals", new JSONObject(signalsMap));
+            // Create request body
+            JSONObject request = new JSONObject();
+            request.put("application_id", applicationId);
+            request.put("ifa", ifa);
+            request.put("ifa_limited", limitAdTrackingEnabled);
+            request.put("signals", new JSONObject(signalsMap));
 
-            // setup url connection
-            final URL url = new URL(baseUrl + "/v1/web/deferred-deeplink");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            initializeUrlConnection(urlConnection);
+            // Execute POST request and parse response
+            NetworkResponse response = connectionManager.post("/v1/web/deferred-deeplink", request);
+            JSONObject responseBody = response.getBody().optJSONObject("object");
+            if (responseBody != null) {
+                boolean match = responseBody.getBoolean("match");
+                String id = responseBody.getString("id");
+                String action = responseBody.getString("action");
+                PostInstallLink.Attribution attribution = null;
 
-            // write request body
-            final OutputStreamWriter writer =
-                    new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8");
-            writer.write(requestBody.toString());
-            writer.close();
-
-            Log.d(TAG, "Request Body: " + requestBody);
-            Log.d(TAG, "Response Code: " + urlConnection.getResponseCode());
-            // check if it's successful
-            if (urlConnection.getResponseCode() < 400) {
-                // read response body
-                final InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                final BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                final StringBuilder responseString = new StringBuilder();
-                try {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        responseString.append(line);
-                    }
-                } finally {
-                    reader.close();
+                JSONObject attributionJson = responseBody.optJSONObject("attribution");
+                if (attributionJson != null) {
+                    String btnRef = attributionJson.getString("btn_ref");
+                    String utmSource = attributionJson.optString("utm_source", null);
+                    attribution = new PostInstallLink.Attribution(btnRef, utmSource);
                 }
 
-                // parse response body
-                JSONObject responseJson = new JSONObject(responseString.toString());
-                responseJson = responseJson.optJSONObject("object");
-                if (responseJson != null) {
-                    boolean match = responseJson.getBoolean("match");
-                    String id = responseJson.getString("id");
-                    String action = responseJson.getString("action");
-                    PostInstallLink.Attribution attribution = null;
-
-                    JSONObject attributionJson = responseJson.optJSONObject("attribution");
-                    if (attributionJson != null) {
-                        String btnRef = attributionJson.getString("btn_ref");
-                        String utmSource = attributionJson.optString("utm_source", null);
-                        attribution = new PostInstallLink.Attribution(btnRef, utmSource);
-                    }
-
-                    return new PostInstallLink(match, id, action, attribution);
-                }
-            } else {
-                String message =
-                        "Unsuccessful Request. HTTP StatusCode: " + urlConnection.getResponseCode();
-                Log.e(TAG, message);
-                throw new ButtonNetworkException(message);
+                return new PostInstallLink(match, id, action, attribution);
             }
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "MalformedURLException has occurred", e);
-            throw new ButtonNetworkException(e);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException has occurred", e);
-            throw new ButtonNetworkException(e);
         } catch (JSONException e) {
-            Log.e(TAG, "JSONException has occurred", e);
+            Log.e(TAG, "Error creating request body", e);
             throw new ButtonNetworkException(e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
         }
 
         return null;
-    }
-
-    private void initializeUrlConnection(HttpURLConnection urlConnection) throws ProtocolException {
-        urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
-        urlConnection.setReadTimeout(READ_TIMEOUT);
-        urlConnection.setRequestProperty("User-Agent", getUserAgent());
-        urlConnection.setRequestProperty("Accept", CONTENT_TYPE_JSON);
-        urlConnection.setRequestProperty("Content-Type", CONTENT_TYPE_JSON);
-        urlConnection.setRequestMethod("POST");
-        urlConnection.setDoOutput(true);
     }
 
     @Override
     public Void postActivity(String applicationId, String sourceToken, String timestamp,
             Order order) throws ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
 
         try {
-            // create request body
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("app_id", applicationId);
-            requestBody.put("user_local_time", timestamp);
-            requestBody.put("btn_ref", sourceToken);
-            requestBody.put("order_id", order.getId());
-            requestBody.put("total", order.getAmount());
-            requestBody.put("currency", order.getCurrencyCode());
-            requestBody.put("source", "merchant-library");
+            // Create request body
+            JSONObject request = new JSONObject();
+            request.put("app_id", applicationId);
+            request.put("user_local_time", timestamp);
+            request.put("btn_ref", sourceToken);
+            request.put("order_id", order.getId());
+            request.put("total", order.getAmount());
+            request.put("currency", order.getCurrencyCode());
+            request.put("source", "merchant-library");
 
-            // setup url connection
-            final URL url = new URL(baseUrl + "/v1/activity/order");
-            urlConnection = (HttpURLConnection) url.openConnection();
-            initializeUrlConnection(urlConnection);
-
-            // write request body
-            final OutputStreamWriter writer =
-                    new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8");
-            writer.write(requestBody.toString());
-            writer.close();
-
-            // check if it's successful
-            if (urlConnection.getResponseCode() < 400) {
-                // read response body
-                final InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                final BufferedReader reader =
-                        new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                final StringBuilder responseString = new StringBuilder();
-                try {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        responseString.append(line);
-                    }
-                } finally {
-                    reader.close();
-                }
-
-                // parse response body
-                JSONObject responseJson = new JSONObject(responseString.toString());
-
-                String status = responseJson.optJSONObject("meta").optString("status");
-                if (status.equals("error")) {
-                    String error = responseJson.optJSONObject("error").optString("message");
-                    throw new ButtonNetworkException(error);
-                }
-            } else {
-                String message =
-                        "Unsuccessful Request. HTTP StatusCode: " + urlConnection.getResponseCode();
-                Log.e(TAG, message);
-                throw new ButtonNetworkException(message);
-            }
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "MalformedURLException has occurred", e);
-            throw new ButtonNetworkException(e);
-        } catch (IOException e) {
-            Log.e(TAG, "IOException has occurred", e);
-            throw new ButtonNetworkException(e);
+            // Execute POST request and parse response
+            connectionManager.post("/v1/activity/order", request);
         } catch (JSONException e) {
-            Log.e(TAG, "JSONException has occurred", e);
+            Log.e(TAG, "Error creating request body", e);
             throw new ButtonNetworkException(e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
         }
 
         return null;
-    }
-
-    private String getUserAgent() {
-        return userAgent;
     }
 }

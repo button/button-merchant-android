@@ -49,6 +49,7 @@ public final class ButtonMerchant {
     static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final String BASE_URL = "https://api.usebutton.com";
 
     /**
      * Configures {@link ButtonMerchant} with your application Id.
@@ -163,7 +164,10 @@ public final class ButtonMerchant {
 
         DeviceManager deviceManager = getDeviceManager(context);
 
-        ButtonApi buttonApi = ButtonApiImpl.getInstance(deviceManager.getUserAgent());
+        ConnectionManager connectionManager =
+                ConnectionManagerImpl.getInstance(BASE_URL, deviceManager.getUserAgent());
+
+        ButtonApi buttonApi = ButtonApiImpl.getInstance(connectionManager);
 
         return ButtonRepositoryImpl.getInstance(buttonApi, persistenceManager, executorService);
     }
