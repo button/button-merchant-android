@@ -25,16 +25,26 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Represents an order placed by the user to be tracked using ButtonMerchant.trackOrder(order).
  */
 public class Order {
-    @NonNull
+
     private String id;
+    @Deprecated
     private long amount;
     private String currencyCode;
+    private Date purchaseDate;
+    private List<LineItem> lineItems;
+    @Nullable
+    private String customerOrderId;
+    @Nullable
+    private Customer customer;
 
     /**
      * Constructor.
@@ -45,13 +55,17 @@ public class Order {
         this.id = builder.id;
         this.amount = builder.amount;
         this.currencyCode = builder.currencyCode;
+        this.purchaseDate = builder.purchaseDate;
+        this.lineItems = builder.lineItems;
+        this.customerOrderId = builder.customerOrderId;
+        this.customer = builder.customer;
     }
 
-    @NonNull
     public String getId() {
         return id;
     }
 
+    @Deprecated
     public long getAmount() {
         return amount;
     }
@@ -60,28 +74,68 @@ public class Order {
         return currencyCode;
     }
 
+    public Date getPurchaseDate() {
+        return purchaseDate;
+    }
+
+    public List<LineItem> getLineItems() {
+        return lineItems;
+    }
+
+    @Nullable
+    public String getCustomerOrderId() {
+        return customerOrderId;
+    }
+
+    @Nullable
+    public Customer getCustomer() {
+        return customer;
+    }
+
     /**
      * Builder class for tracking a customer {@link Order}.
      */
     public static class Builder {
-        @NonNull
+
         private String id;
+        @Deprecated
         private long amount = 0;
         private String currencyCode = "USD";
+        private Date purchaseDate;
+        private List<LineItem> lineItems;
+        @Nullable
+        private String customerOrderId;
+        @Nullable
+        private Customer customer;
 
         /**
          * Constructor.
          *
          * @param id The order identifier (required).
          */
-        public Builder(@NonNull String id) {
+        @Deprecated
+        public Builder(String id) {
             this.id = id;
+        }
+
+        /**
+         * Constructor.
+         *
+         * @param id The order identifier (required).
+         * @param purchaseDate The time the purchase was made by the user (required)
+         * @param lineItems A list of the line item details that comprise the order (required)
+         */
+        public Builder(String id, Date purchaseDate, List<LineItem> lineItems) {
+            this.id = id;
+            this.purchaseDate = purchaseDate;
+            this.lineItems = lineItems;
         }
 
         /**
          * The total order value in pennies (e.g. 3999 for $39.99) or the smallest decimal unit of
          * the currency code. (default is 0)
          */
+        @Deprecated
         public Builder setAmount(long amount) {
             this.amount = amount;
             return this;
@@ -96,6 +150,22 @@ public class Order {
         }
 
         /**
+         * The customer-facing order id
+         */
+        public Builder setCustomerOrderId(String customerOrderId) {
+            this.customerOrderId = customerOrderId;
+            return this;
+        }
+
+        /**
+         * The customer related to the order
+         */
+        public Builder setCustomer(Customer customer) {
+            this.customer = customer;
+            return this;
+        }
+
+        /**
          * Builds and returns an Order Object
          *
          * @return {@link Order}
@@ -103,5 +173,19 @@ public class Order {
         public Order build() {
             return new Order(this);
         }
+    }
+
+    /**
+     * Represents a line item in the order {@link Order#lineItems}
+     */
+    public class LineItem {
+
+    }
+
+    /**
+     * Represents a customer in the order {@link Order#customer}
+     */
+    public class Customer {
+
     }
 }
