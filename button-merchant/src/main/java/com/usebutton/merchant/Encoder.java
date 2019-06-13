@@ -1,5 +1,5 @@
 /*
- * MockSSLManager.java
+ * Encoder.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -25,28 +25,10 @@
 
 package com.usebutton.merchant;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
 /**
- * Helper test class to provide a pre-generated KeyStore for localhost
+ * Interface to facilitate encoding of data.
  */
-class MockSSLManager extends SSLManagerImpl {
+public interface Encoder {
 
-    MockSSLManager() {
-        super(new LocalCertificateProvider(), "localhost".toCharArray());
-    }
-
-    @Override
-    KeyStore getKeyStore(CertificateProvider provider)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        InputStream stream = this.getClass().getResourceAsStream("/raw/localhost.keystore");
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(stream, "localhost".toCharArray());
-        return keyStore;
-    }
+    String encodeBase64ToString(byte[] bytes);
 }

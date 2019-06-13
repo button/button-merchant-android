@@ -47,4 +47,6 @@ interface SSLManager {
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             IOException, KeyManagementException;
 
+    CertificateProvider getCertificateProvider();
+
 }

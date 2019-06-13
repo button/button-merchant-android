@@ -34,18 +34,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 /**
  * Network helper class that provides {@link KeyStore}s and {@link SSLContext} for use in secure
@@ -58,41 +55,36 @@ class SSLManagerImpl implements SSLManager {
     private KeyStore keyStore;
     private SSLContext sslContext;
     private Exception pendingException;
+    private List<Certificate> certificates;
 
     private final char[] password;
-    private final String[] certificates;
+    private final CertificateProvider provider;
 
-    static SSLManager getInstance(String[] certificates) {
-        return getInstance(certificates, null);
+    static SSLManager getInstance(CertificateProvider provider) {
+        return getInstance(provider, null);
     }
 
-    static SSLManager getInstance(String[] certificates, char[] password) {
+    static SSLManager getInstance(CertificateProvider provider, char[] password) {
         if (instance == null) {
-            instance = new SSLManagerImpl(certificates, password);
+            instance = new SSLManagerImpl(provider, password);
             return instance;
         }
 
         boolean hasDiffPass = !Arrays.equals(password, ((SSLManagerImpl) instance).getPassword());
-        boolean hasDiffCerts =
-                !Arrays.equals(certificates, ((SSLManagerImpl) instance).getCertificates());
-        if (hasDiffCerts || hasDiffPass) {
-            instance = new SSLManagerImpl(certificates, password);
+        boolean hasDiffProv = ((SSLManagerImpl) instance).provider != provider;
+        if (hasDiffProv || hasDiffPass) {
+            instance = new SSLManagerImpl(provider, password);
         }
 
         return instance;
     }
 
     @VisibleForTesting
-    SSLManagerImpl(@NonNull String[] certificates, @Nullable char[] password) {
-        if (certificates.length < 1) {
-            throw new IllegalStateException(
-                    "Must provide at least one certificate to pin network connections to!");
-        }
-
+    SSLManagerImpl(@NonNull CertificateProvider provider, @Nullable char[] password) {
         this.password = password;
-        this.certificates = certificates;
+        this.provider = provider;
 
-        init(certificates);
+        init(provider);
     }
 
     @Override
@@ -111,30 +103,12 @@ class SSLManagerImpl implements SSLManager {
         return sslContext;
     }
 
-    KeyStore getKeyStore(String[] certPaths)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(null, password);
-
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-        for (String certPath : certPaths) {
-            Pattern pattern = Pattern.compile("(?<=raw/).*?(?=.pem|.jks|.crt)");
-            Matcher matcher = pattern.matcher(certPath);
-            if (!matcher.find()) {
-                continue;
-            }
-
-            String certName = matcher.group();
-            InputStream ca = this.getClass().getResourceAsStream(certPath);
-            X509Certificate certificate =
-                    (X509Certificate) certificateFactory.generateCertificate(ca);
-            keyStore.setCertificateEntry(certName, certificate);
-        }
-
-        return keyStore;
+    @Override
+    public CertificateProvider getCertificateProvider() {
+        return provider;
     }
 
-    String[] getCertificates() {
+    List<Certificate> getCertificateChain() {
         return certificates;
     }
 
@@ -142,9 +116,28 @@ class SSLManagerImpl implements SSLManager {
         return password;
     }
 
-    private void init(String[] certPaths) {
+    KeyStore getKeyStore(CertificateProvider provider)
+            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, password);
+
+        certificates = provider.getChain();
+        if (certificates.isEmpty()) {
+            throw new IllegalStateException(
+                    "Must provide at least one certificate to pin network connection to!");
+        }
+
+        for (int i = 0; i < certificates.size(); i++) {
+            String name = provider.getProviderName() + "_" + i;
+            keyStore.setCertificateEntry(name, certificates.get(i));
+        }
+
+        return keyStore;
+    }
+
+    private void init(CertificateProvider provider) {
         try {
-            keyStore = getKeyStore(certPaths);
+            keyStore = getKeyStore(provider);
 
             String kmfAlgorithm = KeyManagerFactory.getDefaultAlgorithm();
             KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(kmfAlgorithm);

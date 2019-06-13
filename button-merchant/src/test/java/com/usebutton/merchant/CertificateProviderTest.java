@@ -1,5 +1,5 @@
 /*
- * MockSSLManager.java
+ * CertificateProviderTest.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -25,28 +25,29 @@
 
 package com.usebutton.merchant;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import org.junit.Test;
 
-/**
- * Helper test class to provide a pre-generated KeyStore for localhost
- */
-class MockSSLManager extends SSLManagerImpl {
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.List;
 
-    MockSSLManager() {
-        super(new LocalCertificateProvider(), "localhost".toCharArray());
-    }
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
-    @Override
-    KeyStore getKeyStore(CertificateProvider provider)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        InputStream stream = this.getClass().getResourceAsStream("/raw/localhost.keystore");
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(stream, "localhost".toCharArray());
-        return keyStore;
+public class CertificateProviderTest {
+
+    private CertificateProvider provider = new LocalCertificateProvider();
+
+    @Test
+    public void provider_shouldProvideValidCertificateChain() throws Exception {
+        List<Certificate> certificates = provider.getChain();
+
+        Certificate ca1 = certificates.get(0);
+        assertTrue(ca1 instanceof X509Certificate);
+        assertEquals(ca1.getType(), "X.509");
+
+        Certificate ca2 = certificates.get(1);
+        assertTrue(ca2 instanceof X509Certificate);
+        assertEquals(ca2.getType(), "X.509");
     }
 }

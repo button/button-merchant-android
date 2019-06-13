@@ -38,27 +38,22 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Set;
 
 import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 public class SSLManagerTest {
 
-    private static final String[] CERTIFICATE_PATHS = {
-            "/raw/ca.pem",
-            "/raw/cert_local.pem",
-    };
-
     private MockWebServer server = new MockWebServer();
+    private CertificateProvider provider = new LocalCertificateProvider();
     private SSLManager sslManager;
 
     @Before
     public void setUp() {
-        sslManager = new SSLManagerImpl(CERTIFICATE_PATHS, "localhost".toCharArray());
+        sslManager = new SSLManagerImpl(provider, "localhost".toCharArray());
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -75,47 +70,43 @@ public class SSLManagerTest {
     }
 
     @Test
-    public void getInstance_shouldReturnNewInstanceOnChangedCertificates() throws Exception {
-        String[] chain1 = { "/raw/ca.pem" };
-        String[] chain2 = { "/raw/cert_local.pem" };
-
-        SSLManager sslManager1 = SSLManagerImpl.getInstance(chain1);
-        SSLManager sslManager2 = SSLManagerImpl.getInstance(chain2);
-
-        assertNotSame(sslManager1, sslManager2);
-    }
-
-    @Test
     public void getInstance_shouldReturnNewInstanceOnChangedPassword() throws Exception {
-        SSLManager sslManager1 = SSLManagerImpl.getInstance(CERTIFICATE_PATHS, "abc".toCharArray());
-        SSLManager sslManager2 = SSLManagerImpl.getInstance(CERTIFICATE_PATHS, "123".toCharArray());
+        SSLManager sslManager1 = SSLManagerImpl.getInstance(provider, "abc".toCharArray());
+        SSLManager sslManager2 = SSLManagerImpl.getInstance(provider, "123".toCharArray());
 
         assertNotSame(sslManager1, sslManager2);
     }
 
     @Test(expected = IllegalStateException.class)
     public void initialization_shouldAssertMinimumCertificates() throws Exception {
-        new SSLManagerImpl(new String[0], null);
-    }
+        CertificateProvider provider = new CertificateProvider() {
+            @Override
+            String[] getCertificates() {
+                return new String[0];
+            }
 
-    @Test(expected = CertificateException.class)
-    public void initialization_shouldCheckCertificatePaths() throws Exception {
-        String[] paths = { "/raw/wrong_file.pem" };
+            @Override
+            Set<String> getPublicKeys() {
+                return null;
+            }
 
-        SSLManager sslManager = new SSLManagerImpl(paths, null);
-        sslManager.getKeyStore();
+            @Override
+            String getProviderName() {
+                return null;
+            }
+        };
+        new SSLManagerImpl(provider, null);
     }
 
     @Test
     public void keyStore_shouldContainCertificates() throws Exception {
-        assertTrue(sslManager.getKeyStore().containsAlias("ca"));
-        assertTrue(sslManager.getKeyStore().containsAlias("cert_local"));
-        assertFalse(sslManager.getKeyStore().containsAlias("cert_example"));
+        assertTrue(sslManager.getKeyStore().containsAlias("localhost_0"));
+        assertTrue(sslManager.getKeyStore().containsAlias("localhost_1"));
     }
 
     @Test
     public void keyStore_shouldValidateCertificate() throws Exception {
-        Certificate cert = sslManager.getKeyStore().getCertificate("ca");
+        Certificate cert = sslManager.getKeyStore().getCertificate("localhost_0");
         assertTrue(cert instanceof X509Certificate);
         assertEquals(cert.getType(), "X.509");
     }

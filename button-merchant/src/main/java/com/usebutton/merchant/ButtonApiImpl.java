@@ -25,6 +25,8 @@
 
 package com.usebutton.merchant;
 
+import android.net.http.X509TrustManagerExtensions;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
@@ -34,6 +36,9 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,10 +51,12 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -179,8 +186,7 @@ final class ButtonApiImpl implements ButtonApi {
     private void initializeUrlConnection(HttpsURLConnection urlConnection) throws
             CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException,
             KeyManagementException {
-        SSLContext sslContext = sslManager.getSecureContext();
-        urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+
         urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
         urlConnection.setReadTimeout(READ_TIMEOUT);
         urlConnection.setRequestProperty("User-Agent", getUserAgent());
@@ -188,6 +194,30 @@ final class ButtonApiImpl implements ButtonApi {
         urlConnection.setRequestProperty("Content-Type", CONTENT_TYPE_JSON);
         urlConnection.setRequestMethod("POST");
         urlConnection.setDoOutput(true);
+
+        // Public key pinning is only available API 17 and above
+        // Default to CA pinning for older Android versions
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Set<String> keys = sslManager.getCertificateProvider().getPublicKeys();
+
+            TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            X509TrustManager trustManager = null;
+            for (TrustManager tm : trustManagerFactory.getTrustManagers()) {
+                if (tm instanceof X509TrustManager) {
+                    trustManager = (X509TrustManager) tm;
+                    break;
+                }
+            }
+            X509TrustManagerExtensions extension = new X509TrustManagerExtensions(trustManager);
+            Encoder encoder = new AndroidEncoder();
+
+            SSLUtils.validatePinning(extension, encoder, urlConnection, keys);
+        } else {
+            SSLContext sslContext = sslManager.getSecureContext();
+            urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+        }
     }
 
     @Override
