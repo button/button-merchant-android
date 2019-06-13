@@ -46,7 +46,6 @@ public class OrderTest {
         assertEquals(order.getCurrencyCode(), "USD");
         assertNull(order.getPurchaseDate());
         assertNull(order.getLineItems());
-        assertNull(order.getSourceToken());
         assertNull(order.getCustomerOrderId());
         assertNull(order.getCustomer());
     }
@@ -64,7 +63,6 @@ public class OrderTest {
         assertEquals(order.getCurrencyCode(), "USD");
         assertEquals(order.getPurchaseDate(), purchaseDate);
         assertEquals(order.getLineItems(), lineItems);
-        assertNull(order.getSourceToken());
         assertNull(order.getCustomerOrderId());
         assertNull(order.getCustomer());
     }
@@ -86,17 +84,6 @@ public class OrderTest {
                 .build();
 
         assertEquals(order.getCurrencyCode(), "AUG");
-    }
-
-    @Test
-    public void order_setSourceToken_verify() {
-        String sourceToken = "valid_source_token";
-        Order order = new Order.Builder("123", new Date(),
-                Collections.<Order.LineItem>emptyList())
-                .setSourceToken(sourceToken)
-                .build();
-
-        assertEquals(order.getSourceToken(), sourceToken);
     }
 
     @Test

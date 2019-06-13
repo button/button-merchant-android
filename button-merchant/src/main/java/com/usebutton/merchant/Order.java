@@ -42,8 +42,6 @@ public class Order {
     private Date purchaseDate;
     private List<LineItem> lineItems;
     @Nullable
-    private String sourceToken;
-    @Nullable
     private String customerOrderId;
     @Nullable
     private Customer customer;
@@ -59,7 +57,6 @@ public class Order {
         this.currencyCode = builder.currencyCode;
         this.purchaseDate = builder.purchaseDate;
         this.lineItems = builder.lineItems;
-        this.sourceToken = builder.sourceToken;
         this.customerOrderId = builder.customerOrderId;
         this.customer = builder.customer;
     }
@@ -86,11 +83,6 @@ public class Order {
     }
 
     @Nullable
-    public String getSourceToken() {
-        return sourceToken;
-    }
-
-    @Nullable
     public String getCustomerOrderId() {
         return customerOrderId;
     }
@@ -111,8 +103,6 @@ public class Order {
         private String currencyCode = "USD";
         private Date purchaseDate;
         private List<LineItem> lineItems;
-        @Nullable
-        private String sourceToken;
         @Nullable
         private String customerOrderId;
         @Nullable
@@ -156,14 +146,6 @@ public class Order {
          */
         public Builder setCurrencyCode(String currencyCode) {
             this.currencyCode = currencyCode;
-            return this;
-        }
-
-        /**
-         * The button source token
-         */
-        public Builder setSourceToken(String sourceToken) {
-            this.sourceToken = sourceToken;
             return this;
         }
 
