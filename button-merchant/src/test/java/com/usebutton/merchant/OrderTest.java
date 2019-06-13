@@ -115,7 +115,7 @@ public class OrderTest {
 
         assertEquals(lineItem.getId(), "123");
         assertEquals(lineItem.getTotal(), 100);
-        assertEquals(lineItem.getQuantity(), 0);
+        assertNull(lineItem.getQuantity());
         assertNull(lineItem.getDescription());
         assertNull(lineItem.getSku());
         assertNull(lineItem.getUpc());
@@ -130,7 +130,7 @@ public class OrderTest {
                 .setQuantity(quantity)
                 .build();
 
-        assertEquals(lineItem.getQuantity(), quantity);
+        assertEquals(lineItem.getQuantity().intValue(), 5);
     }
 
     @Test

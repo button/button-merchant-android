@@ -183,7 +183,8 @@ public class Order {
 
         private String id;
         private long total;
-        private int quantity;
+        @Nullable
+        private Integer quantity;
         @Nullable
         private String description;
         @Nullable
@@ -214,7 +215,8 @@ public class Order {
             return total;
         }
 
-        public int getQuantity() {
+        @Nullable
+        public Integer getQuantity() {
             return quantity;
         }
 
@@ -249,8 +251,8 @@ public class Order {
         public static class Builder {
 
             private String id;
-            private long total = 0;
-            private int quantity;
+            private long total;
+            private Integer quantity;
             @Nullable
             private String description;
             @Nullable
@@ -276,7 +278,7 @@ public class Order {
             }
 
             /**
-             * The number of unique units represented by this line item
+             * The number of unique units represented by this line item (default is 1)
              */
             public Builder setQuantity(int quantity) {
                 this.quantity = quantity;
