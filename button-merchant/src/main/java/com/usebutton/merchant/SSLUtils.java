@@ -42,6 +42,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Utility class to validate a network connection against a set of public keys.
+ */
 final class SSLUtils {
 
     static void validatePinning(X509TrustManagerExtensions trustManagerExt, Encoder encoder,
@@ -63,8 +66,7 @@ final class SSLUtils {
                 byte[] publicKey = cert.getPublicKey().getEncoded();
                 md.update(publicKey, 0, publicKey.length);
                 String pin = encoder.encodeBase64ToString(md.digest());
-                certChainMsg += "    sha256/" + pin + " : " +
-                        cert.getSubjectDN().toString() + "\n";
+                certChainMsg += "    sha256/" + pin + " : " + cert.getSubjectDN().toString() + "\n";
                 if (validPins.contains(pin)) {
                     return;
                 }
@@ -72,12 +74,17 @@ final class SSLUtils {
         } catch (NoSuchAlgorithmException e) {
             throw new SSLException(e);
         }
-        throw new SSLPeerUnverifiedException("Certificate pinning failure" +
-                "\n\tPeer certificate chain:\n" + certChainMsg);
+        throw new SSLPeerUnverifiedException("Certificate pinning failure"
+                + "\n\tPeer certificate chain:\n" + certChainMsg);
     }
 
-    static List<X509Certificate> trustedChain(X509TrustManagerExtensions trustManagerExt,
+    private static List<X509Certificate> trustedChain(X509TrustManagerExtensions trustManagerExt,
             HttpsURLConnection conn) throws IOException {
+        // Gate keep API level 16 and below
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            throw new IllegalStateException("Secure public key pinning only available on API17+");
+        }
+
         Certificate[] serverCerts = conn.getServerCertificates();
         X509Certificate[] untrustedCerts = Arrays.copyOf(serverCerts,
                 serverCerts.length, X509Certificate[].class);

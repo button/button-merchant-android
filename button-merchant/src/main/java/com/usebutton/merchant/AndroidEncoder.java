@@ -27,6 +27,11 @@ package com.usebutton.merchant;
 
 import android.util.Base64;
 
+/**
+ * Encoder implementation for the Android platform.
+ *
+ * @see Encoder
+ */
 public class AndroidEncoder implements Encoder {
     @Override
     public String encodeBase64ToString(byte[] bytes) {

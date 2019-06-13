@@ -29,6 +29,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Certificate provider for Amazon Certificate Manager. The public keys and root certificates
+ * provided are for ACM CA1, CA2, CA3, and CA4.
+ *
+ * @see CertificateProvider
+ */
 final class AmazonCertificateProvider extends CertificateProvider {
 
     private static final String[] HASHED_KEYS = {
