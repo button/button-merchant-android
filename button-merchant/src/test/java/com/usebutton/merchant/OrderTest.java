@@ -186,28 +186,18 @@ public class OrderTest {
 
     @Test
     public void customer_verifyDefaultValues() {
-        Order.Customer customer = new Order.Customer.Builder().build();
+        Order.Customer customer = new Order.Customer.Builder("123").build();
 
-        assertNull(customer.getId());
+        assertEquals(customer.getId(), "123");
         assertNull(customer.getEmail());
         assertNull(customer.getEmailSha256());
         assertNull(customer.getAdvertisingId());
     }
 
     @Test
-    public void customer_setId_verify() {
-        String id = "valid_id";
-        Order.Customer customer = new Order.Customer.Builder()
-                .setId(id)
-                .build();
-
-        assertEquals(customer.getId(), id);
-    }
-
-    @Test
     public void customer_setEmail_verify() {
         String email = "valid_email";
-        Order.Customer customer = new Order.Customer.Builder()
+        Order.Customer customer = new Order.Customer.Builder("123")
                 .setEmail(email)
                 .build();
 
@@ -217,7 +207,7 @@ public class OrderTest {
     @Test
     public void customer_setEmailSha256_verify() {
         String emailSha256 = "valid_email_sha_256";
-        Order.Customer customer = new Order.Customer.Builder()
+        Order.Customer customer = new Order.Customer.Builder("123")
                 .setEmailSha256(emailSha256)
                 .build();
 
@@ -227,7 +217,7 @@ public class OrderTest {
     @Test
     public void customer_setAdvertisingId_verify() {
         String advertisingId = "valid_advertising_id";
-        Order.Customer customer = new Order.Customer.Builder()
+        Order.Customer customer = new Order.Customer.Builder("123")
                 .setAdvertisingId(advertisingId)
                 .build();
 

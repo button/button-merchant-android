@@ -342,7 +342,6 @@ public class Order {
      */
     public static class Customer {
 
-        @Nullable
         private String id;
         @Nullable
         private String email;
@@ -358,7 +357,6 @@ public class Order {
             this.advertisingId = builder.advertisingId;
         }
 
-        @Nullable
         public String getId() {
             return id;
         }
@@ -383,7 +381,6 @@ public class Order {
          */
         public static class Builder {
 
-            @Nullable
             private String id;
             @Nullable
             private String email;
@@ -393,11 +390,10 @@ public class Order {
             private String advertisingId;
 
             /**
-             * The id for the transacting customer in your system
+             * @param id The id for the transacting customer in your system (required)
              */
-            public Builder setId(String id) {
+            public Builder(String id) {
                 this.id = id;
-                return this;
             }
 
             /**
