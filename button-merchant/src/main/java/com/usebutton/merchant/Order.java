@@ -340,7 +340,96 @@ public class Order {
     /**
      * Represents a customer in the order {@link Order#customer}
      */
-    public class Customer {
+    public static class Customer {
 
+        private String id;
+        @Nullable
+        private String email;
+        @Nullable
+        private String emailSha256;
+        @Nullable
+        private String advertisingId;
+
+        private Customer(Builder builder) {
+            this.id = builder.id;
+            this.email = builder.email;
+            this.emailSha256 = builder.emailSha256;
+            this.advertisingId = builder.advertisingId;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        @Nullable
+        public String getEmail() {
+            return email;
+        }
+
+        @Nullable
+        public String getEmailSha256() {
+            return emailSha256;
+        }
+
+        @Nullable
+        public String getAdvertisingId() {
+            return advertisingId;
+        }
+
+        /**
+         * Builder class for order customer {@link Order.Customer}.
+         */
+        public static class Builder {
+
+            private String id;
+            @Nullable
+            private String email;
+            @Nullable
+            private String emailSha256;
+            @Nullable
+            private String advertisingId;
+
+            /**
+             * @param id The id for the transacting customer in your system (required)
+             */
+            public Builder(String id) {
+                this.id = id;
+            }
+
+            /**
+             * The email of the transacting customer
+             */
+            public Builder setEmail(String email) {
+                this.email = email;
+                return this;
+            }
+
+            /**
+             * The SHA-256 hash of the transacting customer’s lowercase email, as a 64-character hex string.
+             * Note: The value of the e-mail address must be converted to lowercase before computing the hash.
+             * The hash itself may use uppercase or lowercase hex characters.
+             */
+            public Builder setEmailSha256(@Nullable String emailSha256) {
+                this.emailSha256 = emailSha256;
+                return this;
+            }
+
+            /**
+             * The customer’s IDFA
+             */
+            public Builder setAdvertisingId(String advertisingId) {
+                this.advertisingId = advertisingId;
+                return this;
+            }
+
+            /**
+             * Builds and returns an Order customer Object
+             *
+             * @return {@link Order.Customer}
+             */
+            public Order.Customer build() {
+                return new Customer(this);
+            }
+        }
     }
 }
