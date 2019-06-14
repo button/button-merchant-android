@@ -39,7 +39,7 @@ public class CertificateProviderTest {
     private CertificateProvider provider = new LocalCertificateProvider();
 
     @Test
-    public void provider_shouldProvideValidCertificateChain() throws Exception {
+    public void getChain_shouldProvideValidCertificateChain() throws Exception {
         List<Certificate> certificates = provider.getChain();
 
         Certificate ca1 = certificates.get(0);

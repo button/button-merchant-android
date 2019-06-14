@@ -40,7 +40,6 @@ final class AmazonCertificateProvider extends CertificateProvider {
     private static final String[] HASHED_KEYS = {
             "++MBgDH5WGvL9Bcn5Be30cRcL0f5O+NyoXuWtQdX1aI=",
             "f0KW/FtqTjs108NpYj42SrGvOB2PpxIVM8nWxjPqJGE=",
-            "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=",
             "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
     };
     private static final Set<String> HASHED_KEYSET = new HashSet<>(Arrays.asList(HASHED_KEYS));
@@ -110,7 +109,21 @@ final class AmazonCertificateProvider extends CertificateProvider {
                     + "ttvXBp43rDCGB5Fwx5zEGbF4wDAKBggqhkjOPQQDAgNJADBGAiEA4IWSoxe3jfkr\n"
                     + "BqWTrBqYaGFy+uGh0PsceGCmQ5nFuMQCIQCcAu/xlJyzlvnrxir4tiz+OpAUFteM\n"
                     + "YyRIHN8wfdVoOw==\n"
-                    + "-----END CERTIFICATE-----\n"
+                    + "-----END CERTIFICATE-----\n",
+
+            "-----BEGIN CERTIFICATE-----\n"
+                    + "MIIB8jCCAXigAwIBAgITBmyf18G7EEwpQ+Vxe3ssyBrBDjAKBggqhkjOPQQDAzA5\n"
+                    + "MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6b24g\n"
+                    + "Um9vdCBDQSA0MB4XDTE1MDUyNjAwMDAwMFoXDTQwMDUyNjAwMDAwMFowOTELMAkG\n"
+                    + "A1UEBhMCVVMxDzANBgNVBAoTBkFtYXpvbjEZMBcGA1UEAxMQQW1hem9uIFJvb3Qg\n"
+                    + "Q0EgNDB2MBAGByqGSM49AgEGBSuBBAAiA2IABNKrijdPo1MN/sGKe0uoe0ZLY7Bi\n"
+                    + "9i0b2whxIdIA6GO9mif78DluXeo9pcmBqqNbIJhFXRbb/egQbeOc4OO9X4Ri83Bk\n"
+                    + "M6DLJC9wuoihKqB1+IGuYgbEgds5bimwHvouXKNCMEAwDwYDVR0TAQH/BAUwAwEB\n"
+                    + "/zAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0OBBYEFNPsxzplbszh2naaVvuc84ZtV+WB\n"
+                    + "MAoGCCqGSM49BAMDA2gAMGUCMDqLIfG9fhGt0O9Yli/W651+kI0rz2ZVwyzjKKlw\n"
+                    + "CkcO8DdZEv8tmZQoTipPNU0zWgIxAOp1AE47xDqUEpHJWEadIRNyp4iciuRMStuW\n"
+                    + "1KyLa2tJElMzrdfkviT8tQp21KW8EA==\n"
+                    + "-----END CERTIFICATE-----"
     };
 
     @Override

@@ -25,7 +25,6 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
@@ -41,7 +40,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,19 +58,8 @@ class SSLManagerImpl implements SSLManager {
     private final char[] password;
     private final CertificateProvider provider;
 
-    static SSLManager getInstance(CertificateProvider provider) {
-        return getInstance(provider, null);
-    }
-
-    static SSLManager getInstance(CertificateProvider provider, char[] password) {
+    static SSLManager getInstance(CertificateProvider provider, @Nullable char[] password) {
         if (instance == null) {
-            instance = new SSLManagerImpl(provider, password);
-            return instance;
-        }
-
-        boolean hasDiffPass = !Arrays.equals(password, ((SSLManagerImpl) instance).getPassword());
-        boolean hasDiffProv = ((SSLManagerImpl) instance).provider != provider;
-        if (hasDiffProv || hasDiffPass) {
             instance = new SSLManagerImpl(provider, password);
         }
 
@@ -80,7 +67,7 @@ class SSLManagerImpl implements SSLManager {
     }
 
     @VisibleForTesting
-    SSLManagerImpl(@NonNull CertificateProvider provider, @Nullable char[] password) {
+    SSLManagerImpl(CertificateProvider provider, @Nullable char[] password) {
         this.password = password;
         this.provider = provider;
 
@@ -106,14 +93,6 @@ class SSLManagerImpl implements SSLManager {
     @Override
     public CertificateProvider getCertificateProvider() {
         return provider;
-    }
-
-    List<Certificate> getCertificateChain() {
-        return certificates;
-    }
-
-    char[] getPassword() {
-        return password;
     }
 
     KeyStore getKeyStore(CertificateProvider provider)

@@ -41,8 +41,8 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Set;
 
-import static junit.framework.Assert.assertNotSame;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertSame;
 import static junit.framework.TestCase.assertTrue;
 
 public class SSLManagerTest {
@@ -70,11 +70,11 @@ public class SSLManagerTest {
     }
 
     @Test
-    public void getInstance_shouldReturnNewInstanceOnChangedPassword() throws Exception {
-        SSLManager sslManager1 = SSLManagerImpl.getInstance(provider, "abc".toCharArray());
-        SSLManager sslManager2 = SSLManagerImpl.getInstance(provider, "123".toCharArray());
+    public void getInstance_shouldReturnSameInstance() throws Exception {
+        SSLManager sslManager1 = SSLManagerImpl.getInstance(provider, null);
+        SSLManager sslManager2 = SSLManagerImpl.getInstance(provider, null);
 
-        assertNotSame(sslManager1, sslManager2);
+        assertSame(sslManager1, sslManager2);
     }
 
     @Test(expected = IllegalStateException.class)
