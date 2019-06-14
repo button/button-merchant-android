@@ -44,5 +44,4 @@ script:
   - bash ./scripts/travis/run_tests.sh
 
 after_success:
-  - bash ./scripts/travis/coveralls.sh
   - bash ./scripts/travis/deploy_to_bintray.sh
