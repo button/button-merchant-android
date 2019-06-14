@@ -52,7 +52,7 @@ final class SSLUtils {
             throws IOException {
 
         // Gate keep API level 16 and below
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
             throw new IllegalStateException("Secure public key pinning only available on API17+");
         }
 
@@ -80,20 +80,19 @@ final class SSLUtils {
 
     private static List<X509Certificate> trustedChain(X509TrustManagerExtensions trustManagerExt,
             HttpsURLConnection conn) throws IOException {
-        // Gate keep API level 16 and below
-        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            throw new IllegalStateException("Secure public key pinning only available on API17+");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Certificate[] serverCerts = conn.getServerCertificates();
+            X509Certificate[] untrustedCerts = Arrays.copyOf(serverCerts,
+                    serverCerts.length, X509Certificate[].class);
+            String host = conn.getURL().getHost();
+            try {
+                return trustManagerExt.checkServerTrusted(untrustedCerts,
+                        "RSA", host);
+            } catch (CertificateException e) {
+                throw new SSLException(e);
+            }
         }
 
-        Certificate[] serverCerts = conn.getServerCertificates();
-        X509Certificate[] untrustedCerts = Arrays.copyOf(serverCerts,
-                serverCerts.length, X509Certificate[].class);
-        String host = conn.getURL().getHost();
-        try {
-            return trustManagerExt.checkServerTrusted(untrustedCerts,
-                    "RSA", host);
-        } catch (CertificateException e) {
-            throw new SSLException(e);
-        }
+        throw new IllegalStateException("Secure public key pinning only available on API17+");
     }
 }
