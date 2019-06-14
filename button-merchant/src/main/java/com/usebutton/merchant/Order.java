@@ -405,11 +405,12 @@ public class Order {
             }
 
             /**
-             * The SHA-256 hash of the transacting customer’s lowercase email, as a 64-character hex string.
-             * Note: The value of the e-mail address must be converted to lowercase before computing the hash.
-             * The hash itself may use uppercase or lowercase hex characters.
+             * The SHA-256 hash of the transacting customer’s lowercase email, as a 64-character
+             * hex string.
+             * Note: The value of the e-mail address must be converted to lowercase before
+             * computing the hash. The hash itself may use uppercase or lowercase hex characters.
              */
-            public Builder setEmailSha256(@Nullable String emailSha256) {
+            public Builder setEmailSha256(String emailSha256) {
                 this.emailSha256 = emailSha256;
                 return this;
             }
