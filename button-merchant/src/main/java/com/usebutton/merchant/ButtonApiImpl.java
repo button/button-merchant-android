@@ -25,8 +25,6 @@
 
 package com.usebutton.merchant;
 
-import android.net.http.X509TrustManagerExtensions;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
@@ -36,9 +34,6 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,7 +46,6 @@ import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -72,24 +66,28 @@ final class ButtonApiImpl implements ButtonApi {
 
     private final String userAgent;
     private final SSLManager sslManager;
+    @Nullable
+    private final SSLValidator sslValidator;
 
     @VisibleForTesting
     String baseUrl = "https://api.usebutton.com";
 
     private static ButtonApi buttonApi;
 
-    static ButtonApi getInstance(String userAgent, SSLManager sslManager) {
+    static ButtonApi getInstance(String userAgent, SSLManager sslManager,
+            @Nullable SSLValidator sslValidator) {
         if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl(userAgent, sslManager);
+            buttonApi = new ButtonApiImpl(userAgent, sslManager, sslValidator);
         }
 
         return buttonApi;
     }
 
     @VisibleForTesting
-    ButtonApiImpl(String userAgent, SSLManager sslManager) {
+    ButtonApiImpl(String userAgent, SSLManager sslManager, @Nullable SSLValidator sslValidator) {
         this.userAgent = userAgent;
         this.sslManager = sslManager;
+        this.sslValidator = sslValidator;
     }
 
     @Nullable
@@ -197,23 +195,9 @@ final class ButtonApiImpl implements ButtonApi {
 
         // Public key pinning is only available API 17 and above
         // Default to CA pinning for older Android versions
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        if (sslValidator != null) {
             Set<String> keys = sslManager.getCertificateProvider().getPublicKeys();
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init((KeyStore) null);
-            X509TrustManager trustManager = null;
-            for (TrustManager tm : trustManagerFactory.getTrustManagers()) {
-                if (tm instanceof X509TrustManager) {
-                    trustManager = (X509TrustManager) tm;
-                    break;
-                }
-            }
-            X509TrustManagerExtensions extension = new X509TrustManagerExtensions(trustManager);
-            Encoder encoder = new AndroidEncoder();
-
-            SSLUtils.validatePinning(extension, encoder, urlConnection, keys);
+            sslValidator.validatePinning(urlConnection, keys);
         } else {
             SSLContext sslContext = sslManager.getSecureContext();
             urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());

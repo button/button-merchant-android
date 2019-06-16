@@ -31,13 +31,38 @@ import java.util.Set;
 
 final class LocalCertificateProvider extends CertificateProvider {
 
-    String[] hashedKeys = {
+    static String[] hashedKeys = {
             "testhashedkey",
-            "justfortesting"
+            "justfortesting",
+            "YKd9qLX8bSjYxhY2icXI4qclPMwAA3GjMHNB1iZgauU=",
+            "A20ds4SaozFqR5KQ0iQ3mVrlyf9c+XuQksAoATkTy8k=",
+            "qO1nUOvgqS1HtCvSOMcgkTkZt6b+Nqt72DsayKV2AiQ="
     };
     Set<String> publicKeyset = new HashSet<>(Arrays.asList(hashedKeys));
 
     String[] certs = {
+            "-----BEGIN CERTIFICATE-----\n"
+                    + "MIIDYzCCAkugAwIBAgIERpa8hzANBgkqhkiG9w0BAQsFADBiMQswCQYDVQQGEwJV\n"
+                    + "UzELMAkGA1UECBMCTlkxDDAKBgNVBAcTA05ZQzEPMA0GA1UEChMGQnV0dG9uMRMw\n"
+                    + "EQYDVQQLEwpFeHBlcmllbmNlMRIwEAYDVQQDEwlsb2NhbGhvc3QwHhcNMTkwNjEy\n"
+                    + "MTE0NTU5WhcNMTkwOTEwMTE0NTU5WjBiMQswCQYDVQQGEwJVUzELMAkGA1UECBMC\n"
+                    + "TlkxDDAKBgNVBAcTA05ZQzEPMA0GA1UEChMGQnV0dG9uMRMwEQYDVQQLEwpFeHBl\n"
+                    + "cmllbmNlMRIwEAYDVQQDEwlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n"
+                    + "DwAwggEKAoIBAQCZ0JT+9ERwVpzsUEZSaSUzSpHzdk4IglkAkCu3eoVvBr9OriKf\n"
+                    + "rPrAvr2k6Inq5yIC6pWXFkqh0bEwRvNR2uqzFdJsv9fSBRUxnyyYC7EDGU3krdqO\n"
+                    + "qaURHa/GIwnUMYo+6IY0Jy0N3PBV6+aVdMuRbk9sEbe725CRbF9urSx1C90Erx6e\n"
+                    + "xv8HM5ED4YSvBCRVgk8znJcd4N7AUaYm0FuztYFniRJFd2eYK4TJsdoLJwaZ9KSY\n"
+                    + "1cLFihbbjE8gNLJ6L0vClhNMRigYh/66W5klEPm7m6ZlUBM4wH/3XsZAdDsfnsif\n"
+                    + "nkzidtH7sqRTlJf3oN1H540YRr1YjQemKSzLAgMBAAGjITAfMB0GA1UdDgQWBBS2\n"
+                    + "JxwUIsP0CXcCEIRkKWmvhMjhbzANBgkqhkiG9w0BAQsFAAOCAQEAH8A98tTB7GAS\n"
+                    + "nqCBJLBEb+48ky/0QT5dqa1dxRF+xxLssEUjPWXHeQIXuSleqYu1AQmr3Y9x+r0d\n"
+                    + "ugh6aNydwVr2seblMYfMquhrIypn+a4FS2ju0X07P/KB+5MgycRMaT2a+RM+MWTl\n"
+                    + "DykVnyN1hB8JmAZX7/RhN5KGbykySSvRAFfipieMtd4dDaVadESXQCcE9COfzggv\n"
+                    + "OMoTb/iFvnqxjBW5r8oAuIBrTIP+LcTL01BHcICRvnR4C4SpOB/THUgOpPAOWXRT\n"
+                    + "ZgeUXQq+fX+p681CQQG7hkvfygxbcasn/MfhXUDs0GmuqNZe1Zd6EzBtB3c7m6zu\n"
+                    + "Uzgk73Dz4Q==\n"
+                    + "-----END CERTIFICATE-----",
+
             "-----BEGIN CERTIFICATE-----\n"
                     + "MIIFiDCCA3ACCQDihOZmodlMXjANBgkqhkiG9w0BAQsFADCBhTELMAkGA1UEBhMC\n"
                     + "VVMxCzAJBgNVBAgMAk5ZMQwwCgYDVQQHDANOWUMxDzANBgNVBAoMBkJ1dHRvbjET\n"

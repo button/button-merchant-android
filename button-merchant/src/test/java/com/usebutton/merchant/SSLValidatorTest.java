@@ -1,5 +1,5 @@
 /*
- * SSLUtilsTest.java
+ * SSLValidatorTest.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -41,24 +41,32 @@ import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 
-public class SSLUtilsTest {
+public class SSLValidatorTest {
 
+    private SSLValidator sslValidator;
     private SSLManager sslManager = new MockSSLManager();
     private MockWebServer server = new MockWebServer();
     private X509TrustManagerExtensions extension = new MockTrustExtension(null);
+    private Encoder encoder = new Encoder() {
+        @Override
+        public String encodeBase64ToString(byte[] bytes) {
+            return LocalCertificateProvider.hashedKeys[0];
+        }
+    };
 
     @Before
     public void setUp() throws Exception {
-        setFinalStatic(Build.VERSION.class.getField("SDK_INT"), 17);
+        TestUtils.setFinalStatic(Build.VERSION.class.getField("SDK_INT"), 17);
+        sslValidator = new SSLValidatorImpl(extension, encoder);
+
         server.useHttps(sslManager.getSecureContext().getSocketFactory(), false);
         server.setDispatcher(new Dispatcher() {
             @Override
@@ -76,59 +84,49 @@ public class SSLUtilsTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void sslUtl_shouldNotBeAvailableBelowApi17() throws Exception {
-        setFinalStatic(Build.VERSION.class.getField("SDK_INT"), 16);
-        SSLUtils.validatePinning(null, null, null, null);
+    public void validator_shouldNotBeAvailableBelowApi17() throws Exception {
+        TestUtils.setFinalStatic(Build.VERSION.class.getField("SDK_INT"), 16);
+        SSLValidator sslValidator = new SSLValidatorImpl(extension, encoder);
+        sslValidator.validatePinning(null, null);
     }
 
     @Test
-    public void sslUtil_shouldValidateOnPairedPublicKey() throws Exception {
+    public void getDefault_shouldNotBeAvailableBelowApi17() throws Exception {
+        TestUtils.setFinalStatic(Build.VERSION.class.getField("SDK_INT"), 16);
+        SSLValidator sslValidator = SSLValidatorImpl.getDefault();
+        assertNull(sslValidator);
+    }
+
+    @Test
+    public void validatePinning_shouldValidateOnPairedPublicKey() throws Exception {
         URL url = server.url("").url();
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.setSSLSocketFactory(sslManager.getSecureContext().getSocketFactory());
 
-        Encoder encoder = new Encoder() {
-            @Override
-            public String encodeBase64ToString(byte[] bytes) {
-                return "testhashedkey";
-            }
-        };
-
-        SSLUtils.validatePinning(extension, encoder, conn,
-                sslManager.getCertificateProvider().getPublicKeys());
+        sslValidator.validatePinning(conn, sslManager.getCertificateProvider().getPublicKeys());
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         assertEquals(reader.readLine(), "Sample response");
     }
 
     @Test(expected = SSLPeerUnverifiedException.class)
-    public void sslUtil_shouldThrowErrorOnNoPairedPublicKey() throws Exception {
+    public void validatePinning_shouldThrowErrorOnNoPairedPublicKey() throws Exception {
         URL url = server.url("").url();
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.setSSLSocketFactory(sslManager.getSecureContext().getSocketFactory());
 
-        Encoder encoder = new Encoder() {
+        Encoder wrongEncoder = new Encoder() {
             @Override
             public String encodeBase64ToString(byte[] bytes) {
                 return "nonpairedSHA";
             }
         };
 
-        SSLUtils.validatePinning(extension, encoder, conn,
-                sslManager.getCertificateProvider().getPublicKeys());
+        SSLValidator sslValidator = new SSLValidatorImpl(extension, wrongEncoder);
+        sslValidator.validatePinning(conn, sslManager.getCertificateProvider().getPublicKeys());
     }
 
     /* Private helper methods and classes */
-
-    private static void setFinalStatic(Field field, Object newValue) throws Exception {
-        field.setAccessible(true);
-
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-
-        field.set(null, newValue);
-    }
 
     private class MockTrustExtension extends X509TrustManagerExtensions {
 

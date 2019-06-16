@@ -27,6 +27,7 @@ package com.usebutton.merchant;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
+import javax.net.ssl.HttpsURLConnection;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.Dispatcher;
@@ -38,10 +39,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ButtonApiImplTest {
 
@@ -49,12 +56,15 @@ public class ButtonApiImplTest {
 
     private MockWebServer server = new MockWebServer();
     private SSLManager sslManager = new MockSSLManager();
-    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent, sslManager);
+    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent, sslManager, null);
 
     @Before
     public void setUp() throws Exception {
         server.useHttps(sslManager.getSecureContext().getSocketFactory(), false);
         server.start();
+
+        // This is necessary because the secure context is accessed when creating the MockServer
+        ((MockSSLManager) sslManager).accessedSecureContext = false;
 
         HttpUrl baseUrl = server.url("");
         String url = baseUrl.url().toString();
@@ -64,6 +74,52 @@ public class ButtonApiImplTest {
     @After
     public void tearDown() throws Exception {
         server.close();
+    }
+
+    @Test
+    public void pinning_shouldPinToPublicKeysIfValidatorProvided() throws Exception {
+        SSLValidator sslValidator = new MockSSLValidator();
+        ButtonApi buttonApi = new ButtonApiImpl(userAgent, sslManager, sslValidator);
+
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                if (request.getPath().equals("/v1/web/deferred-deeplink") && request.getMethod()
+                        .equals("POST")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setBody(
+                                    "{\"meta\":{\"status\":\"ok\"},\"object\":{\"match\":true,\"id\":\"ddl-6faffd3451edefd3\",\"action\":\"uber://asdfasfasf\",\"attribution\":{\"btn_ref\":\"srctok-afsldkjf29askldfjwe\",\"utm_source\":\"SMS\"}}}");
+                }
+                return new MockResponse().setResponseCode(404);
+            }
+        });
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+                Collections.<String, String>emptyMap());
+
+        assertTrue(((MockSSLValidator) sslValidator).accessedValidator);
+        assertFalse(((MockSSLManager) sslManager).accessedSecureContext);
+    }
+
+    @Test
+    public void pinning_shouldPinToCAIfNoValidatorProvided() throws Exception {
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                if (request.getPath().equals("/v1/web/deferred-deeplink") && request.getMethod()
+                        .equals("POST")) {
+                    return new MockResponse()
+                            .setResponseCode(200)
+                            .setBody(
+                                    "{\"meta\":{\"status\":\"ok\"},\"object\":{\"match\":true,\"id\":\"ddl-6faffd3451edefd3\",\"action\":\"uber://asdfasfasf\",\"attribution\":{\"btn_ref\":\"srctok-afsldkjf29askldfjwe\",\"utm_source\":\"SMS\"}}}");
+                }
+                return new MockResponse().setResponseCode(404);
+            }
+        });
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+                Collections.<String, String>emptyMap());
+
+        assertTrue(((MockSSLManager) sslManager).accessedSecureContext);
     }
 
     @Test
@@ -254,5 +310,18 @@ public class ButtonApiImplTest {
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
         buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+    }
+
+    /* Private helper classes */
+
+    private class MockSSLValidator implements SSLValidator {
+
+        private boolean accessedValidator;
+
+        @Override
+        public void validatePinning(HttpsURLConnection connection, Set<String> validPins)
+                throws IOException, KeyStoreException, NoSuchAlgorithmException {
+            accessedValidator = true;
+        }
     }
 }

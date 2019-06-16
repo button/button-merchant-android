@@ -58,9 +58,9 @@ class SSLManagerImpl implements SSLManager {
     private final char[] password;
     private final CertificateProvider provider;
 
-    static SSLManager getInstance(CertificateProvider provider, @Nullable char[] password) {
+    static SSLManager getInstance(CertificateProvider provider) {
         if (instance == null) {
-            instance = new SSLManagerImpl(provider, password);
+            instance = new SSLManagerImpl(provider, null);
         }
 
         return instance;
@@ -95,6 +95,7 @@ class SSLManagerImpl implements SSLManager {
         return provider;
     }
 
+    @VisibleForTesting
     KeyStore getKeyStore(CertificateProvider provider)
             throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());

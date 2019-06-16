@@ -71,8 +71,8 @@ public class SSLManagerTest {
 
     @Test
     public void getInstance_shouldReturnSameInstance() throws Exception {
-        SSLManager sslManager1 = SSLManagerImpl.getInstance(provider, null);
-        SSLManager sslManager2 = SSLManagerImpl.getInstance(provider, null);
+        SSLManager sslManager1 = SSLManagerImpl.getInstance(provider);
+        SSLManager sslManager2 = SSLManagerImpl.getInstance(provider);
 
         assertSame(sslManager1, sslManager2);
     }

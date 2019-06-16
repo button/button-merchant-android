@@ -1,5 +1,5 @@
 /*
- * MockSSLManager.java
+ * SSLValidator.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -25,41 +25,18 @@
 
 package com.usebutton.merchant;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.HttpsURLConnection;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import java.util.Set;
 
 /**
- * Helper test class to provide a pre-generated KeyStore for localhost
+ * Internal interface to facilitate public key pinning on network connections.
  */
-class MockSSLManager extends SSLManagerImpl {
+interface SSLValidator {
 
-    boolean accessedSecureContext;
-
-    MockSSLManager() {
-        super(new LocalCertificateProvider(), "localhost".toCharArray());
-    }
-
-    @Override
-    KeyStore getKeyStore(CertificateProvider provider)
-            throws CertificateException, KeyStoreException, IOException, NoSuchAlgorithmException {
-        InputStream stream = this.getClass().getResourceAsStream("/raw/localhost.keystore");
-        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(stream, "localhost".toCharArray());
-        return keyStore;
-    }
-
-    @Override
-    public SSLContext getSecureContext()
-            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException,
-            KeyManagementException {
-        accessedSecureContext = true;
-        return super.getSecureContext();
-    }
+    void validatePinning(HttpsURLConnection connection, Set<String> validPins)
+            throws IOException, KeyStoreException, NoSuchAlgorithmException;
 }
