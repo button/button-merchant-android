@@ -78,13 +78,28 @@ public final class ButtonMerchant {
      *
      * @param order {@link Order}
      * @param userActivityListener {@link UserActivityListener}
-     * @deprecated
+     *
+     * @deprecated Use {@link ButtonMerchant#reportOrder(Context, Order, OrderListener)}
      */
     @Deprecated
     public static void trackOrder(@NonNull Context context, @NonNull Order order,
             @Nullable UserActivityListener userActivityListener) {
         buttonInternal.trackOrder(getButtonRepository(context), getDeviceManager(context), order,
                 userActivityListener);
+    }
+
+    /**
+     * Report orders
+     *
+     * @param context a {@link Context) instance that can be used to access app resources like
+     * SharedPreferences.
+     * @param order {@link Order}
+     * @param orderListener {@link OrderListener}
+     */
+    public static void reportOrder(@NonNull Context context, @NonNull Order order,
+            @Nullable OrderListener orderListener) {
+        buttonInternal.reportOrder(getButtonRepository(context), getDeviceManager(context), order,
+                orderListener);
     }
 
     /**

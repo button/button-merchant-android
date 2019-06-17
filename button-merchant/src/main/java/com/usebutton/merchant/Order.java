@@ -25,6 +25,7 @@
 
 package com.usebutton.merchant;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.util.Date;
@@ -32,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents an order placed by the user to be tracked using ButtonMerchant.trackOrder(order).
+ * Represents an order placed by the user to be tracked using
+ * {@link ButtonMerchant#trackOrder(Context, Order, UserActivityListener)} and
+ * {@link ButtonMerchant#reportOrder(Context, Order, OrderListener)}
  */
 public class Order {
 

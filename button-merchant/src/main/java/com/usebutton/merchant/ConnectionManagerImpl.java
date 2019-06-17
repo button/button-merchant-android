@@ -25,7 +25,7 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -79,16 +80,22 @@ final class ConnectionManagerImpl implements ConnectionManager {
     }
 
     @Override
-    public NetworkResponse post(String url, @Nullable JSONObject body)
-            throws ButtonNetworkException {
-
+    public NetworkResponse executeRequest(@NonNull ApiRequest request) throws ButtonNetworkException {
         HttpURLConnection urlConnection = null;
 
         try {
-            urlConnection = getConnection(url);
-            urlConnection.setRequestMethod("POST");
+            urlConnection = getConnection(request.getPath());
+            urlConnection.setRequestMethod(request.getRequestMethod().getValue());
             urlConnection.setRequestProperty("Content-Type", CONTENT_TYPE_JSON);
 
+            Map<String, String> headers = request.getHeaders();
+            if (headers != null) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
+                }
+            }
+
+            JSONObject body = request.getBody();
             if (body != null) {
                 OutputStreamWriter writer =
                         new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
@@ -101,7 +108,7 @@ final class ConnectionManagerImpl implements ConnectionManager {
             Log.d(TAG, "Response Code: " + responseCode);
 
             if (responseCode >= 400) {
-                String message = "Unsuccessful POST Request. HTTP StatusCode: " + responseCode;
+                String message = "Unsuccessful Request. HTTP StatusCode: " + responseCode;
                 Log.e(TAG, message);
                 throw new ButtonNetworkException(message);
             }
@@ -117,8 +124,6 @@ final class ConnectionManagerImpl implements ConnectionManager {
             }
         }
     }
-
-    /* Private helper methods */
 
     private HttpURLConnection getConnection(String path)
             throws IOException {

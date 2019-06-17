@@ -69,14 +69,16 @@ public class ConnectionManagerTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_invalidUrl_catchException() throws Exception {
+    public void executeRequest_invalidUrl_shouldThrowError() throws Exception {
         String url = "invalid_link";
         connectionManager = new ConnectionManagerImpl(url, VALID_UA);
-        connectionManager.post("/test", null);
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build());
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_status400_catchException() throws Exception {
+    public void executeRequest_return400plus_shouldThrowError() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -84,36 +86,48 @@ public class ConnectionManagerTest {
                 return new MockResponse().setResponseCode(code);
             }
         });
-        connectionManager.post("/", null);
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/")
+                .build());    }
+
+
+    @Test
+    public void executeRequest_verifyDefaultHeaders() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        RecordedRequest recordedRequest = server.takeRequest();
+        assertEquals(recordedRequest.getHeader("User-Agent"), VALID_UA);
+        assertEquals(recordedRequest.getHeader("Accept"), "application/json");
     }
 
     @Test
-    public void post_shouldHaveCorrectHeaders() throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                JSONObject res;
-                try {
-                    res = new JSONObject();
-                    res.put("agent", request.getHeader("User-Agent"));
-                    res.put("data", request.getHeader("Accept"));
-                } catch (JSONException e) {
-                    return new MockResponse().setResponseCode(500);
-                }
+    public void executeRequest_addAuthorizationHeader_verifyHeader() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{}")
+        );
 
-                return new MockResponse()
-                        .setResponseCode(200)
-                        .setBody(res.toString());
-            }
-        });
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .addHeader("Authorization", "Basic valid_auth")
+                .build()
+        );
 
-        NetworkResponse response = connectionManager.post("/", null);
-        assertEquals(response.getBody().optString("agent"), VALID_UA);
-        assertEquals(response.getBody().optString("data"), "application/json");
+        RecordedRequest recordedRequest = server.takeRequest();
+        assertEquals(recordedRequest.getHeader("Authorization"), "Basic valid_auth");
     }
 
     @Test
-    public void post_shouldReturnRequestAsResponse() throws Exception {
+    public void executeRequest_returnRequestAsResponse_shouldRespondCorrectly() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -138,11 +152,17 @@ public class ConnectionManagerTest {
                         .setBody(res.toString());
             }
         });
+
         JSONObject body = new JSONObject();
         body.put("key", "val");
         body.put("abc", "def");
         body.put("123", "456");
-        NetworkResponse response = connectionManager.post("/", body);
+
+        NetworkResponse response = connectionManager.executeRequest(
+                new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")
+                        .setBody(body)
+                        .build()
+        );
 
         assertEquals(response.getStatusCode(), 200);
         assertEquals(response.getBody().optString("key"), "val");
@@ -151,7 +171,7 @@ public class ConnectionManagerTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_brokenResponse_catchException() throws Exception {
+    public void executeRequest_invalidResponse_shouldThrowError() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -159,6 +179,9 @@ public class ConnectionManagerTest {
             }
         });
 
-        connectionManager.post("/", null);
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/")
+                .build()
+        );
     }
 }

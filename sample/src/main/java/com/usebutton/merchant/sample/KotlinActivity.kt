@@ -12,8 +12,9 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.usebutton.merchant.ButtonMerchant
-import com.usebutton.merchant.Order.Builder
-import com.usebutton.merchant.sample.R.id
+import com.usebutton.merchant.Order
+import java.util.Collections
+import java.util.Date
 import java.util.Random
 
 class KotlinActivity : AppCompatActivity() {
@@ -33,9 +34,10 @@ class KotlinActivity : AppCompatActivity() {
 
         checkForPostInstallIntent()
         initTrackNewIntentButton()
-        initTackOrderButton()
+        initTrackOrderButton()
         initClearDataButton()
         initAttributionTokenListener()
+        initReportOrderButton()
     }
 
     private fun checkForPostInstallIntent() {
@@ -49,16 +51,16 @@ class KotlinActivity : AppCompatActivity() {
     }
 
     private fun initTrackNewIntentButton() {
-        findViewById<View>(id.track_new_intent).setOnClickListener { v ->
+        findViewById<View>(R.id.track_new_intent).setOnClickListener { v ->
             val intent = Intent()
             intent.data = Uri.parse(TEST_URL + Random().nextInt(100000))
             ButtonMerchant.trackIncomingIntent(v.context, intent)
         }
     }
 
-    private fun initTackOrderButton() {
-        findViewById<View>(id.track_order).setOnClickListener {
-            val order = Builder("order-id-123")
+    private fun initTrackOrderButton() {
+        findViewById<View>(R.id.track_order).setOnClickListener {
+            val order = Order.Builder("order-id-123")
                     .setAmount(8999)
                     .setCurrencyCode("USD")
                     .build()
@@ -72,22 +74,67 @@ class KotlinActivity : AppCompatActivity() {
         }
     }
 
+    private fun initReportOrderButton() {
+        findViewById<View>(R.id.report_order).setOnClickListener {
+            val lineItemId = "valid_line_item_id"
+            val lineItemTotal: Long = 100
+            val lineItemAttributes = Collections.singletonMap("valid_key", "valid_value")
+            val lineItemCategory = listOf("valid_line_item_category")
+            val lineItemUpc = "valid_line_item_upc"
+            val lineItemSku = "valid_line_item_sku"
+            val lineItemDescription = "valid_line_item_description"
+            val lineItemQuantity = 5
+            val lineItem = Order.LineItem.Builder(lineItemId, lineItemTotal)
+                    .setAttributes(lineItemAttributes)
+                    .setCategory(lineItemCategory)
+                    .setUpc(lineItemUpc)
+                    .setSku(lineItemSku)
+                    .setDescription(lineItemDescription)
+                    .setQuantity(lineItemQuantity)
+                    .build()
+
+            val customerId = "valid_customer_id"
+            val customerEmail = "valid_customer_email"
+            val customer = Order.Customer.Builder(customerId)
+                    .setEmail(customerEmail)
+                    .build()
+
+            val orderId = "valid_order_id"
+            val purchaseDate = Date()
+            val currencyCode = "valid_currency_code"
+            val customerOrderId = "valid_customer_order_id"
+
+            val order = Order.Builder(orderId, purchaseDate, listOf(lineItem))
+                    .setCurrencyCode(currencyCode)
+                    .setCustomerOrderId(customerOrderId)
+                    .setCustomer(customer)
+                    .build()
+            ButtonMerchant.reportOrder(this, order) { t ->
+                if (t == null) {
+                    toastify("Report order success")
+                } else {
+                    toastify("Report order error")
+                }
+            }
+        }
+    }
+
     private fun initClearDataButton() {
-        findViewById<View>(id.clear_all_data).setOnClickListener {
+        findViewById<View>(R.id.clear_all_data).setOnClickListener {
             ButtonMerchant.clearAllData(this)
             Log.d(TAG, "Cleared all data")
 
             val token = ButtonMerchant.getAttributionToken(this)
             Log.d(TAG, "Attribution Token is $token")
 
-            val textView = findViewById<TextView>(id.attribution_token)
+            val textView = findViewById<TextView>(R.id.attribution_token)
             textView.text = ButtonMerchant.getAttributionToken(this)
         }
     }
 
     private fun initAttributionTokenListener() {
         ButtonMerchant.addAttributionTokenListener(this) { token ->
-            findViewById<TextView>(id.attribution_token).text = token
+            findViewById<TextView>(R.id.attribution_token).text = token
         }
     }
 

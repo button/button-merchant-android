@@ -100,10 +100,10 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     }
 
     @Override
-    public void postUserActivity(DeviceManager manager, Order order, Task.Listener listener) {
+    public void postUserActivity(DeviceManager deviceManager, Order order, Task.Listener listener) {
         executorService.submit(
                 new UserActivityTask(listener, buttonApi, getApplicationId(), getSourceToken(),
-                        manager, order));
+                        deviceManager, order));
     }
 
     @Override
@@ -114,5 +114,12 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     @Override
     public void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink) {
         persistenceManager.updateCheckDeferredDeepLink(checkedDeferredDeepLink);
+    }
+
+    @Override
+    public void postOrder(Order order, DeviceManager deviceManager, Task.Listener listener) {
+        executorService.submit(
+                new PostOrderTask(listener, buttonApi, order, getApplicationId(),
+                        getSourceToken(), deviceManager));
     }
 }

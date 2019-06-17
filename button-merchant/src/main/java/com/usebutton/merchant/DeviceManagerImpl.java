@@ -42,7 +42,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,8 +56,6 @@ import java.util.concurrent.TimeUnit;
 final class DeviceManagerImpl implements DeviceManager {
 
     private static final String TAG = DeviceManagerImpl.class.getSimpleName();
-
-    static final String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ";
 
     private final Context context;
 
@@ -162,7 +159,7 @@ final class DeviceManagerImpl implements DeviceManager {
 
     @Override
     public String getTimeStamp() {
-        return new SimpleDateFormat(ISO_8601, Locale.US).format(date.get());
+        return ButtonUtil.formatDate(date.get());
     }
 
     @Override

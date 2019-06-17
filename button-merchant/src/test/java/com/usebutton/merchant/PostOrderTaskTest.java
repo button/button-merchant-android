@@ -1,7 +1,7 @@
 /*
- * GetPendingLinkTaskTest.java
+ * PostOrderTaskTest.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,10 +30,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class UserActivityTaskTest {
+public class PostOrderTaskTest {
 
     @Mock
     private ButtonApi buttonApi;
@@ -44,24 +46,38 @@ public class UserActivityTaskTest {
     @Mock
     private Task.Listener listener;
 
+    @Mock
+    private Order order;
+
     private String applicationId = "valid_application_id";
     private String sourceToken = "valid_source_token";
-    private Order order = new Order.Builder("123").build();
 
-    private UserActivityTask task;
+    private PostOrderTask task;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        task = new UserActivityTask(listener, buttonApi, applicationId, sourceToken, deviceManager,
-                order);
+        task = new PostOrderTask(listener, buttonApi, order, applicationId, sourceToken,
+                deviceManager);
     }
 
     @Test
-    public void execute_verifyApiCall() throws Exception {
-        when(deviceManager.getTimeStamp()).thenReturn("valid_ts");
+    public void execute_limitAdTrackingFalse_verifyApiCall() throws Exception {
+        String advertisingId = "valid_advertising_id";
+        when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
+        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(false);
 
         task.execute();
-        verify(buttonApi).postActivity(applicationId, sourceToken, "valid_ts", order);
+
+        verify(buttonApi).postOrder(order, applicationId, sourceToken, advertisingId);
+    }
+
+    @Test
+    public void execute_limitAdTrackingTrue_verifyNullAdvertisingId() throws Exception {
+        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(true);
+
+        task.execute();
+
+        verify(buttonApi).postOrder(eq(order), eq(applicationId), eq(sourceToken), (String) isNull());
     }
 }

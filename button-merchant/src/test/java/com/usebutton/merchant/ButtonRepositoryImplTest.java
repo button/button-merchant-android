@@ -118,4 +118,12 @@ public class ButtonRepositoryImplTest {
         buttonRepository.updateCheckDeferredDeepLink(true);
         verify(persistenceManager).updateCheckDeferredDeepLink(true);
     }
+
+    @Test
+    public void postOrder_executeTask() {
+        buttonRepository.postOrder(mock(Order.class), mock(DeviceManager.class),
+                mock(Task.Listener.class));
+
+        verify(executorService).submit(any(PostOrderTask.class));
+    }
 }

@@ -47,4 +47,9 @@ interface ButtonApi {
     @WorkerThread
     Void postActivity(String applicationId, String sourceToken, String timestamp, Order order)
             throws ButtonNetworkException;
+
+    @Nullable
+    @WorkerThread
+    Void postOrder(Order order, String applicationId, String sourceToken,
+            @Nullable String advertisingId) throws ButtonNetworkException;
 }

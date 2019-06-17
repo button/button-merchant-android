@@ -138,4 +138,15 @@ public class ButtonMerchantTest {
         verify(buttonInternal).handlePostInstallIntent(any(ButtonRepository.class), eq(
                 postInstallIntentListener), anyString(), any(DeviceManager.class));
     }
+
+    @Test
+    public void reportOrder_verifyButtonInternal() {
+        Order order = mock(Order.class);
+        OrderListener orderListener = mock(OrderListener.class);
+
+        ButtonMerchant.reportOrder(context, order, orderListener);
+
+        verify(buttonInternal).reportOrder(any(ButtonRepository.class), any(DeviceManager.class),
+                eq(order), eq(orderListener));
+    }
 }

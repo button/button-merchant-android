@@ -1,5 +1,5 @@
 /*
- * ConnectionManager.java
+ * PostOrderTask.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -25,12 +25,34 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import android.support.annotation.Nullable;
 
 /**
- * Internal interface to facilitate common HTTP requests.
+ * Asynchronous task used to report order to the Button API.
  */
-interface ConnectionManager {
+class PostOrderTask extends Task {
 
-    NetworkResponse executeRequest(ApiRequest request) throws ButtonNetworkException;
+    private final ButtonApi buttonApi;
+    private final String applicationId;
+    private final String sourceToken;
+    private final Order order;
+    private final DeviceManager deviceManager;
+
+    PostOrderTask(@Nullable Listener listener, ButtonApi buttonApi, Order order,
+            String applicationId, String sourceToken, DeviceManager deviceManager) {
+        super(listener);
+        this.buttonApi = buttonApi;
+        this.order = order;
+        this.applicationId = applicationId;
+        this.sourceToken = sourceToken;
+        this.deviceManager = deviceManager;
+    }
+
+    @Nullable
+    @Override
+    Void execute() throws Exception {
+        String advertisingId = deviceManager.isLimitAdTrackingEnabled() ?
+                null : deviceManager.getAdvertisingId();
+        return buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
+    }
 }

@@ -40,13 +40,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.usebutton.merchant.DeviceManagerImpl.ISO_8601;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -182,8 +180,7 @@ public class DeviceManagerImplTest {
             }
         };
 
-        SimpleDateFormat isoDateFormat = new SimpleDateFormat(ISO_8601, Locale.US);
-        assertEquals(deviceManager.getTimeStamp(), isoDateFormat.format(currentTime));
+        assertEquals(deviceManager.getTimeStamp(), ButtonUtil.formatDate(new Date(currentTime)));
     }
 
     @Test
