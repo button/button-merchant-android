@@ -158,7 +158,6 @@ task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
                       '**/Manifest*.*',
                       '**/*Test*.*',
                       'android/**/*.*',
-                      '**/data/models/*',
                       'com/usebutton/merchant/exception/**']
 
     def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
