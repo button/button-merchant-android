@@ -146,10 +146,35 @@ artifacts {
     archives javadocJar
 }
 
+task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+
+    def fileFilter = ['**/R.class',
+                      '**/R$*.class',
+                      '**/BuildConfig.*',
+                      '**/Manifest*.*',
+                      '**/*Test*.*',
+                      'android/**/*.*',
+                      'com/usebutton/merchant/exception/**']
+
+    def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
+    def mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files([mainSrc])
+    classDirectories = files([debugTree])
+    executionData = fileTree(dir: "$buildDir", includes: [
+            "jacoco/testDebugUnitTest.exec",
+            "outputs/code-coverage/connected/*coverage.ec"
+    ])
+}
+
 coveralls {
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoTestDebugUnitTestReport/jacocoTestDebugUnitTestReport.xml"
+    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoReport/jacocoReport.xml"
 }
 
 tasks.coveralls {
-    dependsOn 'jacocoTestDebugUnitTestReport'
+    dependsOn 'jacocoReport'
 }
