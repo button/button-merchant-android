@@ -69,14 +69,14 @@ public class ConnectionManagerTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_shouldThrowErrorOnInvalidURL() throws Exception {
+    public void post_invalidUrl_catchException() throws Exception {
         String url = "invalid_link";
         connectionManager = new ConnectionManagerImpl(url, VALID_UA);
         connectionManager.post("/test", null);
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_shouldThrowErrorOn400Plus() throws Exception {
+    public void post_status400_catchException() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -88,7 +88,7 @@ public class ConnectionManagerTest {
     }
 
     @Test
-    public void post_shouldBeConfiguredCorrectly() throws Exception {
+    public void post_shouldHaveCorrectHeaders() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
@@ -113,7 +113,7 @@ public class ConnectionManagerTest {
     }
 
     @Test
-    public void post_shouldReadAndRespondCorrectly() throws Exception {
+    public void post_shouldReturnRequestAsResponse() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
@@ -151,7 +151,7 @@ public class ConnectionManagerTest {
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void post_shouldThrowErrorOnBrokenResponse() throws Exception {
+    public void post_brokenResponse_catchException() throws Exception {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
