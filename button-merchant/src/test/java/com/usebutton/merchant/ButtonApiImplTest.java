@@ -27,58 +27,44 @@ package com.usebutton.merchant;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ButtonApiImplTest {
 
-    private final String userAgent = "valid_user_agent";
+    @Mock
+    private ConnectionManager connectionManager;
 
-    private MockWebServer server = new MockWebServer();
-    private ButtonApiImpl buttonApi = new ButtonApiImpl(userAgent);
+    @InjectMocks
+    private ButtonApiImpl buttonApi;
 
     @Before
-    public void setUp() throws Exception {
-        server.start();
-
-        HttpUrl baseUrl = server.url("");
-        String url = baseUrl.url().toString();
-        buttonApi.baseUrl = url.substring(0, url.length() - 1);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        server.close();
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
     public void getPendingLink_returnValidResponse_validatePostInstallLink() throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v1/web/deferred-deeplink") && request.getMethod()
-                        .equals("POST")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setBody(
-                                    "{\"meta\":{\"status\":\"ok\"},\"object\":{\"match\":true,\"id\":\"ddl-6faffd3451edefd3\",\"action\":\"uber://asdfasfasf\",\"attribution\":{\"btn_ref\":\"srctok-afsldkjf29askldfjwe\",\"utm_source\":\"SMS\"}}}");
-                }
-                return new MockResponse().setResponseCode(404);
-            }
-        });
+        JSONObject body = new JSONObject(
+                "{\"meta\":{\"status\":\"ok\"},\"object\":{\"match\":true,\"id\":\"ddl-6faffd3451edefd3\",\"action\":\"uber://asdfasfasf\",\"attribution\":{\"btn_ref\":\"srctok-afsldkjf29askldfjwe\",\"utm_source\":\"SMS\"}}}");
+        NetworkResponse response = new NetworkResponse(200, body);
+        when(connectionManager.post(eq("/v1/web/deferred-deeplink"), any(JSONObject.class)))
+                .thenReturn(response);
 
         PostInstallLink postInstallLink =
                 buttonApi.getPendingLink("valid_application_id", "valid_ifa",
@@ -96,110 +82,48 @@ public class ButtonApiImplTest {
 
     @Test
     public void getPendingLink_validateRequest() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+        ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        NetworkResponse response = new NetworkResponse(200, new JSONObject());
+        when(connectionManager.post(eq("/v1/web/deferred-deeplink"), argumentCaptor.capture()))
+                .thenReturn(response);
 
         buttonApi.getPendingLink("valid_application_id", "valid_ifa",
                 true, Collections.singletonMap("key", "value"));
 
-        RecordedRequest recordedRequest = server.takeRequest();
-        Headers headers = recordedRequest.getHeaders();
-        String body = recordedRequest.getBody().readUtf8();
-        JSONObject bodyJson = new JSONObject(body);
-        JSONObject signalsJson = bodyJson.getJSONObject("signals");
-
-        // method
-        assertEquals("POST", recordedRequest.getMethod());
-
-        // headers
-        assertEquals(userAgent, headers.get("User-Agent"));
-        assertEquals("application/json", headers.get("Accept"));
-        assertEquals("application/json", headers.get("Content-Type"));
+        JSONObject body = argumentCaptor.getValue();
+        JSONObject signals = body.getJSONObject("signals");
 
         // request body
-        assertEquals("valid_application_id", bodyJson.getString("application_id"));
-        assertEquals("valid_ifa", bodyJson.getString("ifa"));
-        assertEquals(true, bodyJson.getBoolean("ifa_limited"));
-        assertEquals("value", signalsJson.getString("key"));
+        assertEquals("valid_application_id", body.getString("application_id"));
+        assertEquals("valid_ifa", body.getString("ifa"));
+        assertEquals(true, body.getBoolean("ifa_limited"));
+        assertEquals("value", signals.getString("key"));
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void getPendingLink_returnErrorResponseStatusCodeOver400_catchException()
-            throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                return new MockResponse().setResponseCode(404);
-            }
-        });
+    public void getPendingLink_returnJSONException_catchException() throws Exception {
+        NetworkResponse response = mock(NetworkResponse.class);
+        when(response.getBody()).thenThrow(JSONException.class);
+        when(connectionManager.post(eq("/v1/web/deferred-deeplink"), any(JSONObject.class)))
+                .thenReturn(response);
 
         buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
                 Collections.<String, String>emptyMap());
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void getPendingLink_returnInvalidJson_catchException() throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v1/web/deferred-deeplink") && request.getMethod()
-                        .equals("POST")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setBody("");
-                }
-                return new MockResponse().setResponseCode(404);
-            }
-        });
+    public void getPendingLink_returnsException_catchException() throws Exception {
+        when(connectionManager.post(eq("/v1/web/deferred-deeplink"), any(JSONObject.class)))
+                .thenThrow(ButtonNetworkException.class);
 
         buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
                 Collections.<String, String>emptyMap());
     }
 
     @Test(expected = ButtonNetworkException.class)
-    public void getPendingLink_invalidUrl_catchException() throws Exception {
-        buttonApi.baseUrl = "invalid_url";
-
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
-                Collections.<String, String>emptyMap());
-    }
-
-    @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnErrorResponseStatusCodeOver400_catchException()
-            throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                return new MockResponse().setResponseCode(404);
-            }
-        });
-
-        Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
-    }
-
-    @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnErrorMessage_catchException() throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v1/activity/order") && request.getMethod()
-                        .equals("POST")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setBody(
-                                    "{\"meta\":{\"status\":\"error\"},\"error\":{\"message\":\"Unknown source token\"}}\n");
-                }
-                return new MockResponse().setResponseCode(404);
-            }
-        });
-
-        Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
-    }
-
-    @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_invalidUrl_catchException() throws Exception {
-        buttonApi.baseUrl = "invalid_url";
+    public void postUserActivity_returnsException_catchException() throws Exception {
+        when(connectionManager.post(eq("/v1/activity/order"), any(JSONObject.class)))
+                .thenThrow(ButtonNetworkException.class);
 
         Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
         buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
@@ -207,50 +131,24 @@ public class ButtonApiImplTest {
 
     @Test
     public void postUserActivity_validateRequest() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(200)
-                .setBody("{\"meta\":{\"status\":\"ok\"}}\n"));
+        ArgumentCaptor<JSONObject> argumentCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        JSONObject body = new JSONObject("{\"meta\":{\"status\":\"ok\"}}\n");
+        NetworkResponse response = new NetworkResponse(200, body);
+        when(connectionManager.post(eq("/v1/activity/order"), argumentCaptor.capture()))
+                .thenReturn(response);
 
         Order order = new Order.Builder("123").setAmount(999).setCurrencyCode("AUG").build();
         buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
 
-        RecordedRequest recordedRequest = server.takeRequest();
-        Headers headers = recordedRequest.getHeaders();
-        String body = recordedRequest.getBody().readUtf8();
-        JSONObject requestBodyJson = new JSONObject(body);
-        // method
-        assertEquals("POST", recordedRequest.getMethod());
-
-        // headers
-        assertEquals(userAgent, headers.get("User-Agent"));
-        assertEquals("application/json", headers.get("Accept"));
-        assertEquals("application/json", headers.get("Content-Type"));
+        JSONObject requestBody = argumentCaptor.getValue();
 
         // request body
-        assertEquals("valid_application_id", requestBodyJson.getString("app_id"));
-        assertEquals("valid_ts", requestBodyJson.getString("user_local_time"));
-        assertEquals("valid_aid", requestBodyJson.getString("btn_ref"));
-        assertEquals("123", requestBodyJson.getString("order_id"));
-        assertEquals(999, requestBodyJson.getLong("total"));
-        assertEquals("AUG", requestBodyJson.getString("currency"));
-        assertEquals("merchant-library", requestBodyJson.getString("source"));
-    }
-
-    @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnInvalidJson_catchException() throws Exception {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
-                if (request.getPath().equals("/v1/activity/order") && request.getMethod()
-                        .equals("POST")) {
-                    return new MockResponse()
-                            .setResponseCode(200)
-                            .setBody("");
-                }
-                return new MockResponse().setResponseCode(404);
-            }
-        });
-
-        Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
+        assertEquals("valid_application_id", requestBody.getString("app_id"));
+        assertEquals("valid_ts", requestBody.getString("user_local_time"));
+        assertEquals("valid_aid", requestBody.getString("btn_ref"));
+        assertEquals("123", requestBody.getString("order_id"));
+        assertEquals(999, requestBody.getLong("total"));
+        assertEquals("AUG", requestBody.getString("currency"));
+        assertEquals("merchant-library", requestBody.getString("source"));
     }
 }
