@@ -163,7 +163,14 @@ public final class ButtonMerchant {
 
         DeviceManager deviceManager = getDeviceManager(context);
 
-        ButtonApi buttonApi = ButtonApiImpl.getInstance(deviceManager.getUserAgent());
+        CertificateProvider provider = new AmazonCertificateProvider();
+
+        SSLManager sslManager = SSLManagerImpl.getInstance(provider);
+
+        SSLValidator sslValidator = SSLValidatorImpl.getDefault();
+
+        ButtonApi buttonApi =
+                ButtonApiImpl.getInstance(deviceManager.getUserAgent(), sslManager, sslValidator);
 
         return ButtonRepositoryImpl.getInstance(buttonApi, persistenceManager, executorService);
     }

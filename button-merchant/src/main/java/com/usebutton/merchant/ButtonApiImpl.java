@@ -32,6 +32,8 @@ import android.util.Log;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,11 +43,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -60,23 +65,29 @@ final class ButtonApiImpl implements ButtonApi {
     private static final String CONTENT_TYPE_JSON = "application/json";
 
     private final String userAgent;
+    private final SSLManager sslManager;
+    @Nullable
+    private final SSLValidator sslValidator;
 
     @VisibleForTesting
     String baseUrl = "https://api.usebutton.com";
 
     private static ButtonApi buttonApi;
 
-    static ButtonApi getInstance(String userAgent) {
+    static ButtonApi getInstance(String userAgent, SSLManager sslManager,
+            @Nullable SSLValidator sslValidator) {
         if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl(userAgent);
+            buttonApi = new ButtonApiImpl(userAgent, sslManager, sslValidator);
         }
 
         return buttonApi;
     }
 
     @VisibleForTesting
-    ButtonApiImpl(String userAgent) {
+    ButtonApiImpl(String userAgent, SSLManager sslManager, @Nullable SSLValidator sslValidator) {
         this.userAgent = userAgent;
+        this.sslManager = sslManager;
+        this.sslValidator = sslValidator;
     }
 
     @Nullable
@@ -85,7 +96,7 @@ final class ButtonApiImpl implements ButtonApi {
     public PostInstallLink getPendingLink(String applicationId, String ifa,
             boolean limitAdTrackingEnabled, Map<String, String> signalsMap) throws
             ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
+        HttpsURLConnection urlConnection = null;
 
         try {
             // create request body
@@ -97,7 +108,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             // setup url connection
             final URL url = new URL(baseUrl + "/v1/web/deferred-deeplink");
-            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpsURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
             // write request body
@@ -157,6 +168,10 @@ final class ButtonApiImpl implements ButtonApi {
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
             throw new ButtonNetworkException(e);
+        } catch (CertificateException | KeyStoreException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
+            throw new ButtonNetworkException(e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -166,7 +181,10 @@ final class ButtonApiImpl implements ButtonApi {
         return null;
     }
 
-    private void initializeUrlConnection(HttpURLConnection urlConnection) throws ProtocolException {
+    private void initializeUrlConnection(HttpsURLConnection urlConnection) throws
+            CertificateException, KeyStoreException, NoSuchAlgorithmException, IOException,
+            KeyManagementException {
+
         urlConnection.setConnectTimeout(CONNECT_TIMEOUT);
         urlConnection.setReadTimeout(READ_TIMEOUT);
         urlConnection.setRequestProperty("User-Agent", getUserAgent());
@@ -174,12 +192,22 @@ final class ButtonApiImpl implements ButtonApi {
         urlConnection.setRequestProperty("Content-Type", CONTENT_TYPE_JSON);
         urlConnection.setRequestMethod("POST");
         urlConnection.setDoOutput(true);
+
+        // Public key pinning is only available API 17 and above
+        // Default to CA pinning for older Android versions
+        if (sslValidator != null) {
+            Set<String> keys = sslManager.getCertificateProvider().getPublicKeys();
+            sslValidator.validatePinning(urlConnection, keys);
+        } else {
+            SSLContext sslContext = sslManager.getSecureContext();
+            urlConnection.setSSLSocketFactory(sslContext.getSocketFactory());
+        }
     }
 
     @Override
     public Void postActivity(String applicationId, String sourceToken, String timestamp,
             Order order) throws ButtonNetworkException {
-        HttpURLConnection urlConnection = null;
+        HttpsURLConnection urlConnection = null;
 
         try {
             // create request body
@@ -194,7 +222,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             // setup url connection
             final URL url = new URL(baseUrl + "/v1/activity/order");
-            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection = (HttpsURLConnection) url.openConnection();
             initializeUrlConnection(urlConnection);
 
             // write request body
@@ -241,6 +269,10 @@ final class ButtonApiImpl implements ButtonApi {
             throw new ButtonNetworkException(e);
         } catch (JSONException e) {
             Log.e(TAG, "JSONException has occurred", e);
+            throw new ButtonNetworkException(e);
+        } catch (CertificateException | KeyStoreException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
             throw new ButtonNetworkException(e);
         } finally {
             if (urlConnection != null) {
