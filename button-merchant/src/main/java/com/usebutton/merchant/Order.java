@@ -183,8 +183,7 @@ public class Order {
 
         private String id;
         private long total;
-        @Nullable
-        private Integer quantity;
+        private int quantity;
         @Nullable
         private String description;
         @Nullable
@@ -215,8 +214,7 @@ public class Order {
             return total;
         }
 
-        @Nullable
-        public Integer getQuantity() {
+        public int getQuantity() {
             return quantity;
         }
 
@@ -252,7 +250,7 @@ public class Order {
 
             private String id;
             private long total;
-            private Integer quantity;
+            private int quantity = 1;
             @Nullable
             private String description;
             @Nullable
