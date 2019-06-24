@@ -57,10 +57,6 @@ android {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
     }
-
-    sourceSets {
-        test.resources.srcDirs += 'src/test/res'
-    }
 }
 
 configurations {
