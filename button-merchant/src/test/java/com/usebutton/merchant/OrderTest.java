@@ -190,8 +190,6 @@ public class OrderTest {
 
         assertEquals(customer.getId(), "123");
         assertNull(customer.getEmail());
-        assertNull(customer.getEmailSha256());
-        assertNull(customer.getAdvertisingId());
     }
 
     @Test
@@ -202,25 +200,5 @@ public class OrderTest {
                 .build();
 
         assertEquals(customer.getEmail(), email);
-    }
-
-    @Test
-    public void customer_setEmailSha256_verify() {
-        String emailSha256 = "valid_email_sha_256";
-        Order.Customer customer = new Order.Customer.Builder("123")
-                .setEmailSha256(emailSha256)
-                .build();
-
-        assertEquals(customer.getEmailSha256(), emailSha256);
-    }
-
-    @Test
-    public void customer_setAdvertisingId_verify() {
-        String advertisingId = "valid_advertising_id";
-        Order.Customer customer = new Order.Customer.Builder("123")
-                .setAdvertisingId(advertisingId)
-                .build();
-
-        assertEquals(customer.getAdvertisingId(), advertisingId);
     }
 }

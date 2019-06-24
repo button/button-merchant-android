@@ -345,16 +345,10 @@ public class Order {
         private String id;
         @Nullable
         private String email;
-        @Nullable
-        private String emailSha256;
-        @Nullable
-        private String advertisingId;
 
         private Customer(Builder builder) {
             this.id = builder.id;
             this.email = builder.email;
-            this.emailSha256 = builder.emailSha256;
-            this.advertisingId = builder.advertisingId;
         }
 
         public String getId() {
@@ -366,16 +360,6 @@ public class Order {
             return email;
         }
 
-        @Nullable
-        public String getEmailSha256() {
-            return emailSha256;
-        }
-
-        @Nullable
-        public String getAdvertisingId() {
-            return advertisingId;
-        }
-
         /**
          * Builder class for order customer {@link Order.Customer}.
          */
@@ -384,10 +368,6 @@ public class Order {
             private String id;
             @Nullable
             private String email;
-            @Nullable
-            private String emailSha256;
-            @Nullable
-            private String advertisingId;
 
             /**
              * @param id The id for the transacting customer in your system (required)
@@ -397,29 +377,14 @@ public class Order {
             }
 
             /**
-             * The email of the transacting customer
-             */
-            public Builder setEmail(String email) {
-                this.email = email;
-                return this;
-            }
-
-            /**
              * The SHA-256 hash of the transacting customer’s lowercase email, as a 64-character
              * hex string.
+             *
              * Note: The value of the e-mail address must be converted to lowercase before
              * computing the hash. The hash itself may use uppercase or lowercase hex characters.
              */
-            public Builder setEmailSha256(String emailSha256) {
-                this.emailSha256 = emailSha256;
-                return this;
-            }
-
-            /**
-             * The customer’s IDFA
-             */
-            public Builder setAdvertisingId(String advertisingId) {
-                this.advertisingId = advertisingId;
+            public Builder setEmail(String email) {
+                this.email = email;
                 return this;
             }
 
