@@ -78,7 +78,9 @@ public final class ButtonMerchant {
      *
      * @param order {@link Order}
      * @param userActivityListener {@link UserActivityListener}
+     * @deprecated
      */
+    @Deprecated
     public static void trackOrder(@NonNull Context context, @NonNull Order order,
             @Nullable UserActivityListener userActivityListener) {
         buttonInternal.trackOrder(getButtonRepository(context), getDeviceManager(context), order,
