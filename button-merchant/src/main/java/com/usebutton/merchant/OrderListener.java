@@ -25,13 +25,12 @@
 
 package com.usebutton.merchant;
 
-import android.content.Context;
 import android.support.annotation.Nullable;
 
 /**
  * Callbacks for report order
  *
- * @see ButtonMerchant#reportOrder(Context, Order, OrderListener)
+ * @see ButtonMerchant#reportOrder(android.content.Context, Order, OrderListener)
  */
 public interface OrderListener {
 

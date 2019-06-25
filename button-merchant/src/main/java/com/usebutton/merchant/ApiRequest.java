@@ -37,6 +37,9 @@ import java.util.Map;
  */
 class ApiRequest {
 
+    /**
+     * Request Method for the api request
+     */
     enum RequestMethod {
         POST("POST");
 
@@ -83,6 +86,9 @@ class ApiRequest {
         return body;
     }
 
+    /**
+     * Constructor
+     */
     static class Builder {
 
         private final RequestMethod requestMethod;

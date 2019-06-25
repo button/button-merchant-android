@@ -51,8 +51,8 @@ class PostOrderTask extends Task {
     @Nullable
     @Override
     Void execute() throws Exception {
-        String advertisingId = deviceManager.isLimitAdTrackingEnabled() ?
-                null : deviceManager.getAdvertisingId();
+        String advertisingId = deviceManager.isLimitAdTrackingEnabled()
+                ? null : deviceManager.getAdvertisingId();
         return buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
     }
 }

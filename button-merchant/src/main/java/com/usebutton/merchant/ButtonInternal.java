@@ -58,5 +58,6 @@ interface ButtonInternal {
     void handlePostInstallIntent(ButtonRepository buttonRepository,
             PostInstallIntentListener listener, String packageName, DeviceManager deviceManager);
 
-    void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager, Order order, @Nullable OrderListener orderListener);
+    void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager, Order order,
+            @Nullable OrderListener orderListener);
 }

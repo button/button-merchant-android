@@ -226,8 +226,8 @@ final class ButtonInternalImpl implements ButtonInternal {
     }
 
     @Override
-    public void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager, Order order,
-            @Nullable final OrderListener orderListener) {
+    public void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Order order, @Nullable final OrderListener orderListener) {
 
         if (buttonRepository.getApplicationId() == null) {
             executor.execute(new Runnable() {

@@ -80,7 +80,8 @@ final class ConnectionManagerImpl implements ConnectionManager {
     }
 
     @Override
-    public NetworkResponse executeRequest(@NonNull ApiRequest request) throws ButtonNetworkException {
+    public NetworkResponse executeRequest(@NonNull ApiRequest request)
+            throws ButtonNetworkException {
         HttpURLConnection urlConnection = null;
 
         try {
