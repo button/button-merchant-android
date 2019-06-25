@@ -33,9 +33,4 @@
             <pin digest="SHA-256">47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=</pin>
         </pin-set>
     </domain-config>
-    <debug-overrides>
-        <trust-anchors>
-            <certificates src="user"/>
-        </trust-anchors>
-    </debug-overrides>
 </network-security-config>
