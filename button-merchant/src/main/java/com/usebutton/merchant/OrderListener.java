@@ -1,5 +1,5 @@
 /*
- * ConnectionManager.java
+ * OrderListener.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -25,12 +25,14 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import android.support.annotation.Nullable;
 
 /**
- * Internal interface to facilitate common HTTP requests.
+ * Callbacks for report order
+ *
+ * @see ButtonMerchant#reportOrder(android.content.Context, Order, OrderListener)
  */
-interface ConnectionManager {
+public interface OrderListener {
 
-    NetworkResponse executeRequest(ApiRequest request) throws ButtonNetworkException;
+    void onResult(@Nullable Throwable throwable);
 }

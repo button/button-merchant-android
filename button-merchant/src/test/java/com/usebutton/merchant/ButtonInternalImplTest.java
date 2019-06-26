@@ -428,6 +428,63 @@ public class ButtonInternalImplTest {
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
     }
 
+    @Test
+    public void reportOrder_nullApplicationId_verifyException() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn(null);
+        OrderListener orderListener = mock(OrderListener.class);
+
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class), orderListener);
+
+        verify(orderListener).onResult(any(ApplicationIdNotFoundException.class));
+    }
+
+    @Test
+    public void reportOrder_hasApplicationId_verifyPostOrder() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        DeviceManager deviceManager = mock(DeviceManager.class);
+        Order order = mock(Order.class);
+        OrderListener orderListener = mock(OrderListener.class);
+
+        buttonInternal.reportOrder(buttonRepository, deviceManager, order, orderListener);
+
+        verify(buttonRepository).postOrder(eq(order), eq(deviceManager), any(Task.Listener.class));
+    }
+
+    @Test
+    public void reportOrder_onTaskComplete_verifyCallback() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        OrderListener orderListener = mock(OrderListener.class);
+
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
+                orderListener);
+
+        ArgumentCaptor<Task.Listener> argumentCaptor = ArgumentCaptor.forClass(Task.Listener.class);
+        verify(buttonRepository).postOrder(any(Order.class), any(DeviceManager.class),
+                argumentCaptor.capture());
+        argumentCaptor.getValue().onTaskComplete(null);
+        verify(orderListener).onResult((Throwable) isNull());
+    }
+
+    @Test
+    public void reportOrder_onTaskError_verifyCallback() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        OrderListener orderListener = mock(OrderListener.class);
+
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
+                orderListener);
+
+        ArgumentCaptor<Task.Listener> argumentCaptor = ArgumentCaptor.forClass(Task.Listener.class);
+        verify(buttonRepository).postOrder(any(Order.class), any(DeviceManager.class),
+                argumentCaptor.capture());
+        Exception exception = mock(Exception.class);
+        argumentCaptor.getValue().onTaskError(exception);
+        verify(orderListener).onResult(exception);
+    }
+
     private class TestMainThreadExecutor implements Executor {
 
         @Override

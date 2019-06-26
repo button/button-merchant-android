@@ -225,6 +225,39 @@ final class ButtonInternalImpl implements ButtonInternal {
         }, deviceManager);
     }
 
+    @Override
+    public void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Order order, @Nullable final OrderListener orderListener) {
+
+        if (buttonRepository.getApplicationId() == null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (orderListener != null) {
+                        orderListener.onResult(new ApplicationIdNotFoundException());
+                    }
+                }
+            });
+            return;
+        }
+
+       buttonRepository.postOrder(order, deviceManager, new Task.Listener() {
+           @Override
+           public void onTaskComplete(@Nullable Object object) {
+                if (orderListener != null) {
+                    orderListener.onResult(null);
+                }
+           }
+
+           @Override
+           public void onTaskError(Throwable throwable) {
+               if (orderListener != null) {
+                   orderListener.onResult(throwable);
+               }
+           }
+       });
+    }
+
     /**
      * Sets the attribution token in the {@link ButtonRepository} and updates all
      * {@link ButtonInternalImpl#attributionTokenListeners} if the token has changed.

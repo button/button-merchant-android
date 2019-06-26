@@ -51,4 +51,6 @@ interface ButtonRepository {
     boolean checkedDeferredDeepLink();
 
     void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink);
+
+    void postOrder(Order order, DeviceManager deviceManager, Task.Listener listener);
 }

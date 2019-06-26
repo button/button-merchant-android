@@ -25,6 +25,7 @@
 
 package com.usebutton.merchant;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
 
 import java.util.Date;
@@ -32,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents an order placed by the user to be tracked using ButtonMerchant.trackOrder(order).
+ * Represents an order placed by the user to be tracked using
+ * {@link ButtonMerchant#trackOrder(Context, Order, UserActivityListener)} and
+ * {@link ButtonMerchant#reportOrder(Context, Order, OrderListener)}
  */
 public class Order {
 
@@ -113,6 +116,8 @@ public class Order {
          * Constructor.
          *
          * @param id The order identifier (required).
+         *
+         * @deprecated
          */
         @Deprecated
         public Builder(String id) {
@@ -135,6 +140,8 @@ public class Order {
         /**
          * The total order value in pennies (e.g. 3999 for $39.99) or the smallest decimal unit of
          * the currency code. (default is 0)
+         *
+         * @deprecated
          */
         @Deprecated
         public Builder setAmount(long amount) {

@@ -32,9 +32,11 @@ import android.util.Log;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -69,14 +71,19 @@ final class ButtonApiImpl implements ButtonApi {
 
         try {
             // Create request body
-            JSONObject request = new JSONObject();
-            request.put("application_id", applicationId);
-            request.put("ifa", ifa);
-            request.put("ifa_limited", limitAdTrackingEnabled);
-            request.put("signals", new JSONObject(signalsMap));
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("application_id", applicationId);
+            requestBody.put("ifa", ifa);
+            requestBody.put("ifa_limited", limitAdTrackingEnabled);
+            requestBody.put("signals", new JSONObject(signalsMap));
+
+            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                    "/v1/web/deferred-deeplink")
+                    .setBody(requestBody)
+                    .build();
 
             // Execute POST request and parse response
-            NetworkResponse response = connectionManager.post("/v1/web/deferred-deeplink", request);
+            NetworkResponse response = connectionManager.executeRequest(apiRequest);
             JSONObject responseBody = response.getBody().optJSONObject("object");
             if (responseBody != null) {
                 boolean match = responseBody.getBoolean("match");
@@ -107,17 +114,104 @@ final class ButtonApiImpl implements ButtonApi {
 
         try {
             // Create request body
-            JSONObject request = new JSONObject();
-            request.put("app_id", applicationId);
-            request.put("user_local_time", timestamp);
-            request.put("btn_ref", sourceToken);
-            request.put("order_id", order.getId());
-            request.put("total", order.getAmount());
-            request.put("currency", order.getCurrencyCode());
-            request.put("source", "merchant-library");
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("app_id", applicationId);
+            requestBody.put("user_local_time", timestamp);
+            requestBody.put("btn_ref", sourceToken);
+            requestBody.put("order_id", order.getId());
+            requestBody.put("total", order.getAmount());
+            requestBody.put("currency", order.getCurrencyCode());
+            requestBody.put("source", "merchant-library");
+
+            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                    "/v1/activity/order")
+                    .setBody(requestBody)
+                    .build();
 
             // Execute POST request and parse response
-            connectionManager.post("/v1/activity/order", request);
+            connectionManager.executeRequest(apiRequest);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error creating request body", e);
+            throw new ButtonNetworkException(e);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public Void postOrder(Order order, String applicationId, String sourceToken,
+            @Nullable String advertisingId) throws ButtonNetworkException {
+
+        try {
+            // Create request body
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("currency", order.getCurrencyCode());
+            requestBody.put("btn_ref", sourceToken);
+            requestBody.put("order_id", order.getId());
+            requestBody.put("purchase_date", ButtonUtil.formatDate(order.getPurchaseDate()));
+            requestBody.put("customer_order_id", order.getCustomerOrderId());
+
+            for (Order.LineItem lineItem : order.getLineItems()) {
+                JSONArray lineItemsJson = new JSONArray();
+                JSONObject lineItemJson = new JSONObject();
+
+                List<String> lineItemCategory = lineItem.getCategory();
+                if (lineItemCategory != null) {
+                    JSONArray categoryJson = new JSONArray();
+                    for (String category : lineItemCategory) {
+                        categoryJson.put(category);
+                    }
+
+                    lineItemJson.put("category", categoryJson);
+                }
+
+                lineItemJson.put("identifier", lineItem.getId());
+                lineItemJson.put("quantity", lineItem.getQuantity());
+                lineItemJson.put("total", lineItem.getTotal());
+
+                Map<String, String> lineItemAttributes = lineItem.getAttributes();
+                if (lineItemAttributes != null) {
+                    JSONObject attributesJson = new JSONObject();
+                    for (Map.Entry<String, String> entry : lineItemAttributes.entrySet()) {
+                        attributesJson.put(entry.getKey(), entry.getValue());
+                    }
+
+                    lineItemJson.put("attributes", attributesJson);
+                }
+
+                lineItemJson.put("upc", lineItem.getUpc());
+                lineItemJson.put("description", lineItem.getDescription());
+                lineItemJson.put("sku", lineItem.getSku());
+
+                lineItemsJson.put(lineItemJson);
+                requestBody.put("line_items", lineItemsJson);
+            }
+
+            Order.Customer customer = order.getCustomer();
+            if (customer != null) {
+                JSONObject customerJson = new JSONObject();
+                customerJson.put("id", customer.getId());
+
+                String email = customer.getEmail();
+                if (email != null) {
+                    // TODO ADD EMAIL REGEX CHECK
+                    email = ButtonUtil.sha256Encode(email.toLowerCase());
+                    customerJson.put("email_sha256", email);
+                }
+
+                customerJson.put("device_id", advertisingId);
+                requestBody.put("customer", customerJson);
+            }
+
+            applicationId = ButtonUtil.base64Encode(applicationId + ":");
+            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                    "/v1/mobile-order")
+                    .addHeader("Authorization", String.format("Basic %s", applicationId))
+                    .setBody(requestBody)
+                    .build();
+
+            connectionManager.executeRequest(apiRequest);
         } catch (JSONException e) {
             Log.e(TAG, "Error creating request body", e);
             throw new ButtonNetworkException(e);
