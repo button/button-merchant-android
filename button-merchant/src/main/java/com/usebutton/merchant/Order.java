@@ -116,6 +116,8 @@ public class Order {
          * Constructor.
          *
          * @param id The order identifier (required).
+         *
+         * @deprecated
          */
         @Deprecated
         public Builder(String id) {
@@ -138,6 +140,8 @@ public class Order {
         /**
          * The total order value in pennies (e.g. 3999 for $39.99) or the smallest decimal unit of
          * the currency code. (default is 0)
+         *
+         * @deprecated
          */
         @Deprecated
         public Builder setAmount(long amount) {
