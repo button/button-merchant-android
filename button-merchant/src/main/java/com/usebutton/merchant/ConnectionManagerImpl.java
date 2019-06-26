@@ -90,19 +90,15 @@ final class ConnectionManagerImpl implements ConnectionManager {
             urlConnection.setRequestProperty("Content-Type", CONTENT_TYPE_JSON);
 
             Map<String, String> headers = request.getHeaders();
-            if (headers != null) {
-                for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
-                }
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
             }
 
             JSONObject body = request.getBody();
-            if (body != null) {
-                OutputStreamWriter writer =
-                        new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
-                writer.write(body.toString());
-                writer.close();
-            }
+            OutputStreamWriter writer =
+                    new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
+            writer.write(body.toString());
+            writer.close();
 
             int responseCode = urlConnection.getResponseCode();
             Log.d(TAG, "Request Body: " + body);

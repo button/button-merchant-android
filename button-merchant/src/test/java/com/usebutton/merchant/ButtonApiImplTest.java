@@ -44,6 +44,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -163,7 +164,75 @@ public class ButtonApiImplTest {
     }
 
     @Test
-    public void postOrder_validateRequest() throws Exception {
+    public void postOrder_validateRequestMethodAndPath() throws Exception {
+        Order order = new Order.Builder("123", new Date(), Collections.<Order.LineItem>emptyList())
+                .build();
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
+        assertEquals("/v1/mobile-order", apiRequest.getPath());
+    }
+
+    @Test
+    public void postOrder_validateHeaders() throws Exception {
+        Order order = new Order.Builder("123", new Date(), Collections.<Order.LineItem>emptyList())
+                .build();
+
+        String applicationId = "valid_application_id";
+        buttonApi.postOrder(order, applicationId,
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+
+        assertEquals("Basic " + ButtonUtil.base64Encode(applicationId + ":"),
+                apiRequest.getHeaders().get("Authorization"));
+    }
+
+    @Test
+    public void postOrder_validateOrder() throws Exception {
+        String orderId = "valid_order_id";
+        Date purchaseDate = new Date();
+        String currencyCode = "valid_currency_code";
+        String customerOrderId = "valid_customer_order_id";
+
+        Order order = new Order.Builder(orderId, purchaseDate,
+                Collections.<Order.LineItem>emptyList())
+                .setCurrencyCode(currencyCode)
+                .setCustomerOrderId(customerOrderId)
+                .build();
+
+        String sourceToken = "valid_source_token";
+
+        buttonApi.postOrder(order, "valid_application_id",
+                sourceToken, "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        assertEquals(currencyCode, requestBody.getString("currency"));
+        assertEquals(sourceToken, requestBody.getString("btn_ref"));
+        assertEquals(orderId, requestBody.getString("order_id"));
+        assertEquals(ButtonUtil.formatDate(purchaseDate),
+                requestBody.getString("purchase_date"));
+        assertEquals(customerOrderId, requestBody.getString("customer_order_id"));
+
+        assertNull(requestBody.optJSONArray("line_items"));
+        assertNull(requestBody.optJSONObject("customer"));
+    }
+
+    @Test
+    public void postOrder_validateLineItem() throws Exception {
         String lineItemId = "valid_line_item_id";
         long lineItemTotal = 100;
         Map<String, String> lineItemAttributes =
@@ -182,47 +251,17 @@ public class ButtonApiImplTest {
                 .setQuantity(lineItemQuantity)
                 .build();
 
-        String customerId = "valid_customer_id";
-        String customerEmail = "valid_customer_email";
-        Order.Customer customer = new Order.Customer.Builder(customerId)
-                .setEmail(customerEmail)
+        Order order = new Order.Builder("123", new Date(), Collections.singletonList(lineItem))
                 .build();
 
-        String orderId = "valid_order_id";
-        Date purchaseDate = new Date();
-        String currencyCode = "valid_currency_code";
-        String customerOrderId = "valid_customer_order_id";
-
-        Order order = new Order.Builder(orderId, purchaseDate, Collections.singletonList(lineItem))
-                .setCurrencyCode(currencyCode)
-                .setCustomerOrderId(customerOrderId)
-                .setCustomer(customer)
-                .build();
-
-        String applicationId = "valid_application_id";
-        String sourceToken = "valid_sourceToken";
-        String advertisingId = "valid_advertising_id";
-
-        buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
 
-        assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
-        assertEquals("/v1/mobile-order", apiRequest.getPath());
-
-        assertEquals("Basic " + ButtonUtil.base64Encode(applicationId + ":"),
-                apiRequest.getHeaders().get("Authorization"));
-
         JSONObject requestBody = apiRequest.getBody();
-        assertEquals(currencyCode, requestBody.getString("currency"));
-        assertEquals(sourceToken, requestBody.getString("btn_ref"));
-        assertEquals(orderId, requestBody.getString("order_id"));
-        assertEquals(ButtonUtil.formatDate(purchaseDate),
-                requestBody.getString("purchase_date"));
-        assertEquals(customerOrderId, requestBody.getString("customer_order_id"));
-
         JSONArray lineItemsJsonArray = requestBody.getJSONArray("line_items");
         assertEquals(1, lineItemsJsonArray.length());
 
@@ -244,7 +283,31 @@ public class ButtonApiImplTest {
         for (Map.Entry<String, String> attribute : lineItemAttributes.entrySet()) {
             assertEquals(attribute.getValue(), attributesJson.getString(attribute.getKey()));
         }
+    }
 
+    @Test
+    public void postOrder_validateCustomer() throws Exception {
+        String customerId = "valid_customer_id";
+        String customerEmail = "valid_customer_email";
+        Order.Customer customer = new Order.Customer.Builder(customerId)
+                .setEmail(customerEmail)
+                .build();
+
+        Order order = new Order.Builder("123", new Date(),
+                Collections.<Order.LineItem>emptyList())
+                .setCustomer(customer)
+                .build();
+
+        String advertisingId = "valid_advertising_id";
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", advertisingId);
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerId, customerJson.getString("id"));
         assertEquals(ButtonUtil.sha256Encode(customerEmail.toLowerCase()),

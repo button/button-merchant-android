@@ -31,23 +31,23 @@ import org.junit.Test;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ApiRequestTest {
 
     @Test
-    public void apiRequest_verifyDefaultValues() {
+    public void verifyDefaultValues() {
         ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")
                 .build();
 
         assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
         assertEquals("/", apiRequest.getPath());
-        assertNull(apiRequest.getHeaders());
-        assertNull(apiRequest.getBody());
+        assertTrue(apiRequest.getHeaders().isEmpty());
+        assertEquals(new JSONObject().toString(), apiRequest.getBody().toString());
     }
 
     @Test
-    public void apiRequest_addHeader_verifyHeaders() {
+    public void addHeader_verifyHeaders() {
         ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")
                 .addHeader("header_key", "header_value")
                 .build();
@@ -58,7 +58,7 @@ public class ApiRequestTest {
     }
 
     @Test
-    public void apiRequest_setBody_verifyBody() {
+    public void setBody_verifyBody() {
         JSONObject body = new JSONObject();
 
         ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")

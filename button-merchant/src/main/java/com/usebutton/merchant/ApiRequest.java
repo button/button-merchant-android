@@ -25,8 +25,6 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.Nullable;
-
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -56,9 +54,7 @@ class ApiRequest {
 
     private final RequestMethod requestMethod;
     private final String path;
-    @Nullable
     private final Map<String, String> headers;
-    @Nullable
     private final JSONObject body;
 
     private ApiRequest(Builder builder) {
@@ -76,12 +72,10 @@ class ApiRequest {
         return path;
     }
 
-    @Nullable
     Map<String, String> getHeaders() {
         return headers;
     }
 
-    @Nullable
     JSONObject getBody() {
         return body;
     }
@@ -93,10 +87,8 @@ class ApiRequest {
 
         private final RequestMethod requestMethod;
         private final String path;
-        @Nullable
-        private Map<String, String> headers;
-        @Nullable
-        private JSONObject body;
+        private Map<String, String> headers = new HashMap<>();
+        private JSONObject body = new JSONObject();
 
         Builder(RequestMethod requestMethod, String path) {
             this.requestMethod = requestMethod;
@@ -104,10 +96,6 @@ class ApiRequest {
         }
 
         Builder addHeader(String key, String value) {
-            if (headers == null) {
-                headers = new HashMap<>();
-            }
-
             headers.put(key, value);
             return this;
         }

@@ -1,5 +1,5 @@
 /*
- * ConnectionManagerTest.java
+ * ConnectionManagerImplTest.java
  *
  * Copyright (c) 2019 Button, Inc. (https://usebutton.com)
  *
@@ -45,11 +45,11 @@ import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 
-public class ConnectionManagerTest {
+public class ConnectionManagerImplTest {
 
     private static final String VALID_UA = "valid_user_agent";
 
-    private ConnectionManager connectionManager;
+    private ConnectionManagerImpl connectionManager;
     private MockWebServer server = new MockWebServer();
 
     @Before
@@ -179,8 +179,7 @@ public class ConnectionManagerTest {
             }
         });
 
-        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
-                "/")
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")
                 .build()
         );
     }

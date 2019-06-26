@@ -27,6 +27,7 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 import android.util.Base64;
+import android.util.Log;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -38,6 +39,8 @@ import java.util.Locale;
  * Util class with helper methods
  */
 final class ButtonUtil {
+
+    private static final String TAG = ButtonUtil.class.getSimpleName();
 
     private static final String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ";
 
@@ -64,8 +67,8 @@ final class ButtonUtil {
             byte[] bytes = value.getBytes();
             messageDigest.update(bytes, 0, bytes.length);
             return new String(messageDigest.digest());
-        } catch (NoSuchAlgorithmException ignored) {
-
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "Error has occurred", e);
         }
 
         return null;
