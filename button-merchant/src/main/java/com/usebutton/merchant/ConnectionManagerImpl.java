@@ -115,10 +115,10 @@ final class ConnectionManagerImpl implements ConnectionManager {
             JSONObject responseJson = readResponseBody(urlConnection);
             return new NetworkResponse(responseCode, responseJson);
         } catch (IOException e) {
-            Log.e(TAG,"Error has occurred", e);
+            Log.e(TAG, "Error has occurred", e);
             throw new NetworkNotFoundException(e);
         } catch (JSONException e) {
-            Log.e(TAG,"Error has occurred", e);
+            Log.e(TAG, "Error has occurred", e);
             throw new ButtonNetworkException(e.getClass().getSimpleName() + " has occurred");
         } finally {
             if (urlConnection != null) {
