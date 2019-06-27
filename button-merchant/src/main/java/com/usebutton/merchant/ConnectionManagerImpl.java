@@ -30,6 +30,8 @@ import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.merchant.exception.HttpStatusException;
+import com.usebutton.merchant.exception.NetworkNotFoundException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -107,13 +109,16 @@ final class ConnectionManagerImpl implements ConnectionManager {
             if (responseCode >= 400) {
                 String message = "Unsuccessful Request. HTTP StatusCode: " + responseCode;
                 Log.e(TAG, message);
-                throw new ButtonNetworkException(message);
+                throw new HttpStatusException(message, responseCode);
             }
 
             JSONObject responseJson = readResponseBody(urlConnection);
             return new NetworkResponse(responseCode, responseJson);
-        } catch (IOException | JSONException e) {
-            Log.e(TAG, e.getClass().getSimpleName() + " has occurred", e);
+        } catch (IOException e) {
+            Log.e(TAG,"Error has occurred", e);
+            throw new NetworkNotFoundException(e);
+        } catch (JSONException e) {
+            Log.e(TAG,"Error has occurred", e);
             throw new ButtonNetworkException(e.getClass().getSimpleName() + " has occurred");
         } finally {
             if (urlConnection != null) {
