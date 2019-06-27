@@ -41,6 +41,7 @@ class PostOrderTask extends Task {
     private final String sourceToken;
     private final Order order;
     private final DeviceManager deviceManager;
+    private final ThreadManager threadManager;
 
     private Getter<Double> retryDelayInterval = new Getter<Double>() {
         @Override
@@ -54,13 +55,15 @@ class PostOrderTask extends Task {
     private int retryCount = 0;
 
     PostOrderTask(@Nullable Listener listener, ButtonApi buttonApi, Order order,
-            String applicationId, String sourceToken, DeviceManager deviceManager) {
+            String applicationId, String sourceToken, DeviceManager deviceManager,
+            ThreadManager threadManager) {
         super(listener);
         this.buttonApi = buttonApi;
         this.order = order;
         this.applicationId = applicationId;
         this.sourceToken = sourceToken;
         this.deviceManager = deviceManager;
+        this.threadManager = threadManager;
     }
 
     @Nullable
@@ -84,26 +87,26 @@ class PostOrderTask extends Task {
     }
 
     /**
-     * @param e exception thrown by api request
+     * @param exception exception thrown by api request
      * @return true if should retry
      */
-    private boolean shouldRetry(ButtonNetworkException e) throws InterruptedException {
+    private boolean shouldRetry(ButtonNetworkException exception) throws InterruptedException {
         if (retryCount >= MAX_RETRIES) {
             return false;
         }
 
         double delay = retryDelayInterval.get();
-        if (e instanceof HttpStatusException) {
+        if (exception instanceof HttpStatusException) {
             HttpStatusException httpStatusException =
-                    (HttpStatusException) e;
+                    (HttpStatusException) exception;
             if (httpStatusException.wasRateLimited() || httpStatusException.wasServerError()) {
-                Thread.sleep((long) delay);
+                threadManager.sleep((long) delay);
                 return true;
             }
         }
 
-        if (e instanceof NetworkNotFoundException) {
-            Thread.sleep((long) delay);
+        if (exception instanceof NetworkNotFoundException) {
+            threadManager.sleep((long) delay);
             return true;
         }
 

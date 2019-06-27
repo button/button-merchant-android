@@ -57,6 +57,9 @@ public class PostOrderTaskTest {
     @Mock
     private Order order;
 
+    @Mock
+    private ThreadManager threadManager;
+
     private String applicationId = "valid_application_id";
     private String sourceToken = "valid_source_token";
 
@@ -66,7 +69,7 @@ public class PostOrderTaskTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         task = new PostOrderTask(listener, buttonApi, order, applicationId, sourceToken,
-                deviceManager);
+                deviceManager, threadManager);
     }
 
     @Test
