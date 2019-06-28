@@ -26,7 +26,7 @@
 package com.usebutton.merchant;
 
 /**
- * Wrapper class for {@link Thread}
+ * Wrapper class for {@link java.lang.Thread}
  */
 class ThreadManager {
 

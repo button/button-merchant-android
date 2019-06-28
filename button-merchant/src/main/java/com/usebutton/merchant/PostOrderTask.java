@@ -26,6 +26,7 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 import com.usebutton.merchant.exception.HttpStatusException;
@@ -43,13 +44,7 @@ class PostOrderTask extends Task {
     private final DeviceManager deviceManager;
     private final ThreadManager threadManager;
 
-    private Getter<Double> retryDelayInterval = new Getter<Double>() {
-        @Override
-        public Double get() {
-            return Math.pow(2, retryCount) * 100;
-        }
-    };
-
+    @VisibleForTesting
     static final int MAX_RETRIES = 4;
 
     private int retryCount = 0;
@@ -95,21 +90,24 @@ class PostOrderTask extends Task {
             return false;
         }
 
-        double delay = retryDelayInterval.get();
+        double delay = getRetryDelay();
+        if (exception instanceof NetworkNotFoundException) {
+            threadManager.sleep((long) delay);
+            return true;
+        }
+
         if (exception instanceof HttpStatusException) {
-            HttpStatusException httpStatusException =
-                    (HttpStatusException) exception;
+            HttpStatusException httpStatusException = (HttpStatusException) exception;
             if (httpStatusException.wasRateLimited() || httpStatusException.wasServerError()) {
                 threadManager.sleep((long) delay);
                 return true;
             }
         }
 
-        if (exception instanceof NetworkNotFoundException) {
-            threadManager.sleep((long) delay);
-            return true;
-        }
-
         return false;
+    }
+
+    private double getRetryDelay() {
+        return Math.pow(2, retryCount) * 100;
     }
 }
