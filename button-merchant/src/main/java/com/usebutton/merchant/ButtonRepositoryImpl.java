@@ -120,6 +120,6 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     public void postOrder(Order order, DeviceManager deviceManager, Task.Listener listener) {
         executorService.submit(
                 new PostOrderTask(listener, buttonApi, order, getApplicationId(),
-                        getSourceToken(), deviceManager));
+                        getSourceToken(), deviceManager, new ThreadManager()));
     }
 }

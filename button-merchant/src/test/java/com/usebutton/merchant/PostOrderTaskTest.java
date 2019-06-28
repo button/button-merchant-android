@@ -25,13 +25,21 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.merchant.exception.HttpStatusException;
+import com.usebutton.merchant.exception.NetworkNotFoundException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static com.usebutton.merchant.PostOrderTask.MAX_RETRIES;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +57,9 @@ public class PostOrderTaskTest {
     @Mock
     private Order order;
 
+    @Mock
+    private ThreadManager threadManager;
+
     private String applicationId = "valid_application_id";
     private String sourceToken = "valid_source_token";
 
@@ -58,7 +69,7 @@ public class PostOrderTaskTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         task = new PostOrderTask(listener, buttonApi, order, applicationId, sourceToken,
-                deviceManager);
+                deviceManager, threadManager);
     }
 
     @Test
@@ -79,5 +90,75 @@ public class PostOrderTaskTest {
         task.execute();
 
         verify(buttonApi).postOrder(eq(order), eq(applicationId), eq(sourceToken), (String) isNull());
+    }
+
+    @Test
+    public void execute_httpStatusException_wasServerError_verifyMaxRetry() throws Exception {
+        HttpStatusException httpStatusException = mock(HttpStatusException.class);
+        when(httpStatusException.wasServerError()).thenReturn(true);
+
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(httpStatusException);
+
+        try {
+            task.execute();
+        } catch (Exception ignored) {
+
+        }
+
+        verify(buttonApi, times(MAX_RETRIES + 1))
+                .postOrder(any(Order.class), anyString(), anyString(), (String) isNull());
+    }
+
+    @Test(expected = HttpStatusException.class)
+    public void execute_httpStatusException_wasServerError_verifyThrowException() throws Exception {
+        HttpStatusException httpStatusException = mock(HttpStatusException.class);
+        when(httpStatusException.wasServerError()).thenReturn(true);
+
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(httpStatusException);
+
+        task.execute();
+    }
+
+    @Test(expected = HttpStatusException.class)
+    public void execute_httpStatusException_verifyThrowException() throws Exception {
+        HttpStatusException httpStatusException = mock(HttpStatusException.class);
+
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(httpStatusException);
+
+        task.execute();
+    }
+
+    @Test
+    public void execute_networkNotFoundException_verifyMaxRetry() throws Exception {
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(NetworkNotFoundException.class);
+
+        try {
+            task.execute();
+        } catch (Exception ignored) {
+
+        }
+
+        verify(buttonApi, times(MAX_RETRIES + 1))
+                .postOrder(any(Order.class), anyString(), anyString(), (String) isNull());
+    }
+
+    @Test(expected = NetworkNotFoundException.class)
+    public void execute_networkNotFoundException_verifyThrowException() throws Exception {
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(NetworkNotFoundException.class);
+
+        task.execute();
+    }
+
+    @Test(expected = Exception.class)
+    public void execute_exception_verifyThrowException() throws Exception {
+        when(buttonApi.postOrder(any(Order.class), anyString(),
+                anyString(), (String) isNull())).thenThrow(Exception.class);
+
+        task.execute();
     }
 }

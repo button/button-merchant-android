@@ -26,6 +26,11 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+
+import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.merchant.exception.HttpStatusException;
+import com.usebutton.merchant.exception.NetworkNotFoundException;
 
 /**
  * Asynchronous task used to report order to the Button API.
@@ -37,15 +42,23 @@ class PostOrderTask extends Task {
     private final String sourceToken;
     private final Order order;
     private final DeviceManager deviceManager;
+    private final ThreadManager threadManager;
+
+    @VisibleForTesting
+    static final int MAX_RETRIES = 4;
+
+    private int retryCount = 0;
 
     PostOrderTask(@Nullable Listener listener, ButtonApi buttonApi, Order order,
-            String applicationId, String sourceToken, DeviceManager deviceManager) {
+            String applicationId, String sourceToken, DeviceManager deviceManager,
+            ThreadManager threadManager) {
         super(listener);
         this.buttonApi = buttonApi;
         this.order = order;
         this.applicationId = applicationId;
         this.sourceToken = sourceToken;
         this.deviceManager = deviceManager;
+        this.threadManager = threadManager;
     }
 
     @Nullable
@@ -53,6 +66,48 @@ class PostOrderTask extends Task {
     Void execute() throws Exception {
         String advertisingId = deviceManager.isLimitAdTrackingEnabled()
                 ? null : deviceManager.getAdvertisingId();
-        return buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
+
+        // loop and execute postOrder until max retries is met or non case exception is met
+        while (true) {
+            try {
+                return buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
+            } catch (ButtonNetworkException exception) {
+                if (!shouldRetry(exception)) {
+                    throw exception;
+                }
+
+                retryCount++;
+            }
+        }
+    }
+
+    /**
+     * @param exception exception thrown by api request
+     * @return true if should retry
+     */
+    private boolean shouldRetry(ButtonNetworkException exception) throws InterruptedException {
+        if (retryCount >= MAX_RETRIES) {
+            return false;
+        }
+
+        double delay = getRetryDelay();
+        if (exception instanceof NetworkNotFoundException) {
+            threadManager.sleep((long) delay);
+            return true;
+        }
+
+        if (exception instanceof HttpStatusException) {
+            HttpStatusException httpStatusException = (HttpStatusException) exception;
+            if (httpStatusException.wasServerError()) {
+                threadManager.sleep((long) delay);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private double getRetryDelay() {
+        return Math.pow(2, retryCount) * 100;
     }
 }
