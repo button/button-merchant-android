@@ -98,7 +98,7 @@ class PostOrderTask extends Task {
 
         if (exception instanceof HttpStatusException) {
             HttpStatusException httpStatusException = (HttpStatusException) exception;
-            if (httpStatusException.wasRateLimited() || httpStatusException.wasServerError()) {
+            if (httpStatusException.wasServerError()) {
                 threadManager.sleep((long) delay);
                 return true;
             }

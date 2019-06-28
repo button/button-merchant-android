@@ -93,35 +93,6 @@ public class PostOrderTaskTest {
     }
 
     @Test
-    public void execute_httpStatusException_wasRateLimited_verifyMaxRetry() throws Exception {
-        HttpStatusException httpStatusException = mock(HttpStatusException.class);
-        when(httpStatusException.wasRateLimited()).thenReturn(true);
-
-        when(buttonApi.postOrder(any(Order.class), anyString(),
-                anyString(), (String) isNull())).thenThrow(httpStatusException);
-
-        try {
-            task.execute();
-        } catch (Exception ignored) {
-
-        }
-
-        verify(buttonApi, times(MAX_RETRIES + 1))
-                .postOrder(any(Order.class), anyString(), anyString(), (String) isNull());
-    }
-
-    @Test(expected = HttpStatusException.class)
-    public void execute_httpStatusException_wasRateLimited_verifyThrowException() throws Exception {
-        HttpStatusException httpStatusException = mock(HttpStatusException.class);
-        when(httpStatusException.wasRateLimited()).thenReturn(true);
-
-        when(buttonApi.postOrder(any(Order.class), anyString(),
-                anyString(), (String) isNull())).thenThrow(httpStatusException);
-
-        task.execute();
-    }
-
-    @Test
     public void execute_httpStatusException_wasServerError_verifyMaxRetry() throws Exception {
         HttpStatusException httpStatusException = mock(HttpStatusException.class);
         when(httpStatusException.wasServerError()).thenReturn(true);
