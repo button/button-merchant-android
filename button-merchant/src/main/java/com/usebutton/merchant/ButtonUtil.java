@@ -59,6 +59,8 @@ final class ButtonUtil {
             + "\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f]"
             + ")+)\\])";
 
+    private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile(EMAIL_REGEX);
+
     /**
      * @param date date to be formatted
      *
@@ -87,6 +89,6 @@ final class ButtonUtil {
     }
 
     public static boolean isValidEmail(String email) {
-        return Pattern.compile(EMAIL_REGEX).matcher(email).matches();
+        return EMAIL_REGEX_PATTERN.matcher(email).matches();
     }
 }
