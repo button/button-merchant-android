@@ -310,8 +310,7 @@ public class ButtonApiImplTest {
         JSONObject requestBody = apiRequest.getBody();
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerId, customerJson.getString("id"));
-        assertEquals(ButtonUtil.sha256Encode(customerEmail.toLowerCase()),
-                customerJson.getString("email_sha256"));
+        assertEquals(customerEmail, customerJson.getString("email_sha256"));
         assertEquals(advertisingId, customerJson.getString("device_id"));
     }
 
@@ -326,5 +325,58 @@ public class ButtonApiImplTest {
 
         buttonApi.postOrder(order, "valid_application_id",
                 "valid_source_token", "valid_advertising_id");
+    }
+
+    @Test
+    public void postOrder_validEmail_verifyShaEmail() throws Exception {
+        String customerId = "valid_customer_id";
+        String customerEmail = "customer@usebutton.com";
+        Order.Customer customer = new Order.Customer.Builder(customerId)
+                .setEmail(customerEmail)
+                .build();
+
+        Order order = new Order.Builder("123", new Date(),
+                Collections.<Order.LineItem>emptyList())
+                .setCustomer(customer)
+                .build();
+
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject customerJson = requestBody.getJSONObject("customer");
+        assertEquals(ButtonUtil.sha256Encode(customerEmail.toLowerCase()),
+                customerJson.getString("email_sha256"));
+    }
+
+    @Test
+    public void postOrder_invalidEmail_verifyPassthrough() throws Exception {
+        String customerId = "valid_customer_id";
+        String customerEmail = "customer";
+        Order.Customer customer = new Order.Customer.Builder(customerId)
+                .setEmail(customerEmail)
+                .build();
+
+        Order order = new Order.Builder("123", new Date(),
+                Collections.<Order.LineItem>emptyList())
+                .setCustomer(customer)
+                .build();
+
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject customerJson = requestBody.getJSONObject("customer");
+        assertEquals(customerEmail, customerJson.getString("email_sha256"));
     }
 }

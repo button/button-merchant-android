@@ -195,8 +195,9 @@ final class ButtonApiImpl implements ButtonApi {
 
                 String email = customer.getEmail();
                 if (email != null) {
-                    // TODO ADD EMAIL REGEX CHECK
-                    email = ButtonUtil.sha256Encode(email.toLowerCase());
+                    if (ButtonUtil.isValidEmail(email)) {
+                        email = ButtonUtil.sha256Encode(email.toLowerCase());
+                    }
                     customerJson.put("email_sha256", email);
                 }
 
