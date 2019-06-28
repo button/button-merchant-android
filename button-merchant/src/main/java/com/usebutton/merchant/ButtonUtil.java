@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * Util class with helper methods
@@ -46,6 +47,17 @@ final class ButtonUtil {
 
     private static final SimpleDateFormat simpleDateFormat =
             new SimpleDateFormat(ISO_8601, Locale.US);
+
+    /**
+     * Regex from https://emailregex.com/
+     */
+    private static final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*"
+            + "+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|"
+            + "\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\"
+            + ".)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)"
+            + "\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08"
+            + "\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f]"
+            + ")+)\\])";
 
     /**
      * @param date date to be formatted
@@ -72,5 +84,9 @@ final class ButtonUtil {
         }
 
         return null;
+    }
+
+    public static boolean isValidEmail(String email) {
+        return Pattern.compile(EMAIL_REGEX).matcher(email).matches();
     }
 }
