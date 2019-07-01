@@ -42,10 +42,16 @@ import android.widget.Toast;
 
 import com.usebutton.merchant.ButtonMerchant;
 import com.usebutton.merchant.Order;
+import com.usebutton.merchant.OrderListener;
 import com.usebutton.merchant.PostInstallIntentListener;
 import com.usebutton.merchant.UserActivityListener;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * Sample app main activity.
@@ -80,6 +86,61 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Context context = this;
+
+        findViewById(R.id.report_order).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String lineItemId = "valid_line_item_id";
+                long lineItemTotal = 100;
+                Map<String, String>
+                        lineItemAttributes = Collections.singletonMap("valid_key", "valid_value");
+                List<String> lineItemCategory =
+                        Collections.singletonList("valid_line_item_category");
+                String lineItemUpc = "valid_line_item_upc";
+                String lineItemSku = "valid_line_item_sku";
+                String lineItemDescription = "valid_line_item_description";
+                int lineItemQuantity = 5;
+                Order.LineItem lineItem = new Order.LineItem.Builder(lineItemId, lineItemTotal)
+                        .setAttributes(lineItemAttributes)
+                        .setCategory(lineItemCategory)
+                        .setUpc(lineItemUpc)
+                        .setSku(lineItemSku)
+                        .setDescription(lineItemDescription)
+                        .setQuantity(lineItemQuantity)
+                        .build();
+
+                String customerId = "valid_customer_id";
+                String customerEmail = "valid_customer_email";
+                Order.Customer customer = new Order.Customer.Builder(customerId)
+                        .setEmail(customerEmail)
+                        .build();
+
+                String orderId = UUID.randomUUID().toString();
+                Date purchaseDate = new Date();
+                String currencyCode = "valid_currency_code";
+                String customerOrderId = "valid_customer_order_id";
+
+                Order order = new Order.Builder(orderId, purchaseDate,
+                        Collections.singletonList(lineItem))
+                        .setCurrencyCode(currencyCode)
+                        .setCustomerOrderId(customerOrderId)
+                        .setCustomer(customer)
+                        .build();
+
+                ButtonMerchant.reportOrder(context, order, new OrderListener() {
+                    @Override
+                    public void onResult(@Nullable Throwable throwable) {
+                        if (throwable == null) {
+                            Toast.makeText(context, "Report order success",
+                                    Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, "Report order error",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
 
         findViewById(R.id.track_order).setOnClickListener(new View.OnClickListener() {
             @Override

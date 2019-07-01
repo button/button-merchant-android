@@ -16,6 +16,7 @@ import com.usebutton.merchant.Order
 import java.util.Collections
 import java.util.Date
 import java.util.Random
+import java.util.UUID
 
 class KotlinActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +100,7 @@ class KotlinActivity : AppCompatActivity() {
                     .setEmail(customerEmail)
                     .build()
 
-            val orderId = "valid_order_id"
+            val orderId = UUID.randomUUID().toString()
             val purchaseDate = Date()
             val currencyCode = "valid_currency_code"
             val customerOrderId = "valid_customer_order_id"
