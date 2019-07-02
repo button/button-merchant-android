@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -149,4 +150,10 @@ public class ButtonMerchantTest {
         verify(buttonInternal).reportOrder(any(ButtonRepository.class), any(DeviceManager.class),
                 eq(order), eq(orderListener));
     }
+
+    @Test
+    public void features_verifyInstanceType() {
+        assertTrue(ButtonMerchant.features() instanceof FeaturesImpl);
+    }
+
 }

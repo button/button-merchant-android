@@ -31,6 +31,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.usebutton.merchant.module.Features;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -173,6 +175,15 @@ public final class ButtonMerchant {
             PostInstallIntentListener listener) {
         buttonInternal.handlePostInstallIntent(getButtonRepository(context), listener,
                 context.getPackageName(), getDeviceManager(context));
+    }
+
+    /**
+     * Button ML features configuration.
+     *
+     * @return Button features API
+     */
+    public static Features features() {
+        return FeaturesImpl.getInstance();
     }
 
     private static ButtonRepository getButtonRepository(Context context) {
