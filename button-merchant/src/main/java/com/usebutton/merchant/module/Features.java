@@ -26,7 +26,7 @@
 package com.usebutton.merchant.module;
 
 /**
- * Interface for features
+ * Interface to allow configuration of Merchant Library features
  */
 public interface Features {
 
