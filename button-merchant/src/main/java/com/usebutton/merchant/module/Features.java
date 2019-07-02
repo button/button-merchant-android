@@ -32,4 +32,5 @@ public interface Features {
 
     void setIncludesIfa(boolean includesIfa);
 
+    boolean getIncludesIfa();
 }

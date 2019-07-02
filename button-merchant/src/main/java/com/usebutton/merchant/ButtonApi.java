@@ -39,8 +39,8 @@ interface ButtonApi {
 
     @Nullable
     @WorkerThread
-    PostInstallLink getPendingLink(String applicationId, String ifa,
-            boolean limitAdTrackingEnabled, Map<String, String> signalsMap)
+    PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
+            Map<String, String> signalsMap)
             throws ButtonNetworkException;
 
     @Nullable

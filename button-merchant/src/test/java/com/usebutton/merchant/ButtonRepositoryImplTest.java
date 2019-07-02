@@ -25,6 +25,8 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.merchant.module.Features;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -122,7 +124,7 @@ public class ButtonRepositoryImplTest {
     @Test
     public void postOrder_executeTask() {
         buttonRepository.postOrder(mock(Order.class), mock(DeviceManager.class),
-                mock(Task.Listener.class));
+                mock(Features.class), mock(Task.Listener.class));
 
         verify(executorService).submit(any(PostOrderTask.class));
     }

@@ -72,7 +72,7 @@ public class ButtonApiImplTest {
 
         PostInstallLink postInstallLink =
                 buttonApi.getPendingLink("valid_application_id", "valid_ifa",
-                        true, Collections.<String, String>emptyMap());
+                        Collections.<String, String>emptyMap());
 
         assertNotNull(postInstallLink);
         assertEquals(true, postInstallLink.isMatch());
@@ -92,7 +92,7 @@ public class ButtonApiImplTest {
                 .thenReturn(response);
 
         buttonApi.getPendingLink("valid_application_id", "valid_ifa",
-                true, Collections.singletonMap("key", "value"));
+                Collections.singletonMap("key", "value"));
 
         ApiRequest apiRequest = argumentCaptor.getValue();
         JSONObject body = apiRequest.getBody();
@@ -104,7 +104,6 @@ public class ButtonApiImplTest {
         // request body
         assertEquals("valid_application_id", body.getString("application_id"));
         assertEquals("valid_ifa", body.getString("ifa"));
-        assertEquals(true, body.getBoolean("ifa_limited"));
         assertEquals("value", signals.getString("key"));
     }
 
@@ -114,7 +113,7 @@ public class ButtonApiImplTest {
         when(response.getBody()).thenThrow(JSONException.class);
         when(connectionManager.executeRequest(any(ApiRequest.class))).thenReturn(response);
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa",
                 Collections.<String, String>emptyMap());
     }
 
@@ -123,7 +122,7 @@ public class ButtonApiImplTest {
         when(connectionManager.executeRequest(any(ApiRequest.class)))
                 .thenThrow(ButtonNetworkException.class);
 
-        buttonApi.getPendingLink("valid_application_id", "valid_ifa", true,
+        buttonApi.getPendingLink("valid_application_id", "valid_ifa",
                 Collections.<String, String>emptyMap());
     }
 

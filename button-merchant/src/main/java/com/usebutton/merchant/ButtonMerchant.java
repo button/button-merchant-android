@@ -100,8 +100,8 @@ public final class ButtonMerchant {
      */
     public static void reportOrder(@NonNull Context context, @NonNull Order order,
             @Nullable OrderListener orderListener) {
-        buttonInternal.reportOrder(getButtonRepository(context), getDeviceManager(context), order,
-                orderListener);
+        buttonInternal.reportOrder(getButtonRepository(context), getDeviceManager(context),
+                FeaturesImpl.getInstance(), order, orderListener);
     }
 
     /**

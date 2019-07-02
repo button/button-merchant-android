@@ -66,13 +66,11 @@ public class GetPendingLinkTaskTest {
 
         when(deviceManager.getAdvertisingId()).thenReturn("valid_ifa");
         when(deviceManager.getSignals()).thenReturn(signalsMap);
-        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(true);
 
-        when(buttonApi.getPendingLink(applicationId, "valid_ifa", true, signalsMap)).thenReturn(
-                postInstallLink);
+        when(buttonApi.getPendingLink(applicationId, "valid_ifa", signalsMap))
+                .thenReturn(postInstallLink);
 
         assertEquals(postInstallLink, task.execute());
-        verify(buttonApi).getPendingLink(applicationId, "valid_ifa",
-                true, signalsMap);
+        verify(buttonApi).getPendingLink(applicationId, "valid_ifa", signalsMap);
     }
 }
