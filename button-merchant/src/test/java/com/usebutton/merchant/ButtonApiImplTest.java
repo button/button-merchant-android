@@ -210,9 +210,10 @@ public class ButtonApiImplTest {
                 .build();
 
         String sourceToken = "valid_source_token";
+        String advertisingId = "valid_advertising_id";
 
         buttonApi.postOrder(order, "valid_application_id",
-                sourceToken, "valid_advertising_id");
+                sourceToken, advertisingId);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
@@ -225,6 +226,7 @@ public class ButtonApiImplTest {
         assertEquals(ButtonUtil.formatDate(purchaseDate),
                 requestBody.getString("purchase_date"));
         assertEquals(customerOrderId, requestBody.getString("customer_order_id"));
+        assertEquals(advertisingId, requestBody.getString("advertising_id"));
 
         assertNull(requestBody.optJSONArray("line_items"));
         assertNull(requestBody.optJSONObject("customer"));
@@ -297,10 +299,8 @@ public class ButtonApiImplTest {
                 .setCustomer(customer)
                 .build();
 
-        String advertisingId = "valid_advertising_id";
-
         buttonApi.postOrder(order, "valid_application_id",
-                "valid_source_token", advertisingId);
+                "valid_source_token", "valid_advertising_id");
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
@@ -310,7 +310,6 @@ public class ButtonApiImplTest {
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerId, customerJson.getString("id"));
         assertEquals(customerEmail, customerJson.getString("email_sha256"));
-        assertEquals(advertisingId, customerJson.getString("device_id"));
     }
 
     @Test(expected = ButtonNetworkException.class)

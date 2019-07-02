@@ -150,6 +150,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("order_id", order.getId());
             requestBody.put("purchase_date", ButtonUtil.formatDate(order.getPurchaseDate()));
             requestBody.put("customer_order_id", order.getCustomerOrderId());
+            requestBody.put("advertising_id", advertisingId);
 
             for (Order.LineItem lineItem : order.getLineItems()) {
                 JSONArray lineItemsJson = new JSONArray();
@@ -200,7 +201,6 @@ final class ButtonApiImpl implements ButtonApi {
                     customerJson.put("email_sha256", email);
                 }
 
-                customerJson.put("device_id", advertisingId);
                 requestBody.put("customer", customerJson);
             }
 
