@@ -133,13 +133,15 @@ public class ButtonMerchantTest {
 
     @Test
     public void handlePostInstallIntent_verifyButtonInternal() {
-        when(context.getPackageName()).thenReturn("com.usebutton.merchant");
+        String packageName = "com.usebutton.merchant";
+        when(context.getPackageName()).thenReturn(packageName);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
 
         ButtonMerchant.handlePostInstallIntent(context, postInstallIntentListener);
 
-        verify(buttonInternal).handlePostInstallIntent(any(ButtonRepository.class), eq(
-                postInstallIntentListener), anyString(), any(DeviceManager.class));
+        verify(buttonInternal).handlePostInstallIntent(any(ButtonRepository.class),
+                any(DeviceManager.class), any(Features.class), eq(packageName),
+                eq(postInstallIntentListener));
     }
 
     @Test

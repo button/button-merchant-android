@@ -92,11 +92,11 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     }
 
     @Override
-    public void getPendingLink(Task.Listener<PostInstallLink> listener,
-            DeviceManager deviceManager) {
+    public void getPendingLink(DeviceManager deviceManager, Features features,
+            Task.Listener<PostInstallLink> listener) {
         GetPendingLinkTask getPendingLinkTask =
-                new GetPendingLinkTask(listener, buttonApi, getApplicationId(),
-                        deviceManager);
+                new GetPendingLinkTask(buttonApi, deviceManager, features, getApplicationId(),
+                        listener);
 
         executorService.submit(getPendingLinkTask);
     }

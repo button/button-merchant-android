@@ -283,17 +283,17 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager,
+                features,"com.usebutton.merchant", postInstallIntentListener);
 
         ArgumentCaptor<GetPendingLinkTask.Listener> listenerArgumentCaptor =
                 ArgumentCaptor.forClass(GetPendingLinkTask.Listener.class);
-        verify(buttonRepository).getPendingLink(listenerArgumentCaptor.capture(),
-                eq(deviceManager));
+        verify(buttonRepository).getPendingLink(eq(deviceManager), eq(features),
+                listenerArgumentCaptor.capture());
 
         PostInstallLink.Attribution attribution =
                 new PostInstallLink.Attribution("valid_source_token", "SMS");
@@ -312,17 +312,17 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager,
+                features, "com.usebutton.merchant", postInstallIntentListener);
 
         ArgumentCaptor<GetPendingLinkTask.Listener> listenerArgumentCaptor =
                 ArgumentCaptor.forClass(GetPendingLinkTask.Listener.class);
-        verify(buttonRepository).getPendingLink(listenerArgumentCaptor.capture(),
-                eq(deviceManager));
+        verify(buttonRepository).getPendingLink(eq(deviceManager), eq(features),
+                listenerArgumentCaptor.capture());
 
         PostInstallLink postInstallLink =
                 new PostInstallLink(false, "ddl-6faffd3451edefd3", null, null);
@@ -338,15 +338,15 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn(null);
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager, features,
+                "com.usebutton.merchant", postInstallIntentListener);
 
-        verify(buttonRepository, never()).getPendingLink(any(Task.Listener.class),
-                any(DeviceManager.class));
+        verify(buttonRepository, never()).getPendingLink(any(DeviceManager.class),
+                any(Features.class), any(Task.Listener.class));
         verify(buttonRepository, never()).setSourceToken(anyString());
         verify(postInstallIntentListener).onResult((Intent) isNull(),
                 any(ApplicationIdNotFoundException.class));
@@ -357,17 +357,17 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager,
+                features, "com.usebutton.merchant", postInstallIntentListener);
 
         ArgumentCaptor<GetPendingLinkTask.Listener> listenerArgumentCaptor =
                 ArgumentCaptor.forClass(GetPendingLinkTask.Listener.class);
-        verify(buttonRepository).getPendingLink(listenerArgumentCaptor.capture(),
-                eq(deviceManager));
+        verify(buttonRepository).getPendingLink(eq(deviceManager), eq(features),
+                listenerArgumentCaptor.capture());
 
         listenerArgumentCaptor.getValue().onTaskError(new ButtonNetworkException(""));
 
@@ -380,17 +380,18 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         when(deviceManager.isOldInstallation()).thenReturn(false);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(false);
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager, features,
+                "com.usebutton.merchant", postInstallIntentListener);
 
         verify(buttonRepository).updateCheckDeferredDeepLink(true);
-        verify(buttonRepository).getPendingLink(any(Task.Listener.class), any(DeviceManager.class));
+        verify(buttonRepository).getPendingLink(any(DeviceManager.class), any(Features.class),
+                any(Task.Listener.class));
     }
 
     @Test
@@ -398,14 +399,14 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         when(deviceManager.isOldInstallation()).thenReturn(true);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(false);
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager, features,
+                "com.usebutton.merchant", postInstallIntentListener);
 
         verify(postInstallIntentListener).onResult(null, null);
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
@@ -416,14 +417,14 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         PostInstallIntentListener postInstallIntentListener = mock(PostInstallIntentListener.class);
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
 
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         when(deviceManager.isOldInstallation()).thenReturn(false);
         when(buttonRepository.checkedDeferredDeepLink()).thenReturn(true);
 
-        buttonInternal.handlePostInstallIntent(buttonRepository, postInstallIntentListener,
-                "com.usebutton.merchant",
-                deviceManager);
+        buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager, features,
+                "com.usebutton.merchant", postInstallIntentListener);
 
         verify(postInstallIntentListener).onResult((Intent) isNull(), (Throwable) isNull());
         verify(buttonRepository, never()).updateCheckDeferredDeepLink(anyBoolean());
