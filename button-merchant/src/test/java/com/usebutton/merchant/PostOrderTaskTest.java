@@ -27,6 +27,7 @@ package com.usebutton.merchant;
 
 import com.usebutton.merchant.exception.HttpStatusException;
 import com.usebutton.merchant.exception.NetworkNotFoundException;
+import com.usebutton.merchant.module.Features;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,13 +50,16 @@ public class PostOrderTaskTest {
     private ButtonApi buttonApi;
 
     @Mock
-    private DeviceManager deviceManager;
-
-    @Mock
     private Task.Listener listener;
 
     @Mock
     private Order order;
+
+    @Mock
+    private DeviceManager deviceManager;
+
+    @Mock
+    private Features features;
 
     @Mock
     private ThreadManager threadManager;
@@ -69,14 +73,14 @@ public class PostOrderTaskTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         task = new PostOrderTask(listener, buttonApi, order, applicationId, sourceToken,
-                deviceManager, threadManager);
+                deviceManager, features, threadManager);
     }
 
     @Test
-    public void execute_limitAdTrackingFalse_verifyApiCall() throws Exception {
+    public void execute_includesIfa_hasAdvertisingId_verifyApiCall() throws Exception {
+        when(features.getIncludesIfa()).thenReturn(true);
         String advertisingId = "valid_advertising_id";
         when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
-        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(false);
 
         task.execute();
 
@@ -84,12 +88,25 @@ public class PostOrderTaskTest {
     }
 
     @Test
-    public void execute_limitAdTrackingTrue_verifyNullAdvertisingId() throws Exception {
-        when(deviceManager.isLimitAdTrackingEnabled()).thenReturn(true);
+    public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
+        when(features.getIncludesIfa()).thenReturn(true);
+        when(deviceManager.getAdvertisingId()).thenReturn(null);
 
         task.execute();
 
-        verify(buttonApi).postOrder(eq(order), eq(applicationId), eq(sourceToken), (String) isNull());
+        verify(buttonApi).postOrder(eq(order), eq(applicationId), eq(sourceToken),
+                (String) isNull());
+    }
+
+    @Test
+    public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
+        when(features.getIncludesIfa()).thenReturn(false);
+        when(deviceManager.getAdvertisingId()).thenReturn("");
+
+        task.execute();
+
+        verify(buttonApi).postOrder(eq(order), eq(applicationId), eq(sourceToken),
+                (String) isNull());
     }
 
     @Test

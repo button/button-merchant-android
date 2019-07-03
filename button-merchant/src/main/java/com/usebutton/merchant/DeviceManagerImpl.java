@@ -95,7 +95,8 @@ final class DeviceManagerImpl implements DeviceManager {
     @Override
     public String getAdvertisingId() {
         try {
-            return AdvertisingIdClient.getAdvertisingIdInfo(context).getId();
+            return isLimitAdTrackingEnabled() ? null
+                    : AdvertisingIdClient.getAdvertisingIdInfo(context).getId();
         } catch (IOException e) {
             Log.e(TAG, "Error has occurred", e);
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -105,24 +106,6 @@ final class DeviceManagerImpl implements DeviceManager {
         }
 
         return null;
-    }
-
-    @WorkerThread
-    @Override
-    public boolean isLimitAdTrackingEnabled() {
-        try {
-            return AdvertisingIdClient.getAdvertisingIdInfo(context).isLimitAdTrackingEnabled();
-        } catch (IOException e) {
-            Log.e(TAG, "Error has occurred", e);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e(TAG, "Error has occurred", e);
-        } catch (GooglePlayServicesRepairableException e) {
-            Log.e(TAG, "Error has occurred", e);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Error has occurred", e);
-        }
-
-        return false;
     }
 
     @VisibleForTesting
@@ -211,6 +194,16 @@ final class DeviceManagerImpl implements DeviceManager {
                 .append(')');
 
         return sb.toString();
+    }
+
+    /**
+     * @return true is ad tracking is limited
+     */
+    @WorkerThread
+    private boolean isLimitAdTrackingEnabled()
+            throws GooglePlayServicesNotAvailableException, IOException,
+            GooglePlayServicesRepairableException {
+        return AdvertisingIdClient.getAdvertisingIdInfo(context).isLimitAdTrackingEnabled();
     }
 
     private String getSdkVersionName() {

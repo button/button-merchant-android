@@ -49,6 +49,6 @@ final class GetPendingLinkTask extends Task<PostInstallLink> {
     @Override
     PostInstallLink execute() throws Exception {
         return buttonApi.getPendingLink(applicationId, deviceManager.getAdvertisingId(),
-                deviceManager.isLimitAdTrackingEnabled(), deviceManager.getSignals());
+                deviceManager.getSignals());
     }
 }

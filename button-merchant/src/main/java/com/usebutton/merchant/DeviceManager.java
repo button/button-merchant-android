@@ -39,12 +39,6 @@ interface DeviceManager {
     @Nullable
     String getAdvertisingId();
 
-    /**
-     * @return true is ad tracking is limited
-     */
-    @WorkerThread
-    boolean isLimitAdTrackingEnabled();
-
     Map<String, String> getSignals();
 
     String getTimeStamp();

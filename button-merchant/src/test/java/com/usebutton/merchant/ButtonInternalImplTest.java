@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 
 import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.merchant.module.Features;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -434,7 +435,8 @@ public class ButtonInternalImplTest {
         when(buttonRepository.getApplicationId()).thenReturn(null);
         OrderListener orderListener = mock(OrderListener.class);
 
-        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class), orderListener);
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class),
+               mock(Features.class), mock(Order.class), orderListener);
 
         verify(orderListener).onResult(any(ApplicationIdNotFoundException.class));
     }
@@ -444,12 +446,14 @@ public class ButtonInternalImplTest {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         DeviceManager deviceManager = mock(DeviceManager.class);
+        Features features = mock(Features.class);
         Order order = mock(Order.class);
         OrderListener orderListener = mock(OrderListener.class);
 
-        buttonInternal.reportOrder(buttonRepository, deviceManager, order, orderListener);
+        buttonInternal.reportOrder(buttonRepository, deviceManager, features, order, orderListener);
 
-        verify(buttonRepository).postOrder(eq(order), eq(deviceManager), any(Task.Listener.class));
+        verify(buttonRepository).postOrder(eq(order), eq(deviceManager), eq(features),
+                any(Task.Listener.class));
     }
 
     @Test
@@ -458,12 +462,12 @@ public class ButtonInternalImplTest {
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         OrderListener orderListener = mock(OrderListener.class);
 
-        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                orderListener);
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class),
+                mock(Features.class), mock(Order.class), orderListener);
 
         ArgumentCaptor<Task.Listener> argumentCaptor = ArgumentCaptor.forClass(Task.Listener.class);
         verify(buttonRepository).postOrder(any(Order.class), any(DeviceManager.class),
-                argumentCaptor.capture());
+                any(Features.class), argumentCaptor.capture());
         argumentCaptor.getValue().onTaskComplete(null);
         verify(orderListener).onResult((Throwable) isNull());
     }
@@ -474,12 +478,12 @@ public class ButtonInternalImplTest {
         when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
         OrderListener orderListener = mock(OrderListener.class);
 
-        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                orderListener);
+        buttonInternal.reportOrder(buttonRepository, mock(DeviceManager.class),
+                mock(Features.class), mock(Order.class), orderListener);
 
         ArgumentCaptor<Task.Listener> argumentCaptor = ArgumentCaptor.forClass(Task.Listener.class);
         verify(buttonRepository).postOrder(any(Order.class), any(DeviceManager.class),
-                argumentCaptor.capture());
+                any(Features.class), argumentCaptor.capture());
         Exception exception = mock(Exception.class);
         argumentCaptor.getValue().onTaskError(exception);
         verify(orderListener).onResult(exception);

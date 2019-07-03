@@ -28,6 +28,8 @@ package com.usebutton.merchant;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.usebutton.merchant.module.Features;
+
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -117,9 +119,10 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     }
 
     @Override
-    public void postOrder(Order order, DeviceManager deviceManager, Task.Listener listener) {
+    public void postOrder(Order order, DeviceManager deviceManager, Features features,
+            Task.Listener listener) {
         executorService.submit(
                 new PostOrderTask(listener, buttonApi, order, getApplicationId(),
-                        getSourceToken(), deviceManager, new ThreadManager()));
+                        getSourceToken(), deviceManager, features, new ThreadManager()));
     }
 }

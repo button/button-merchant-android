@@ -32,6 +32,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
+import com.usebutton.merchant.module.Features;
 
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -227,7 +228,7 @@ final class ButtonInternalImpl implements ButtonInternal {
 
     @Override
     public void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager,
-            Order order, @Nullable final OrderListener orderListener) {
+            Features features, Order order, @Nullable final OrderListener orderListener) {
 
         if (buttonRepository.getApplicationId() == null) {
             executor.execute(new Runnable() {
@@ -241,7 +242,7 @@ final class ButtonInternalImpl implements ButtonInternal {
             return;
         }
 
-       buttonRepository.postOrder(order, deviceManager, new Task.Listener() {
+       buttonRepository.postOrder(order, deviceManager, features, new Task.Listener() {
            @Override
            public void onTaskComplete(@Nullable Object object) {
                 if (orderListener != null) {

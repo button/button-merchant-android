@@ -27,6 +27,8 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
+import com.usebutton.merchant.module.Features;
+
 /**
  * Internal data layer interface.
  */
@@ -52,5 +54,6 @@ interface ButtonRepository {
 
     void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink);
 
-    void postOrder(Order order, DeviceManager deviceManager, Task.Listener listener);
+    void postOrder(Order order, DeviceManager deviceManager, Features features,
+                Task.Listener listener);
 }

@@ -65,16 +65,15 @@ final class ButtonApiImpl implements ButtonApi {
     @Nullable
     @WorkerThread
     @Override
-    public PostInstallLink getPendingLink(String applicationId, String ifa,
-            boolean limitAdTrackingEnabled, Map<String, String> signalsMap) throws
+    public PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
+            Map<String, String> signalsMap) throws
             ButtonNetworkException {
 
         try {
             // Create request body
             JSONObject requestBody = new JSONObject();
             requestBody.put("application_id", applicationId);
-            requestBody.put("ifa", ifa);
-            requestBody.put("ifa_limited", limitAdTrackingEnabled);
+            requestBody.put("ifa", advertisingId);
             requestBody.put("signals", new JSONObject(signalsMap));
 
             ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
@@ -151,6 +150,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("order_id", order.getId());
             requestBody.put("purchase_date", ButtonUtil.formatDate(order.getPurchaseDate()));
             requestBody.put("customer_order_id", order.getCustomerOrderId());
+            requestBody.put("advertising_id", advertisingId);
 
             for (Order.LineItem lineItem : order.getLineItems()) {
                 JSONArray lineItemsJson = new JSONArray();
@@ -201,7 +201,6 @@ final class ButtonApiImpl implements ButtonApi {
                     customerJson.put("email_sha256", email);
                 }
 
-                customerJson.put("device_id", advertisingId);
                 requestBody.put("customer", customerJson);
             }
 

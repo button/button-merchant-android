@@ -54,8 +54,8 @@ final class FeaturesImpl implements Features {
         this.includesIfa = includesIfa;
     }
 
-    public boolean includesIfa() {
+    @Override
+    public boolean getIncludesIfa() {
         return includesIfa;
     }
-
 }

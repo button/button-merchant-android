@@ -29,6 +29,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.usebutton.merchant.module.Features;
+
 /**
  * Internal implementation of the {@link ButtonMerchant} interface.
  */
@@ -58,6 +60,6 @@ interface ButtonInternal {
     void handlePostInstallIntent(ButtonRepository buttonRepository,
             PostInstallIntentListener listener, String packageName, DeviceManager deviceManager);
 
-    void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager, Order order,
-            @Nullable OrderListener orderListener);
+    void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Features features, Order order, @Nullable OrderListener orderListener);
 }

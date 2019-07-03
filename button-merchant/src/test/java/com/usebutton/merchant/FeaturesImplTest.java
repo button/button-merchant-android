@@ -44,11 +44,11 @@ public class FeaturesImplTest {
     public void setIncludesIfa_verifyIncludesIfa() {
         features.setIncludesIfa(false);
 
-        assertFalse(features.includesIfa());
+        assertFalse(features.getIncludesIfa());
     }
 
     @Test
-    public void includesIfa_verifyDefaultValue() {
-        assertTrue(features.includesIfa());
+    public void getIncludesIfa_verifyDefaultValue() {
+        assertTrue(features.getIncludesIfa());
     }
 }

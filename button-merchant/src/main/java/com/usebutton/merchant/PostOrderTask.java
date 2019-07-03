@@ -31,6 +31,7 @@ import android.support.annotation.VisibleForTesting;
 import com.usebutton.merchant.exception.ButtonNetworkException;
 import com.usebutton.merchant.exception.HttpStatusException;
 import com.usebutton.merchant.exception.NetworkNotFoundException;
+import com.usebutton.merchant.module.Features;
 
 /**
  * Asynchronous task used to report order to the Button API.
@@ -42,6 +43,7 @@ class PostOrderTask extends Task {
     private final String sourceToken;
     private final Order order;
     private final DeviceManager deviceManager;
+    private final Features features;
     private final ThreadManager threadManager;
 
     @VisibleForTesting
@@ -51,22 +53,21 @@ class PostOrderTask extends Task {
 
     PostOrderTask(@Nullable Listener listener, ButtonApi buttonApi, Order order,
             String applicationId, String sourceToken, DeviceManager deviceManager,
-            ThreadManager threadManager) {
+            Features features, ThreadManager threadManager) {
         super(listener);
         this.buttonApi = buttonApi;
         this.order = order;
         this.applicationId = applicationId;
         this.sourceToken = sourceToken;
         this.deviceManager = deviceManager;
+        this.features = features;
         this.threadManager = threadManager;
     }
 
     @Nullable
     @Override
     Void execute() throws Exception {
-        String advertisingId = deviceManager.isLimitAdTrackingEnabled()
-                ? null : deviceManager.getAdvertisingId();
-
+        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
         // loop and execute postOrder until max retries is met or non case exception is met
         while (true) {
             try {

@@ -32,6 +32,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
+import com.usebutton.merchant.module.Features;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -148,7 +150,7 @@ public class ButtonMerchantTest {
         ButtonMerchant.reportOrder(context, order, orderListener);
 
         verify(buttonInternal).reportOrder(any(ButtonRepository.class), any(DeviceManager.class),
-                eq(order), eq(orderListener));
+                any(Features.class), eq(order), eq(orderListener));
     }
 
     @Test
