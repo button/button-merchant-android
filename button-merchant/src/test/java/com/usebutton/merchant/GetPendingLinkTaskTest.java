@@ -25,6 +25,8 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.merchant.module.Features;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,19 +36,25 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GetPendingLinkTaskTest {
 
     @Mock
-    ButtonApi buttonApi;
+    private ButtonApi buttonApi;
 
     @Mock
-    DeviceManager deviceManager;
+    private DeviceManager deviceManager;
 
     @Mock
-    Task.Listener<PostInstallLink> listener;
+    private Task.Listener<PostInstallLink> listener;
+
+    @Mock
+    private Features features;
 
     private String applicationId = "valid_application_id";
 
@@ -55,22 +63,52 @@ public class GetPendingLinkTaskTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        task = new GetPendingLinkTask(listener, buttonApi, applicationId, deviceManager);
+        task = new GetPendingLinkTask(buttonApi, deviceManager, features, applicationId, listener);
     }
 
     @Test
-    public void execute_verifyApiCall() throws Exception {
+    public void execute_includesIfa_hasAdvertisingId_verifyApiCall() throws Exception {
         PostInstallLink postInstallLink = new PostInstallLink(true, "id", null, null);
 
         Map<String, String> signalsMap = Collections.emptyMap();
 
-        when(deviceManager.getAdvertisingId()).thenReturn("valid_ifa");
+        when(features.getIncludesIfa()).thenReturn(true);
+        String advertisingId = "valid_advertising_id";
+        when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
         when(deviceManager.getSignals()).thenReturn(signalsMap);
 
-        when(buttonApi.getPendingLink(applicationId, "valid_ifa", signalsMap))
+        when(buttonApi.getPendingLink(applicationId, advertisingId, signalsMap))
                 .thenReturn(postInstallLink);
 
         assertEquals(postInstallLink, task.execute());
-        verify(buttonApi).getPendingLink(applicationId, "valid_ifa", signalsMap);
+        verify(buttonApi).getPendingLink(applicationId, advertisingId, signalsMap);
+    }
+
+    @Test
+    public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
+        Map<String, String> signalsMap = Collections.emptyMap();
+
+        when(features.getIncludesIfa()).thenReturn(true);
+        when(deviceManager.getAdvertisingId()).thenReturn(null);
+        when(deviceManager.getSignals()).thenReturn(signalsMap);
+
+        task.execute();
+
+        verify(buttonApi).getPendingLink(anyString(),(String) isNull(),
+                eq(signalsMap));
+    }
+
+    @Test
+    public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
+        Map<String, String> signalsMap = Collections.emptyMap();
+
+        when(features.getIncludesIfa()).thenReturn(false);
+        when(deviceManager.getAdvertisingId()).thenReturn("");
+        when(deviceManager.getSignals()).thenReturn(signalsMap);
+
+        task.execute();
+
+        verify(buttonApi).getPendingLink(anyString(),(String) isNull(),
+                eq(signalsMap));
     }
 }

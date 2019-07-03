@@ -158,8 +158,8 @@ final class ButtonInternalImpl implements ButtonInternal {
 
     @Override
     public void handlePostInstallIntent(final ButtonRepository buttonRepository,
-            final PostInstallIntentListener listener, final String packageName,
-            DeviceManager deviceManager) {
+            DeviceManager deviceManager, Features features, final String packageName,
+            final PostInstallIntentListener listener) {
 
         if (buttonRepository.getApplicationId() == null) {
             executor.execute(new Runnable() {
@@ -182,48 +182,51 @@ final class ButtonInternalImpl implements ButtonInternal {
         }
 
         buttonRepository.updateCheckDeferredDeepLink(true);
-        buttonRepository.getPendingLink(new Task.Listener<PostInstallLink>() {
-            @Override
-            public void onTaskComplete(@Nullable PostInstallLink postInstallLink) {
-                if (postInstallLink != null
-                        && postInstallLink.isMatch()
-                        && postInstallLink.getAction() != null) {
-                    final Intent deepLinkIntent =
-                            new Intent(Intent.ACTION_VIEW, Uri.parse(postInstallLink.getAction()));
-                    deepLinkIntent.setPackage(packageName);
+        buttonRepository.getPendingLink(deviceManager, features,
+                new Task.Listener<PostInstallLink>() {
+                    @Override
+                    public void onTaskComplete(@Nullable PostInstallLink postInstallLink) {
+                        if (postInstallLink != null
+                                && postInstallLink.isMatch()
+                                && postInstallLink.getAction() != null) {
+                            final Intent deepLinkIntent =
+                                    new Intent(Intent.ACTION_VIEW,
+                                            Uri.parse(postInstallLink.getAction()));
+                            deepLinkIntent.setPackage(packageName);
 
-                    PostInstallLink.Attribution attribution = postInstallLink.getAttribution();
-                    if (attribution != null) {
-                        setAttributionToken(buttonRepository, attribution.getBtnRef());
-                    }
+                            PostInstallLink.Attribution attribution =
+                                    postInstallLink.getAttribution();
+                            if (attribution != null) {
+                                setAttributionToken(buttonRepository, attribution.getBtnRef());
+                            }
 
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onResult(deepLinkIntent, null);
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.onResult(deepLinkIntent, null);
+                                }
+                            });
+                            return;
                         }
-                    });
-                    return;
-                }
 
-                executor.execute(new Runnable() {
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onResult(null, null);
+                            }
+                        });
+                    }
+
                     @Override
-                    public void run() {
-                        listener.onResult(null, null);
+                    public void onTaskError(final Throwable throwable) {
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onResult(null, throwable);
+                            }
+                        });
                     }
                 });
-            }
-
-            @Override
-            public void onTaskError(final Throwable throwable) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onResult(null, throwable);
-                    }
-                });
-            }
-        }, deviceManager);
     }
 
     @Override
@@ -242,21 +245,21 @@ final class ButtonInternalImpl implements ButtonInternal {
             return;
         }
 
-       buttonRepository.postOrder(order, deviceManager, features, new Task.Listener() {
-           @Override
-           public void onTaskComplete(@Nullable Object object) {
+        buttonRepository.postOrder(order, deviceManager, features, new Task.Listener() {
+            @Override
+            public void onTaskComplete(@Nullable Object object) {
                 if (orderListener != null) {
                     orderListener.onResult(null);
                 }
-           }
+            }
 
-           @Override
-           public void onTaskError(Throwable throwable) {
-               if (orderListener != null) {
-                   orderListener.onResult(throwable);
-               }
-           }
-       });
+            @Override
+            public void onTaskError(Throwable throwable) {
+                if (orderListener != null) {
+                    orderListener.onResult(throwable);
+                }
+            }
+        });
     }
 
     /**

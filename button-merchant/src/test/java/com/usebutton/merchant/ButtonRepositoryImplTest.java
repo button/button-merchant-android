@@ -94,7 +94,8 @@ public class ButtonRepositoryImplTest {
 
     @Test
     public void getPendingLink_executeTask() {
-        buttonRepository.getPendingLink(mock(GetPendingLinkTask.Listener.class), null);
+        buttonRepository.getPendingLink(mock(DeviceManager.class), mock(Features.class),
+                mock(GetPendingLinkTask.Listener.class));
 
         verify(executorService).submit(any(GetPendingLinkTask.class));
     }

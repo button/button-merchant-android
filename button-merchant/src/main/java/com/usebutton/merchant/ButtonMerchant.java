@@ -173,8 +173,9 @@ public final class ButtonMerchant {
      */
     public static void handlePostInstallIntent(@NonNull Context context, @NonNull
             PostInstallIntentListener listener) {
-        buttonInternal.handlePostInstallIntent(getButtonRepository(context), listener,
-                context.getPackageName(), getDeviceManager(context));
+        buttonInternal.handlePostInstallIntent(getButtonRepository(context),
+                getDeviceManager(context), FeaturesImpl.getInstance(),
+                context.getPackageName(), listener);
     }
 
     /**
