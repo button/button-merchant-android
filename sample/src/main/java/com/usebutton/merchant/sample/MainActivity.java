@@ -117,12 +117,10 @@ public class MainActivity extends AppCompatActivity {
 
                 String orderId = UUID.randomUUID().toString();
                 Date purchaseDate = new Date();
-                String currencyCode = "valid_currency_code";
                 String customerOrderId = "valid_customer_order_id";
 
                 Order order = new Order.Builder(orderId, purchaseDate,
                         Collections.singletonList(lineItem))
-                        .setCurrencyCode(currencyCode)
                         .setCustomerOrderId(customerOrderId)
                         .setCustomer(customer)
                         .build();

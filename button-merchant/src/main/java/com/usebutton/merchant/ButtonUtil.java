@@ -43,7 +43,7 @@ final class ButtonUtil {
 
     private static final String TAG = ButtonUtil.class.getSimpleName();
 
-    private static final String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZ";
+    private static final String ISO_8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     private static final SimpleDateFormat simpleDateFormat =
             new SimpleDateFormat(ISO_8601, Locale.US);

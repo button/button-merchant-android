@@ -102,11 +102,9 @@ class KotlinActivity : AppCompatActivity() {
 
             val orderId = UUID.randomUUID().toString()
             val purchaseDate = Date()
-            val currencyCode = "valid_currency_code"
             val customerOrderId = "valid_customer_order_id"
 
             val order = Order.Builder(orderId, purchaseDate, listOf(lineItem))
-                    .setCurrencyCode(currencyCode)
                     .setCustomerOrderId(customerOrderId)
                     .setCustomer(customer)
                     .build()
