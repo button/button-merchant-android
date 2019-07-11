@@ -98,6 +98,9 @@ public final class ButtonMerchant {
      * SharedPreferences.
      * @param order Your {@link Order} object to be reported
      * @param orderListener A nullable {@link OrderListener} interface
+     *
+     * @see <a href="https://developer.usebutton.com/guides/merchants/android/report-orders-to-
+button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void reportOrder(@NonNull Context context, @NonNull Order order,
             @Nullable OrderListener orderListener) {

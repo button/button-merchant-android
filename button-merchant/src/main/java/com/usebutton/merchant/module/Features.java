@@ -33,7 +33,7 @@ public interface Features {
     /**
      * Indicates whether or not the library will attach IFA to outgoing requests.
      * The default value is {@link Boolean#TRUE}
-     * 
+     *
      * @param includesIfa If set to {@link Boolean#FALSE}, or if the user has limited Ifa usage
      * in their device settings, the Ifa will not be attached.
      */
