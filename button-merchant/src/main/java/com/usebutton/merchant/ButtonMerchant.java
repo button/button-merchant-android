@@ -81,7 +81,8 @@ public final class ButtonMerchant {
      * @param order {@link Order}
      * @param userActivityListener {@link UserActivityListener}
      *
-     * @deprecated Use {@link ButtonMerchant#reportOrder(Context, Order, OrderListener)}
+     * @deprecated This method is deprecated and will be removed in a future version.
+     * It is safe to remove your usage of this method.
      */
     @Deprecated
     public static void trackOrder(@NonNull Context context, @NonNull Order order,
@@ -91,12 +92,15 @@ public final class ButtonMerchant {
     }
 
     /**
-     * Report orders
+     * Reports an order to Button
      *
      * @param context a {@link Context) instance that can be used to access app resources like
      * SharedPreferences.
-     * @param order {@link Order}
-     * @param orderListener {@link OrderListener}
+     * @param order Your {@link Order} object to be reported
+     * @param orderListener A nullable {@link OrderListener} interface
+     *
+     * @see <a href="https://developer.usebutton.com/guides/merchants/android/report-orders-to-
+button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void reportOrder(@NonNull Context context, @NonNull Order order,
             @Nullable OrderListener orderListener) {
@@ -179,7 +183,7 @@ public final class ButtonMerchant {
     }
 
     /**
-     * Button ML features configuration.
+     * An interface through which library features can be enabled/disabled.
      *
      * @return Button features API
      */

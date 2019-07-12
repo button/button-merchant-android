@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Represents an order placed by the user to be tracked using
- * {@link ButtonMerchant#trackOrder(Context, Order, UserActivityListener)} and
+ * Represents an order placed by the user to be reported using
  * {@link ButtonMerchant#reportOrder(Context, Order, OrderListener)}
  */
 public class Order {
@@ -117,7 +116,8 @@ public class Order {
          *
          * @param id The order identifier (required).
          *
-         * @deprecated
+         * @deprecated If you're migrating to client side order reporting,
+         * please use Builder(String id, Date purchaseDate, List<LineItem> lineItems) instead.
          */
         @Deprecated
         public Builder(String id) {
@@ -141,7 +141,7 @@ public class Order {
          * The total order value in pennies (e.g. 3999 for $39.99) or the smallest decimal unit of
          * the currency code. (default is 0)
          *
-         * @deprecated
+         * @deprecated This field is no longer supported and will be removed in a future release.
          */
         @Deprecated
         public Builder setAmount(long amount) {
