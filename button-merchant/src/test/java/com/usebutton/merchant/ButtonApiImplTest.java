@@ -37,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -228,7 +229,7 @@ public class ButtonApiImplTest {
         assertEquals(customerOrderId, requestBody.getString("customer_order_id"));
         assertEquals(advertisingId, requestBody.getString("advertising_id"));
 
-        assertNull(requestBody.optJSONArray("line_items"));
+        assertEquals(0, requestBody.optJSONArray("line_items").length());
         assertNull(requestBody.optJSONObject("customer"));
     }
 
@@ -376,5 +377,49 @@ public class ButtonApiImplTest {
         JSONObject requestBody = apiRequest.getBody();
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerEmail, customerJson.getString("email_sha256"));
+    }
+
+    @Test
+    public void postOrder_multipleLineItems_validateMultipleLineItems() throws Exception {
+        List<Order.LineItem> lineItems = new ArrayList<>();
+
+        String lineItemOneId = "valid_line_item_one_id";
+        long lineItemOneTotal = 100;
+
+        String lineItemTwoId = "valid_line_item_two_id";
+        long lineItemTwoTotal = 200;
+
+        Order.LineItem lineItemOne = new Order.LineItem.Builder(lineItemOneId, lineItemOneTotal)
+                .build();
+
+        Order.LineItem lineItemTwo = new Order.LineItem.Builder(lineItemTwoId, lineItemTwoTotal)
+                .build();
+
+        lineItems.add(lineItemOne);
+        lineItems.add(lineItemTwo);
+
+        Order order = new Order.Builder("123", new Date(), lineItems)
+                .build();
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        JSONArray lineItemsJsonArray = requestBody.getJSONArray("line_items");
+        assertEquals(2, lineItemsJsonArray.length());
+
+        JSONObject lineItemOneJson = lineItemsJsonArray.getJSONObject(0);
+
+        assertEquals(lineItemOneId, lineItemOneJson.getString("identifier"));
+        assertEquals(lineItemOneTotal, lineItemOneJson.getLong("total"));
+
+        JSONObject lineItemTwoJson = lineItemsJsonArray.getJSONObject(1);
+
+        assertEquals(lineItemTwoId, lineItemTwoJson.getString("identifier"));
+        assertEquals(lineItemTwoTotal, lineItemTwoJson.getLong("total"));
     }
 }
