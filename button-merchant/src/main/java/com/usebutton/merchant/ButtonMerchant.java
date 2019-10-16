@@ -84,7 +84,6 @@ public final class ButtonMerchant {
      * @deprecated This method is deprecated and will be removed in a future version.
      * It is safe to remove your usage of this method.
      */
-    @Deprecated
     public static void trackOrder(@NonNull Context context, @NonNull Order order,
             @Nullable UserActivityListener userActivityListener) {
         buttonInternal.trackOrder(getButtonRepository(context), getDeviceManager(context), order,
