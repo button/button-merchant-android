@@ -39,6 +39,7 @@ import java.util.Map;
 public class Order {
 
     private String id;
+    @Deprecated
     private long amount;
     private String currencyCode;
     private Date purchaseDate;
@@ -67,6 +68,7 @@ public class Order {
         return id;
     }
 
+    @Deprecated
     public long getAmount() {
         return amount;
     }
@@ -99,6 +101,7 @@ public class Order {
     public static class Builder {
 
         private String id;
+        @Deprecated
         private long amount = 0;
         private String currencyCode = "USD";
         private Date purchaseDate;
@@ -140,6 +143,7 @@ public class Order {
          *
          * @deprecated This field is no longer supported and will be removed in a future release.
          */
+        @Deprecated
         public Builder setAmount(long amount) {
             this.amount = amount;
             return this;
