@@ -110,6 +110,7 @@ public class DeviceManagerImplTest {
         assertTrue(signals.containsKey("screen"));
         assertTrue(signals.containsKey("country"));
         assertTrue(signals.containsKey("language"));
+        assertEquals("button-merchant", signals.get("source"));
     }
 
     @Test
