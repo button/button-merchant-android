@@ -130,6 +130,7 @@ final class DeviceManagerImpl implements DeviceManager {
         signalsMap.put("os_version", Build.VERSION.RELEASE);
         signalsMap.put("device", String.format("%s %s", Build.MANUFACTURER, Build.MODEL));
         signalsMap.put("screen", getScreenSize());
+        signalsMap.put("source", "button-merchant");
         final Locale locale = Locale.getDefault();
         signalsMap.put("country", locale.getCountry());
         signalsMap.put("language", locale.getLanguage());
