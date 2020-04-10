@@ -80,7 +80,7 @@ final class ButtonUtil {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             byte[] bytes = value.getBytes();
             messageDigest.update(bytes, 0, bytes.length);
-            return new String(messageDigest.digest());
+            return encodeHex(messageDigest.digest());
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, "Error has occurred", e);
         }
@@ -90,5 +90,13 @@ final class ButtonUtil {
 
     public static boolean isValidEmail(String email) {
         return EMAIL_REGEX_PATTERN.matcher(email).matches();
+    }
+
+    private static String encodeHex(byte[] digest) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digest.length; i++) {
+            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
     }
 }
