@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
 
                 String customerId = "valid_customer_id";
-                String customerEmail = "valid_customer_email";
+                String customerEmail = "test@usebutton.com";
                 Order.Customer customer = new Order.Customer.Builder(customerId)
                         .setEmail(customerEmail)
                         .build();
