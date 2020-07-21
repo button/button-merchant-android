@@ -46,7 +46,8 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class ConnectionManagerImplTest {
 
@@ -217,7 +218,8 @@ public class ConnectionManagerImplTest {
                 .build()
         );
 
-        verifyZeroInteractions(persistenceManager);
+        verify(persistenceManager).getSessionId();
+        verifyNoMoreInteractions(persistenceManager);
     }
 
     @Test
@@ -233,5 +235,21 @@ public class ConnectionManagerImplTest {
         );
 
         verify(persistenceManager).clear();
+    }
+
+    @Test
+    public void executeRequest_shouldIncludeSessionId() throws Exception {
+        String sessionId = "valid_session_id";
+        when(persistenceManager.getSessionId()).thenReturn(sessionId);
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        RecordedRequest recordedRequest = server.takeRequest();
+        JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
+        assertEquals(sessionId, request.getString("session"));
     }
 }

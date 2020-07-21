@@ -101,6 +101,7 @@ final class ConnectionManagerImpl implements ConnectionManager {
             }
 
             JSONObject body = request.getBody();
+            body.put("session", persistenceManager.getSessionId());
             OutputStreamWriter writer =
                     new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
             writer.write(body.toString());
