@@ -195,7 +195,7 @@ public class ConnectionManagerImplTest {
         String sessionId = "sess-abc1234567890";
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\"object\":{\"meta\":{\"session\":\"" + sessionId + "\"}}}")
+                .setBody("{\"object\":{\"meta\":{\"session_id\":\"" + sessionId + "\"}}}")
         );
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
@@ -226,7 +226,7 @@ public class ConnectionManagerImplTest {
     public void executeRequest_nullSession_shouldClearData() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\"object\":{\"meta\":{\"session\": null }}}")
+                .setBody("{\"object\":{\"meta\":{\"session_id\": null }}}")
         );
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
@@ -250,6 +250,6 @@ public class ConnectionManagerImplTest {
 
         RecordedRequest recordedRequest = server.takeRequest();
         JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
-        assertEquals(sessionId, request.getString("session"));
+        assertEquals(sessionId, request.getString("session_id"));
     }
 }

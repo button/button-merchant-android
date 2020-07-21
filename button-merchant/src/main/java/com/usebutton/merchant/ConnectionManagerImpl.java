@@ -101,7 +101,7 @@ final class ConnectionManagerImpl implements ConnectionManager {
             }
 
             JSONObject body = request.getBody();
-            body.put("session", persistenceManager.getSessionId());
+            body.put("session_id", persistenceManager.getSessionId());
             OutputStreamWriter writer =
                     new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
             writer.write(body.toString());
@@ -171,8 +171,8 @@ final class ConnectionManagerImpl implements ConnectionManager {
 
         try {
             JSONObject metaJson = responseBody.getJSONObject("object").getJSONObject("meta");
-            if (metaJson.has("session")) {
-                String sessionId = metaJson.optString("session", null);
+            if (metaJson.has("session_id")) {
+                String sessionId = metaJson.optString("session_id", null);
                 if (sessionId != null) {
                     persistenceManager.setSessionId(sessionId);
                 } else {
