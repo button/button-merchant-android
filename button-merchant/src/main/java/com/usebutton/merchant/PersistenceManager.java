@@ -31,6 +31,12 @@ import android.support.annotation.Nullable;
  * Internal interface for storage layer.
  */
 interface PersistenceManager {
+
+    void setSessionId(String sessionId);
+
+    @Nullable
+    String getSessionId();
+
     void setSourceToken(String sourceToken);
 
     @Nullable

@@ -197,8 +197,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
 
         DeviceManager deviceManager = getDeviceManager(context);
 
-        ConnectionManager connectionManager =
-                ConnectionManagerImpl.getInstance(BASE_URL, deviceManager.getUserAgent());
+        ConnectionManager connectionManager = ConnectionManagerImpl.getInstance(BASE_URL,
+                deviceManager.getUserAgent(), persistenceManager);
 
         ButtonApi buttonApi = ButtonApiImpl.getInstance(connectionManager);
 

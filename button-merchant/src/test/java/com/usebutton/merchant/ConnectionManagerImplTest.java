@@ -44,12 +44,16 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ConnectionManagerImplTest {
 
     private static final String VALID_UA = "valid_user_agent";
 
     private ConnectionManagerImpl connectionManager;
+    private PersistenceManager persistenceManager;
     private MockWebServer server = new MockWebServer();
 
     @Before
@@ -60,7 +64,8 @@ public class ConnectionManagerImplTest {
         String url = baseUrl.url().toString();
         url = url.substring(0, url.length() - 1);
 
-        connectionManager = new ConnectionManagerImpl(url, VALID_UA);
+        persistenceManager = mock(PersistenceManager.class);
+        connectionManager = new ConnectionManagerImpl(url, VALID_UA, persistenceManager);
     }
 
     @After
@@ -71,7 +76,7 @@ public class ConnectionManagerImplTest {
     @Test(expected = ButtonNetworkException.class)
     public void executeRequest_invalidUrl_shouldThrowError() throws Exception {
         String url = "invalid_link";
-        connectionManager = new ConnectionManagerImpl(url, VALID_UA);
+        connectionManager = new ConnectionManagerImpl(url, VALID_UA, persistenceManager);
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
                 "/test")
                 .build());
@@ -182,5 +187,51 @@ public class ConnectionManagerImplTest {
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST, "/")
                 .build()
         );
+    }
+
+    @Test
+    public void executeRequest_providedSession_shouldPersistProvidedSession() throws Exception {
+        String sessionId = "sess-abc1234567890";
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"object\":{\"meta\":{\"session\":\"" + sessionId + "\"}}}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        verify(persistenceManager).setSessionId(sessionId);
+    }
+
+    @Test
+    public void executeRequest_unavailableSession_shouldPersistPreviousSession() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"object\":{\"meta\":{}}}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        verifyZeroInteractions(persistenceManager);
+    }
+
+    @Test
+    public void executeRequest_nullSession_shouldClearData() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"object\":{\"meta\":{\"session\": null }}}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        verify(persistenceManager).clear();
     }
 }

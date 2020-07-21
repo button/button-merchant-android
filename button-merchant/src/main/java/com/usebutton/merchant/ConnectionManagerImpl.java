@@ -26,6 +26,7 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
@@ -66,19 +67,22 @@ final class ConnectionManagerImpl implements ConnectionManager {
 
     private final String baseUrl;
     private final String userAgent;
+    private final PersistenceManager persistenceManager;
 
-    static ConnectionManager getInstance(String baseUrl, String userAgent) {
+    static ConnectionManager getInstance(String baseUrl, String userAgent,
+            PersistenceManager persistenceManager) {
         if (instance == null) {
-            instance = new ConnectionManagerImpl(baseUrl, userAgent);
+            instance = new ConnectionManagerImpl(baseUrl, userAgent, persistenceManager);
         }
 
         return instance;
     }
 
     @VisibleForTesting
-    ConnectionManagerImpl(String baseUrl, String userAgent) {
+    ConnectionManagerImpl(String baseUrl, String userAgent, PersistenceManager persistenceManager) {
         this.baseUrl = baseUrl;
         this.userAgent = userAgent;
+        this.persistenceManager = persistenceManager;
     }
 
     @Override
@@ -113,6 +117,7 @@ final class ConnectionManagerImpl implements ConnectionManager {
             }
 
             JSONObject responseJson = readResponseBody(urlConnection);
+            refreshSessionIfAvailable(responseJson);
             return new NetworkResponse(responseCode, responseJson);
         } catch (IOException e) {
             Log.e(TAG, "Error has occurred", e);
@@ -152,5 +157,29 @@ final class ConnectionManagerImpl implements ConnectionManager {
         }
         reader.close();
         return new JSONObject(response.toString());
+    }
+
+    /**
+     * Refreshes the current session if provided in the network response.
+     * If a null session is provided, the Library data is cleared.
+     *
+     * @param responseBody the JSON body of the network response
+     */
+    private void refreshSessionIfAvailable(@Nullable JSONObject responseBody) {
+        if (responseBody == null) return;
+
+        try {
+            JSONObject metaJson = responseBody.getJSONObject("object").getJSONObject("meta");
+            if (metaJson.has("session")) {
+                String sessionId = metaJson.optString("session", null);
+                if (sessionId != null) {
+                    persistenceManager.setSessionId(sessionId);
+                } else {
+                    persistenceManager.clear();
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing session data from response body", e);
+        }
     }
 }

@@ -65,6 +65,21 @@ public class PersistenceManagerImplTest {
     }
 
     @Test
+    public void setSessionId_persistToSharedPrefs() {
+        persistenceManager.setSessionId("valid_session_id");
+        verify(editor).putString(PersistenceManagerImpl.Key.SESSION_ID, "valid_session_id");
+        verify(editor).apply();
+    }
+
+    @Test
+    public void getSessionId_returnValidSessionId() {
+        when(sharedPreferences.getString(PersistenceManagerImpl.Key.SESSION_ID, null))
+                .thenReturn("valid_session_id");
+        String sessionId = persistenceManager.getSessionId();
+        assertEquals("valid_session_id", sessionId);
+    }
+
+    @Test
     public void setSourceToken_persistToSharedPrefs() {
         persistenceManager.setSourceToken("valid_source_token");
         verify(editor).putString(PersistenceManagerImpl.Key.SOURCE_TOKEN, "valid_source_token");
