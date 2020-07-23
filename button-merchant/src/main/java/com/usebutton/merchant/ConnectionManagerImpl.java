@@ -170,7 +170,7 @@ final class ConnectionManagerImpl implements ConnectionManager {
         if (responseBody == null) return;
 
         try {
-            JSONObject metaJson = responseBody.getJSONObject("object").getJSONObject("meta");
+            JSONObject metaJson = responseBody.getJSONObject("meta");
             if (metaJson.has("session_id")) {
                 String sessionId = metaJson.optString("session_id", null);
                 if (sessionId != null) {

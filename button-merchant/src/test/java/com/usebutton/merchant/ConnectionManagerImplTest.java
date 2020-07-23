@@ -195,7 +195,7 @@ public class ConnectionManagerImplTest {
         String sessionId = "sess-abc1234567890";
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\"object\":{\"meta\":{\"session_id\":\"" + sessionId + "\"}}}")
+                .setBody("{\"meta\":{\"session_id\":\"" + sessionId + "\"}}")
         );
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
@@ -210,7 +210,7 @@ public class ConnectionManagerImplTest {
     public void executeRequest_unavailableSession_shouldPersistPreviousSession() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\"object\":{\"meta\":{}}}")
+                .setBody("{\"meta\":{}}")
         );
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
@@ -226,7 +226,7 @@ public class ConnectionManagerImplTest {
     public void executeRequest_nullSession_shouldClearData() throws Exception {
         server.enqueue(new MockResponse()
                 .setResponseCode(200)
-                .setBody("{\"object\":{\"meta\":{\"session_id\": null }}}")
+                .setBody("{\"meta\":{\"session_id\": null }}")
         );
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
