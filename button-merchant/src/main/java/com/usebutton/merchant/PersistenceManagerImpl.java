@@ -55,6 +55,17 @@ final class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
+    public void setSessionId(String sessionId) {
+        sharedPreferences.edit().putString(Key.SESSION_ID, sessionId).apply();
+    }
+
+    @Nullable
+    @Override
+    public String getSessionId() {
+        return sharedPreferences.getString(Key.SESSION_ID, null);
+    }
+
+    @Override
     public void setSourceToken(String sourceToken) {
         sharedPreferences.edit().putString(Key.SOURCE_TOKEN, sourceToken).apply();
     }
@@ -84,9 +95,11 @@ final class PersistenceManagerImpl implements PersistenceManager {
     /**
      * Class contains all of the keys for the shared preferences
      */
-    final class Key {
+    static final class Key {
 
         private static final String PREFIX = "btn_";
+
+        static final String SESSION_ID = PREFIX + "session_id";
 
         static final String SOURCE_TOKEN = PREFIX + "source_token";
 
