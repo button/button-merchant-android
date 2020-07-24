@@ -37,6 +37,8 @@ import java.util.Map;
  */
 interface ButtonApi {
 
+    void setApplicationId(String applicationId);
+
     @Nullable
     @WorkerThread
     PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,

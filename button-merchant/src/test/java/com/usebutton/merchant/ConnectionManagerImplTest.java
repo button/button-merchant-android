@@ -252,4 +252,20 @@ public class ConnectionManagerImplTest {
         JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
         assertEquals(sessionId, request.getString("session_id"));
     }
+
+    @Test
+    public void executeRequest_shouldIncludeApplicationId() throws Exception {
+        String applicationId = "valid_application_id";
+        connectionManager.setApplicationId(applicationId);
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        RecordedRequest recordedRequest = server.takeRequest();
+        JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
+        assertEquals(applicationId, request.getString("application_id"));
+    }
 }

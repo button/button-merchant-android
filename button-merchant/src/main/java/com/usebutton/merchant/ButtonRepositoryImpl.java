@@ -67,6 +67,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     @Override
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
+        buttonApi.setApplicationId(applicationId);
     }
 
     @Nullable

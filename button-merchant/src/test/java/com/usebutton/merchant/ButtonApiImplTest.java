@@ -64,6 +64,13 @@ public class ButtonApiImplTest {
     }
 
     @Test
+    public void setApplicationId_shouldProvideToConnectionManager() {
+        buttonApi.setApplicationId("valid_application_id");
+
+        verify(connectionManager).setApplicationId("valid_application_id");
+    }
+
+    @Test
     public void getPendingLink_returnValidResponse_validatePostInstallLink() throws Exception {
         JSONObject body = new JSONObject(
                 "{\"meta\":{\"status\":\"ok\"},\"object\":{\"match\":true,\"id\":\"ddl-6faffd3451edefd3\",\"action\":\"uber://asdfasfasf\",\"attribution\":{\"btn_ref\":\"srctok-afsldkjf29askldfjwe\",\"utm_source\":\"SMS\"}}}");

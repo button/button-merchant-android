@@ -65,6 +65,8 @@ final class ConnectionManagerImpl implements ConnectionManager {
     private static final String CONTENT_TYPE_JSON = "application/json";
     private static final String ENCODING = "UTF-8";
 
+    private String applicationId;
+
     private final String baseUrl;
     private final String userAgent;
     private final PersistenceManager persistenceManager;
@@ -86,6 +88,11 @@ final class ConnectionManagerImpl implements ConnectionManager {
     }
 
     @Override
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
+
+    @Override
     public NetworkResponse executeRequest(@NonNull ApiRequest request)
             throws ButtonNetworkException {
         HttpURLConnection urlConnection = null;
@@ -101,9 +108,13 @@ final class ConnectionManagerImpl implements ConnectionManager {
             }
 
             JSONObject body = request.getBody();
+
+            // Append necessary information to each request
+            body.put("application_id", applicationId);
             body.put("session_id", persistenceManager.getSessionId());
-            OutputStreamWriter writer =
-                    new OutputStreamWriter(urlConnection.getOutputStream(), ENCODING);
+
+            OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream(),
+                    ENCODING);
             writer.write(body.toString());
             writer.close();
 

@@ -38,6 +38,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ButtonRepositoryImplTest {
@@ -60,9 +61,16 @@ public class ButtonRepositoryImplTest {
     }
 
     @Test
-    public void setApplicationId_persistToPersistenceManager() {
+    public void setApplicationId_cacheInMemory() {
         buttonRepository.setApplicationId("valid_application_id");
         assertEquals("valid_application_id", buttonRepository.getApplicationId());
+        verifyZeroInteractions(persistenceManager);
+    }
+
+    @Test
+    public void setApplicationId_provideToButtonApi() {
+        buttonRepository.setApplicationId("valid_application_id");
+        verify(buttonApi).setApplicationId("valid_application_id");
     }
 
     @Test
