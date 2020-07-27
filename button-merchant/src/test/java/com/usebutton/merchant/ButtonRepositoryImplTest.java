@@ -137,4 +137,12 @@ public class ButtonRepositoryImplTest {
 
         verify(executorService).submit(any(PostOrderTask.class));
     }
+
+    @Test
+    public void reportEvent_executeTask() {
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+
+        verify(executorService).submit(any(EventReportingTask.class));
+    }
 }

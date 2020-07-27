@@ -27,9 +27,11 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import com.usebutton.merchant.module.Features;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -37,6 +39,8 @@ import java.util.concurrent.ExecutorService;
  */
 
 final class ButtonRepositoryImpl implements ButtonRepository {
+
+    private static final String TAG = ButtonRepository.class.getSimpleName();
 
     private final ButtonApi buttonApi;
     private final PersistenceManager persistenceManager;
@@ -125,5 +129,22 @@ final class ButtonRepositoryImpl implements ButtonRepository {
         executorService.submit(
                 new PostOrderTask(listener, buttonApi, order, getApplicationId(),
                         getSourceToken(), deviceManager, features, new ThreadManager()));
+    }
+
+    @Override
+    public void reportEvent(DeviceManager deviceManager, Features features, final Event event) {
+        EventReportingTask task = new EventReportingTask(buttonApi, deviceManager, features,
+                Collections.singletonList(event), new Task.Listener<Void>() {
+            @Override
+            public void onTaskComplete(@Nullable Void object) {
+                // ignored
+            }
+
+            @Override
+            public void onTaskError(Throwable throwable) {
+                Log.e(TAG, String.format("Error reporting event [%s]", event.getName()), throwable);
+            }
+        });
+        executorService.submit(task);
     }
 }

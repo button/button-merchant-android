@@ -37,6 +37,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -383,5 +384,65 @@ public class ButtonApiImplTest {
         JSONObject requestBody = apiRequest.getBody();
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerEmail, customerJson.getString("email_sha256"));
+    }
+
+    @Test
+    public void postEvents_singleEvent_shouldReportCorrectly() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        List<Event> events = new ArrayList<>();
+        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
+        event.addProperty(Event.Property.URL, "valid_url");
+        events.add(event);
+
+        buttonApi.postEvents(events, null);
+
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONArray eventsJson = requestBody.getJSONArray("events");
+        JSONObject eventJson = eventsJson.getJSONObject(0);
+
+        assertEquals(1, eventsJson.length());
+        assertEquals(eventJson.toString(), event.toJson().toString());
+    }
+
+    @Test
+    public void postEvents_multipleEvents_shouldReportCorrectly() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        List<Event> events = new ArrayList<>();
+        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
+        event.addProperty(Event.Property.URL, "valid_url");
+        events.add(event);
+        events.add(event);
+
+        buttonApi.postEvents(events, null);
+
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONArray eventsJson = requestBody.getJSONArray("events");
+        JSONObject eventOneJson = eventsJson.getJSONObject(0);
+        JSONObject eventTwoJson = eventsJson.getJSONObject(1);
+
+        assertEquals(2, eventsJson.length());
+        assertEquals(eventOneJson.toString(), event.toJson().toString());
+        assertEquals(eventTwoJson.toString(), event.toJson().toString());
+    }
+
+    @Test
+    public void postEvents_validIfa_shouldIncludeIfa() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        List<Event> events = new ArrayList<>();
+        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
+        event.addProperty(Event.Property.URL, "valid_url");
+        events.add(event);
+
+        buttonApi.postEvents(events, "valid_ifa");
+
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+
+        assertEquals(requestBody.getString("ifa"), "valid_ifa");
     }
 }
