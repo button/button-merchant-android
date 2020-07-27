@@ -41,7 +41,8 @@ interface ButtonInternal {
     @Nullable
     String getApplicationId(ButtonRepository buttonRepository);
 
-    void trackIncomingIntent(ButtonRepository buttonRepository, Intent intent);
+    void trackIncomingIntent(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Features features, Intent intent);
 
     void trackOrder(ButtonRepository buttonRepository, DeviceManager manager,
             @NonNull Order order, @Nullable UserActivityListener listener);

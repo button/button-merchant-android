@@ -72,7 +72,8 @@ public final class ButtonMerchant {
      * @param intent An intent that has entered your app from a third party source.
      */
     public static void trackIncomingIntent(@NonNull Context context, @NonNull Intent intent) {
-        buttonInternal.trackIncomingIntent(getButtonRepository(context), intent);
+        buttonInternal.trackIncomingIntent(getButtonRepository(context), getDeviceManager(context),
+                features(), intent);
     }
 
     /**
