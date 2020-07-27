@@ -211,7 +211,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             applicationId = ButtonUtil.base64Encode(applicationId + ":");
             ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
-                    "/v1/mobile-order")
+                    "/v1/app/order")
                     .addHeader("Authorization", String.format("Basic %s", applicationId))
                     .setBody(requestBody)
                     .build();

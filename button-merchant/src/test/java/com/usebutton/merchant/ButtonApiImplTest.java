@@ -182,7 +182,7 @@ public class ButtonApiImplTest {
         ApiRequest apiRequest = argumentCaptor.getValue();
 
         assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
-        assertEquals("/v1/mobile-order", apiRequest.getPath());
+        assertEquals("/v1/app/order", apiRequest.getPath());
     }
 
     @Test
