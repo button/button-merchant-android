@@ -62,6 +62,11 @@ final class ButtonApiImpl implements ButtonApi {
         this.connectionManager = connectionManager;
     }
 
+    @Override
+    public void setApplicationId(String applicationId) {
+        connectionManager.setApplicationId(applicationId);
+    }
+
     @Nullable
     @WorkerThread
     @Override

@@ -32,5 +32,7 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
  */
 interface ConnectionManager {
 
+    void setApplicationId(String applicationId);
+
     NetworkResponse executeRequest(ApiRequest request) throws ButtonNetworkException;
 }
