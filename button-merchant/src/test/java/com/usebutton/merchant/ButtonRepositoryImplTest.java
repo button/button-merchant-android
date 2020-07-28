@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutorService;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -71,6 +73,38 @@ public class ButtonRepositoryImplTest {
     public void setApplicationId_provideToButtonApi() {
         buttonRepository.setApplicationId("valid_application_id");
         verify(buttonApi).setApplicationId("valid_application_id");
+    }
+
+    @Test
+    public void setApplicationId_submitsPendingTasks() {
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+
+        buttonRepository.setApplicationId("valid_application_id");
+
+        verify(executorService, times(3)).submit(any(EventReportingTask.class));
+    }
+
+    @Test
+    public void setApplicationId_clearsPendingTasksAfterSubmission() {
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+
+        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("valid_application_id");
+
+        verify(executorService, times(3)).submit(any(EventReportingTask.class));
     }
 
     @Test
@@ -131,9 +165,21 @@ public class ButtonRepositoryImplTest {
     }
 
     @Test
-    public void reportEvent_executeTask() {
+    public void reportEvent_configured_executeTask() {
+        buttonRepository.setApplicationId("valid_application_id");
         buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
                 mock(Event.class));
+
+        verify(executorService).submit(any(EventReportingTask.class));
+    }
+
+    @Test
+    public void reportEvent_unConfigured_queueTaskAndExecuteWhenConfigured() {
+        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
+                mock(Event.class));
+
+        verify(executorService, never()).submit(any(EventReportingTask.class));
+        buttonRepository.setApplicationId("valid_application_id");
 
         verify(executorService).submit(any(EventReportingTask.class));
     }
