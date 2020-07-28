@@ -82,7 +82,7 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("signals", new JSONObject(signalsMap));
 
             ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
-                    "/v1/web/deferred-deeplink")
+                    "/v1/app/deferred-deeplink")
                     .setBody(requestBody)
                     .build();
 
