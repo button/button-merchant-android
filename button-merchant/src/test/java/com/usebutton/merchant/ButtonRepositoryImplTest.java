@@ -109,14 +109,6 @@ public class ButtonRepositoryImplTest {
     }
 
     @Test
-    public void postUserActivity_executeTask() {
-        buttonRepository.postUserActivity(mock(DeviceManager.class), mock(Order.class),
-                mock(Task.Listener.class));
-
-        verify(executorService).submit(any(UserActivityTask.class));
-    }
-
-    @Test
     public void checkedDeferredDeepLink_retrieveFromPersistenceManager() {
         when(persistenceManager.checkedDeferredDeepLink()).thenReturn(true);
 

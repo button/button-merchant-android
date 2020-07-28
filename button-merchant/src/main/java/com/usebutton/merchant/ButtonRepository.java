@@ -49,8 +49,6 @@ interface ButtonRepository {
     void getPendingLink(DeviceManager deviceManager, Features features,
             Task.Listener<PostInstallLink> listener);
 
-    void postUserActivity(DeviceManager deviceManager, Order order, Task.Listener listener);
-
     boolean checkedDeferredDeepLink();
 
     void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink);

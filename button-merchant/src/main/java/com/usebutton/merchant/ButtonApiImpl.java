@@ -112,36 +112,6 @@ final class ButtonApiImpl implements ButtonApi {
         return null;
     }
 
-    @Override
-    public Void postActivity(String applicationId, String sourceToken, String timestamp,
-            Order order) throws ButtonNetworkException {
-
-        try {
-            // Create request body
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("app_id", applicationId);
-            requestBody.put("user_local_time", timestamp);
-            requestBody.put("btn_ref", sourceToken);
-            requestBody.put("order_id", order.getId());
-            requestBody.put("total", order.getAmount());
-            requestBody.put("currency", order.getCurrencyCode());
-            requestBody.put("source", "merchant-library");
-
-            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
-                    "/v1/activity/order")
-                    .setBody(requestBody)
-                    .build();
-
-            // Execute POST request and parse response
-            connectionManager.executeRequest(apiRequest);
-        } catch (JSONException e) {
-            Log.e(TAG, "Error creating request body", e);
-            throw new ButtonNetworkException(e);
-        }
-
-        return null;
-    }
-
     @Nullable
     @Override
     public Void postOrder(Order order, String applicationId, String sourceToken,

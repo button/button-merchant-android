@@ -100,52 +100,6 @@ final class ButtonInternalImpl implements ButtonInternal {
         reportDeeplinkOpenEvent(buttonRepository, deviceManager, features, data);
     }
 
-    @Override
-    public void trackOrder(ButtonRepository buttonRepository, DeviceManager manager,
-            @NonNull Order order, @Nullable final UserActivityListener listener) {
-        if (buttonRepository.getApplicationId() == null) {
-            if (listener != null) {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onResult(new ApplicationIdNotFoundException());
-                    }
-                });
-            }
-
-            return;
-        }
-
-        /// Create internal class that will forward callback to the UserActivityListener
-        Task.Listener taskListener = new Task.Listener() {
-            @Override
-            public void onTaskComplete(@Nullable Object object) {
-                if (listener != null) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onResult(null);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onTaskError(final Throwable throwable) {
-                if (listener != null) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onResult(throwable);
-                        }
-                    });
-                }
-            }
-        };
-
-        buttonRepository.postUserActivity(manager, order, taskListener);
-    }
-
     @Nullable
     @Override
     public String getAttributionToken(ButtonRepository buttonRepository) {

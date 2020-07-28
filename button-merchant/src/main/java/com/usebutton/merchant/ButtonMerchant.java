@@ -88,8 +88,11 @@ public final class ButtonMerchant {
     @Deprecated
     public static void trackOrder(@NonNull Context context, @NonNull Order order,
             @Nullable UserActivityListener userActivityListener) {
-        buttonInternal.trackOrder(getButtonRepository(context), getDeviceManager(context), order,
-                userActivityListener);
+        if (userActivityListener != null) {
+            Throwable error = new Throwable("trackOrder(~) is no longer supported."
+                    + " You can safely remove your usage of this method.");
+            userActivityListener.onResult(error);
+        }
     }
 
     /**
