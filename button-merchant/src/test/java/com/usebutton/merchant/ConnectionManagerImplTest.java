@@ -53,7 +53,8 @@ public class ConnectionManagerImplTest {
 
     private static final String VALID_UA = "valid_user_agent";
 
-    private ConnectionManagerImpl connectionManager;
+    private String url;
+    private ConnectionManager connectionManager;
     private PersistenceManager persistenceManager;
     private MockWebServer server = new MockWebServer();
 
@@ -62,7 +63,7 @@ public class ConnectionManagerImplTest {
         server.start();
 
         HttpUrl baseUrl = server.url("");
-        String url = baseUrl.url().toString();
+        url = baseUrl.url().toString();
         url = url.substring(0, url.length() - 1);
 
         persistenceManager = mock(PersistenceManager.class);
@@ -72,6 +73,16 @@ public class ConnectionManagerImplTest {
     @After
     public void tearDown() throws Exception {
         server.close();
+    }
+
+    @Test
+    public void setApplicationId_shouldUpdateEndpoint() {
+        connectionManager = new ConnectionManagerImpl(url, VALID_UA, persistenceManager);
+
+        connectionManager.setApplicationId("valid_app_id");
+
+        String expectedUrl = String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, "valid_app_id");
+        assertEquals(expectedUrl, ((ConnectionManagerImpl) connectionManager).baseUrl);
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -257,6 +268,7 @@ public class ConnectionManagerImplTest {
     public void executeRequest_shouldIncludeApplicationId() throws Exception {
         String applicationId = "valid_application_id";
         connectionManager.setApplicationId(applicationId);
+        ((ConnectionManagerImpl) connectionManager).baseUrl = url;
         server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
 
         connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
