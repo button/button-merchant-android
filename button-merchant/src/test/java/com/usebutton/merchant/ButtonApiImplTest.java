@@ -134,42 +134,6 @@ public class ButtonApiImplTest {
                 Collections.<String, String>emptyMap());
     }
 
-    @Test(expected = ButtonNetworkException.class)
-    public void postUserActivity_returnsException_catchException() throws Exception {
-        when(connectionManager.executeRequest(any(ApiRequest.class)))
-                .thenThrow(ButtonNetworkException.class);
-
-        Order order = new Order.Builder("123").setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
-    }
-
-    @Test
-    public void postUserActivity_validateRequest() throws Exception {
-        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        JSONObject body = new JSONObject("{\"meta\":{\"status\":\"ok\"}}\n");
-        NetworkResponse response = new NetworkResponse(200, body);
-        when(connectionManager.executeRequest(argumentCaptor.capture()))
-                .thenReturn(response);
-
-        Order order = new Order.Builder("123").setAmount(999).setCurrencyCode("AUG").build();
-        buttonApi.postActivity("valid_application_id", "valid_aid", "valid_ts", order);
-
-        ApiRequest apiRequest = argumentCaptor.getValue();
-        JSONObject requestBody = apiRequest.getBody();
-
-        assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
-        assertEquals("/v1/activity/order", apiRequest.getPath());
-
-        // request body
-        assertEquals("valid_application_id", requestBody.getString("app_id"));
-        assertEquals("valid_ts", requestBody.getString("user_local_time"));
-        assertEquals("valid_aid", requestBody.getString("btn_ref"));
-        assertEquals("123", requestBody.getString("order_id"));
-        assertEquals(999, requestBody.getLong("total"));
-        assertEquals("AUG", requestBody.getString("currency"));
-        assertEquals("merchant-library", requestBody.getString("source"));
-    }
-
     @Test
     public void postOrder_validateRequestMethodAndPath() throws Exception {
         Order order = new Order.Builder("123", new Date(), Collections.<Order.LineItem>emptyList())

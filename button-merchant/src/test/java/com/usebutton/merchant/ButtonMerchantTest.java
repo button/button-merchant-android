@@ -46,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ButtonMerchantTest {
@@ -94,10 +95,13 @@ public class ButtonMerchantTest {
     }
 
     @Test
-    public void trackOrder_verifyButtonInternal() {
-        ButtonMerchant.trackOrder(context, mock(Order.class), mock(UserActivityListener.class));
-        verify(buttonInternal).trackOrder(any(ButtonRepository.class), any(DeviceManager.class),
-                any(Order.class), any(UserActivityListener.class));
+    public void trackOrder_verifyDeprecation() {
+        UserActivityListener listener = mock(UserActivityListener.class);
+
+        ButtonMerchant.trackOrder(context, mock(Order.class), listener);
+
+        verify(listener).onResult(any(Throwable.class));
+        verifyZeroInteractions(buttonInternal);
     }
 
     @Test

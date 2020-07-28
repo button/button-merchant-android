@@ -44,9 +44,6 @@ interface ButtonInternal {
     void trackIncomingIntent(ButtonRepository buttonRepository, DeviceManager deviceManager,
             Features features, Intent intent);
 
-    void trackOrder(ButtonRepository buttonRepository, DeviceManager manager,
-            @NonNull Order order, @Nullable UserActivityListener listener);
-
     @Nullable
     String getAttributionToken(ButtonRepository buttonRepository);
 

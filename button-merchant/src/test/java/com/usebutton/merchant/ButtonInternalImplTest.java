@@ -36,8 +36,6 @@ import com.usebutton.merchant.module.Features;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.concurrent.Executor;
 
@@ -49,7 +47,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -111,129 +108,6 @@ public class ButtonInternalImplTest {
                 mock(Features.class), intent);
 
         verify(buttonRepository, never()).setSourceToken(anyString());
-    }
-
-    @Test
-    public void trackIncomingIntent_withValidIntentData_shouldReportDeeplinkOpenEvent() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        Intent intent = mock(Intent.class);
-        Uri uri = mock(Uri.class);
-        Uri.Builder builder = mock(Uri.Builder.class);
-        when(intent.getData()).thenReturn(uri);
-        when(uri.buildUpon()).thenReturn(builder);
-        when(uri.buildUpon().clearQuery()).thenReturn(builder);
-        when(builder.build()).thenReturn(uri);
-        when(uri.getQueryParameter("btn_ref")).thenReturn("valid_source_token");
-        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
-
-        verify(buttonRepository).reportEvent(any(DeviceManager.class), any(Features.class),
-                eventCaptor.capture());
-        Event event = eventCaptor.getValue();
-
-        assertEquals(Event.Name.DEEPLINK_OPENED, event.getName());
-    }
-
-    @Test
-    public void trackIncomingIntent_withNullIntentData_shouldNotReportDeeplinkOpenEvent() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        Intent intent = mock(Intent.class);
-        when(intent.getData()).thenReturn(null);
-
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
-
-        verify(buttonRepository, never()).reportEvent(any(DeviceManager.class),
-                any(Features.class), any(Event.class));
-    }
-
-    @Test
-    public void trackOrder_withValidParams_NonNullListener() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-
-        when(buttonRepository.getApplicationId()).thenReturn("valid_id");
-        buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                mock(UserActivityListener.class));
-
-        verify(buttonRepository).postUserActivity(any(DeviceManager.class), any(Order.class),
-                any(Task.Listener.class));
-    }
-
-    @Test
-    public void trackOrder_nullApplicationId() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        UserActivityListener listener = mock(UserActivityListener.class);
-
-        when(buttonRepository.getApplicationId()).thenReturn(null);
-        buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                listener);
-
-        verify(listener).onResult(any(ApplicationIdNotFoundException.class));
-        verify(buttonRepository, never()).postUserActivity(any(DeviceManager.class),
-                any(Order.class),
-                any(Task.Listener.class));
-    }
-
-    @Test
-    public void trackOrder_nullApplicationIdAndListener() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-
-        when(buttonRepository.getApplicationId()).thenReturn(null);
-        buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                null);
-
-        verify(buttonRepository, never()).postUserActivity(any(DeviceManager.class),
-                any(Order.class),
-                any(Task.Listener.class));
-    }
-
-    @Test
-    public void trackOrder_validateUserActivityListenerOnSuccess() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        final UserActivityListener listener = mock(UserActivityListener.class);
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                final Task.Listener listener1 = invocation.getArgument(2);
-                listener1.onTaskComplete(null);
-                return null;
-            }
-        }).when(buttonRepository)
-                .postUserActivity(any(DeviceManager.class), any(Order.class),
-                        any(Task.Listener.class));
-
-        when(buttonRepository.getApplicationId()).thenReturn("valid_id");
-
-        buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                listener);
-        verify(listener).onResult(null);
-    }
-
-    @Test
-    public void trackOrder_validateUserActivityListenerOnError() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-        final UserActivityListener listener = mock(UserActivityListener.class);
-        final Throwable throwable = new ButtonNetworkException("");
-
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                final Task.Listener listener1 = invocation.getArgument(2);
-                listener1.onTaskError(throwable);
-                return null;
-            }
-        }).when(buttonRepository)
-                .postUserActivity(any(DeviceManager.class), any(Order.class),
-                        any(Task.Listener.class));
-
-        when(buttonRepository.getApplicationId()).thenReturn("valid_id");
-
-        buttonInternal.trackOrder(buttonRepository, mock(DeviceManager.class), mock(Order.class),
-                listener);
-        verify(listener).onResult(throwable);
     }
 
     @Test
