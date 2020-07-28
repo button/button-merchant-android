@@ -49,6 +49,7 @@ import com.usebutton.merchant.UserActivityListener;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -180,9 +181,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent();
-                intent.setData(
-                        Uri.parse("https://sample-merchant.usebutton.com/?btn_ref=srctok-test"
-                                + new Random().nextInt(100000)));
+                String url = String.format(Locale.getDefault(),
+                        "https://example.com/p/123?btn_ref=srctok-abc%d&from_landing=true&"
+                                + "from_tracking=false&btn_blargh=blergh&other_param=some_val",
+                        new Random().nextInt(100000));
+                intent.setData(Uri.parse(url));
                 ButtonMerchant.trackIncomingIntent(v.getContext(), intent);
             }
         });

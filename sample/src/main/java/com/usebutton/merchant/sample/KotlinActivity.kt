@@ -15,6 +15,7 @@ import com.usebutton.merchant.ButtonMerchant
 import com.usebutton.merchant.Order
 import java.util.Collections
 import java.util.Date
+import java.util.Locale
 import java.util.Random
 import java.util.UUID
 
@@ -143,7 +144,9 @@ class KotlinActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "KotlinActivity"
-        private const val TEST_URL = "https://sample-merchant.usebutton.com/?btn_ref=srctok-test"
+        private var TEST_URL = String.format(Locale.getDefault(),
+                "https://example.com/p/123?btn_ref=srctok-abc%d&from_landing=true&from_tracking=false&btn_blargh=blergh&other_param=some_val",
+                Random().nextInt(100000))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

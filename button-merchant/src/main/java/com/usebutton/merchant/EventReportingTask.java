@@ -1,7 +1,7 @@
 /*
- * ButtonApi.java
+ * EventReportingTask.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2020 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,38 +26,34 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.merchant.module.Features;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Button API endpoints.
+ * Asynchronous task used to report events to Button.
  */
-interface ButtonApi {
+final class EventReportingTask extends Task<Void> {
 
-    void setApplicationId(String applicationId);
+    private final ButtonApi buttonApi;
+    private final List<Event> events;
+    private final DeviceManager deviceManager;
+    private final Features features;
 
-    @Nullable
-    @WorkerThread
-    PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
-            Map<String, String> signalsMap)
-            throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postActivity(String applicationId, String sourceToken, String timestamp, Order order)
-            throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postOrder(Order order, String applicationId, String sourceToken,
-            @Nullable String advertisingId) throws ButtonNetworkException;
+    EventReportingTask(ButtonApi buttonApi, DeviceManager deviceManager, Features features,
+            List<Event> events, Listener<Void> listener) {
+        super(listener);
+        this.buttonApi = buttonApi;
+        this.deviceManager = deviceManager;
+        this.features = features;
+        this.events = events;
+    }
 
     @Nullable
-    @WorkerThread
-    Void postEvents(List<Event> events, @Nullable String advertisingId)
-            throws ButtonNetworkException;
+    @Override
+    Void execute() throws Exception {
+        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
+        return buttonApi.postEvents(events, advertisingId);
+    }
 }

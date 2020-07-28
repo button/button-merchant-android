@@ -35,7 +35,9 @@ import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 import com.usebutton.merchant.module.Features;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * ButtonInternalImpl class should implement everything needed for {@link ButtonMerchant}
@@ -61,6 +63,11 @@ final class ButtonInternalImpl implements ButtonInternal {
      */
     private final Executor executor;
 
+    /**
+     * A thread-safe flag to indicate if we've received a valid source token from a direct deeplink
+     */
+    private final AtomicBoolean hasReceivedDirectDeeplink = new AtomicBoolean();
+
     ButtonInternalImpl(Executor executor) {
         this.attributionTokenListeners = new ArrayList<>();
         this.executor = executor;
@@ -77,14 +84,20 @@ final class ButtonInternalImpl implements ButtonInternal {
     }
 
     @Override
-    public void trackIncomingIntent(ButtonRepository buttonRepository, Intent intent) {
+    public void trackIncomingIntent(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Features features, Intent intent) {
         Uri data = intent.getData();
         if (data == null) {
             return;
         }
 
         String sourceToken = data.getQueryParameter("btn_ref");
-        setAttributionToken(buttonRepository, sourceToken);
+        if (sourceToken != null && !sourceToken.isEmpty()) {
+            setAttributionToken(buttonRepository, sourceToken);
+            hasReceivedDirectDeeplink.set(true);
+        }
+
+        reportDeeplinkOpenEvent(buttonRepository, deviceManager, features, data);
     }
 
     @Override
@@ -158,7 +171,7 @@ final class ButtonInternalImpl implements ButtonInternal {
 
     @Override
     public void handlePostInstallIntent(final ButtonRepository buttonRepository,
-            DeviceManager deviceManager, Features features, final String packageName,
+            final DeviceManager deviceManager, final Features features, final String packageName,
             final PostInstallIntentListener listener) {
 
         if (buttonRepository.getApplicationId() == null) {
@@ -186,6 +199,16 @@ final class ButtonInternalImpl implements ButtonInternal {
                 new Task.Listener<PostInstallLink>() {
                     @Override
                     public void onTaskComplete(@Nullable PostInstallLink postInstallLink) {
+                        if (hasReceivedDirectDeeplink.get()) {
+                            executor.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.onResult(null, null);
+                                }
+                            });
+                            return;
+                        }
+
                         if (postInstallLink != null
                                 && postInstallLink.isMatch()
                                 && postInstallLink.getAction() != null) {
@@ -291,5 +314,41 @@ final class ButtonInternalImpl implements ButtonInternal {
 
             buttonRepository.setSourceToken(attributionToken);
         }
+    }
+
+    /**
+     * Report the deeplink open event.
+     *
+     * This method should generally only be called when a direct deeplink is received. It will
+     * report the base URL with *only* Button-associated query parameters.
+     *
+     * @param link the deeplink URL
+     */
+    private void reportDeeplinkOpenEvent(ButtonRepository buttonRepository,
+            DeviceManager deviceManager, Features features, @Nullable Uri link) {
+        if (link == null) {
+            return;
+        }
+
+        // Strip the deeplink URL, keeping only the base URL and Button-associated query params
+        Uri.Builder strippedLinkBuilder = link.buildUpon().clearQuery();
+        Set<String> params = link.getQueryParameterNames();
+        for (String param : params) {
+            if (param.startsWith("btn_")
+                    || "from_landing".equalsIgnoreCase(param)
+                    || "from_tracking".equalsIgnoreCase(param)) {
+
+                strippedLinkBuilder.appendQueryParameter(param, link.getQueryParameter(param));
+            }
+        }
+        String strippedLink = strippedLinkBuilder.build().toString();
+
+        // Construct deeplink open event
+        String sourceToken = getAttributionToken(buttonRepository);
+        Event deeplinkEvent = new Event(Event.Name.DEEPLINK_OPENED, sourceToken);
+        deeplinkEvent.addProperty(Event.Property.URL, strippedLink);
+
+        // Report event
+        buttonRepository.reportEvent(deviceManager, features, deeplinkEvent);
     }
 }

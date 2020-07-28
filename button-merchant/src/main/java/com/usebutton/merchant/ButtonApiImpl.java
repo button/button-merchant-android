@@ -224,4 +224,33 @@ final class ButtonApiImpl implements ButtonApi {
 
         return null;
     }
+
+    @Nullable
+    @Override
+    public Void postEvents(List<Event> events, @Nullable String advertisingId)
+            throws ButtonNetworkException {
+
+        try {
+            JSONArray eventStream = new JSONArray();
+            for (int i = 0; i < events.size(); i++) {
+                JSONObject eventJson = events.get(i).toJson();
+                eventStream.put(i, eventJson);
+            }
+
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("ifa", advertisingId);
+            requestBody.put("events", eventStream);
+
+            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                    "/v1/app/events")
+                    .setBody(requestBody)
+                    .build();
+            connectionManager.executeRequest(apiRequest);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error creating request body", e);
+            throw new ButtonNetworkException(e);
+        }
+
+        return null;
+    }
 }
