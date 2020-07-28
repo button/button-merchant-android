@@ -32,6 +32,8 @@ import android.util.Log;
 import com.usebutton.merchant.module.Features;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -49,6 +51,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     private String applicationId;
 
     private static ButtonRepository buttonRepository;
+    private List<Task<?>> pendingTasks = new CopyOnWriteArrayList<>();
 
     static ButtonRepository getInstance(ButtonApi buttonApi, PersistenceManager persistenceManager,
             ExecutorService executorService) {
@@ -72,6 +75,11 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
         buttonApi.setApplicationId(applicationId);
+
+        for (Task<?> task : pendingTasks) {
+            executorService.submit(task);
+        }
+        pendingTasks.clear();
     }
 
     @Nullable
@@ -138,6 +146,22 @@ final class ButtonRepositoryImpl implements ButtonRepository {
                 Log.e(TAG, String.format("Error reporting event [%s]", event.getName()), throwable);
             }
         });
-        executorService.submit(task);
+
+        invokeIfConfigured(task);
+    }
+
+    /**
+     * If the Merchant Library has been configured, the provided {@link Task} is submitted
+     * immediately. Otherwise, it queued up to be invoked once the Library is configured.
+     *
+     * @param task the task to submit
+     */
+    private void invokeIfConfigured(Task<?> task) {
+        if (getApplicationId() != null) {
+            executorService.submit(task);
+        } else {
+            Log.d(TAG, "Application ID unavailable! Queueing Task.");
+            pendingTasks.add(task);
+        }
     }
 }
