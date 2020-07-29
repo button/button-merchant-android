@@ -25,6 +25,8 @@
 
 package com.usebutton.merchant;
 
+import android.support.annotation.Nullable;
+
 import com.usebutton.merchant.exception.ButtonNetworkException;
 
 /**
@@ -33,6 +35,9 @@ import com.usebutton.merchant.exception.ButtonNetworkException;
 interface ConnectionManager {
 
     void setApplicationId(String applicationId);
+
+    @Nullable
+    String getApplicationId();
 
     NetworkResponse executeRequest(ApiRequest request) throws ButtonNetworkException;
 }

@@ -48,9 +48,8 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     private final PersistenceManager persistenceManager;
     private final ExecutorService executorService;
 
-    private String applicationId;
-
     private static ButtonRepository buttonRepository;
+    private boolean isConfigured;
     private List<Task<?>> pendingTasks = new CopyOnWriteArrayList<>();
 
     static ButtonRepository getInstance(ButtonApi buttonApi, PersistenceManager persistenceManager,
@@ -73,7 +72,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
 
     @Override
     public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+        isConfigured = true;
         buttonApi.setApplicationId(applicationId);
 
         for (Task<?> task : pendingTasks) {
@@ -85,7 +84,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     @Nullable
     @Override
     public String getApplicationId() {
-        return applicationId;
+        return buttonApi.getApplicationId();
     }
 
     @Override
@@ -157,7 +156,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
      * @param task the task to submit
      */
     private void invokeIfConfigured(Task<?> task) {
-        if (getApplicationId() != null) {
+        if (isConfigured) {
             executorService.submit(task);
         } else {
             Log.d(TAG, "Application ID unavailable! Queueing Task.");

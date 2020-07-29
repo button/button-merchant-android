@@ -40,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ButtonRepositoryImplTest {
@@ -63,16 +62,9 @@ public class ButtonRepositoryImplTest {
     }
 
     @Test
-    public void setApplicationId_cacheInMemory() {
-        buttonRepository.setApplicationId("valid_application_id");
-        assertEquals("valid_application_id", buttonRepository.getApplicationId());
-        verifyZeroInteractions(persistenceManager);
-    }
-
-    @Test
     public void setApplicationId_provideToButtonApi() {
-        buttonRepository.setApplicationId("valid_application_id");
-        verify(buttonApi).setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
+        verify(buttonApi).setApplicationId("invalid_application_id");
     }
 
     @Test
@@ -84,7 +76,7 @@ public class ButtonRepositoryImplTest {
         buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
                 mock(Event.class));
 
-        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
 
         verify(executorService, times(3)).submit(any(EventReportingTask.class));
     }
@@ -98,19 +90,13 @@ public class ButtonRepositoryImplTest {
         buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
                 mock(Event.class));
 
-        buttonRepository.setApplicationId("valid_application_id");
-        buttonRepository.setApplicationId("valid_application_id");
-        buttonRepository.setApplicationId("valid_application_id");
-        buttonRepository.setApplicationId("valid_application_id");
-        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
 
         verify(executorService, times(3)).submit(any(EventReportingTask.class));
-    }
-
-    @Test
-    public void getApplicationId_returnValidAppId() {
-        buttonRepository.setApplicationId("valid_application_id");
-        assertEquals("valid_application_id", buttonRepository.getApplicationId());
     }
 
     @Test
@@ -166,7 +152,7 @@ public class ButtonRepositoryImplTest {
 
     @Test
     public void reportEvent_configured_executeTask() {
-        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
         buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
                 mock(Event.class));
 
@@ -179,7 +165,7 @@ public class ButtonRepositoryImplTest {
                 mock(Event.class));
 
         verify(executorService, never()).submit(any(EventReportingTask.class));
-        buttonRepository.setApplicationId("valid_application_id");
+        buttonRepository.setApplicationId("invalid_application_id");
 
         verify(executorService).submit(any(EventReportingTask.class));
     }

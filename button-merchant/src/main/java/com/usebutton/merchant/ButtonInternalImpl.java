@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Pattern;
 
 /**
  * ButtonInternalImpl class should implement everything needed for {@link ButtonMerchant}
@@ -72,19 +71,16 @@ final class ButtonInternalImpl implements ButtonInternal {
      */
     private final AtomicBoolean hasReceivedDirectDeeplink = new AtomicBoolean();
 
-    private static final Pattern APP_ID_PATTERN = Pattern.compile("^app-[0-9a-zA-Z]+$");
-
     ButtonInternalImpl(Executor executor) {
         this.attributionTokenListeners = new ArrayList<>();
         this.executor = executor;
     }
 
     public void configure(ButtonRepository buttonRepository, String applicationId) {
-        if (!APP_ID_PATTERN.matcher(applicationId).matches()) {
+        if (!ButtonUtil.isApplicationIdValid(applicationId)) {
             Log.e(TAG, "Application ID [" + applicationId + "] is not valid. "
                     + "You can find your Application ID in the dashboard by logging in at"
                     + " https://app.usebutton.com/");
-            return;
         }
 
         buttonRepository.setApplicationId(applicationId);

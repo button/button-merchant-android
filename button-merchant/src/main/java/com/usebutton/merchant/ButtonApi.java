@@ -41,6 +41,9 @@ interface ButtonApi {
     void setApplicationId(String applicationId);
 
     @Nullable
+    String getApplicationId();
+
+    @Nullable
     @WorkerThread
     PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
             Map<String, String> signalsMap)

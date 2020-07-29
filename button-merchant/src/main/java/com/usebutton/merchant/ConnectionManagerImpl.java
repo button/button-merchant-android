@@ -90,10 +90,21 @@ final class ConnectionManagerImpl implements ConnectionManager {
 
     @Override
     public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
+        // Only cache the application ID if it is valid
+        // However, we would still let the network requests proceed instead of failing silently
+        // on the client-side.
+        if (ButtonUtil.isApplicationIdValid(applicationId)) {
+            this.applicationId = applicationId;
 
-        // Update the endpoint to the App ID flavor
-        baseUrl = String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, applicationId);
+            // Update the endpoint to the App ID flavor
+            baseUrl = String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, applicationId);
+        }
+    }
+
+    @Nullable
+    @Override
+    public String getApplicationId() {
+        return applicationId;
     }
 
     @Override

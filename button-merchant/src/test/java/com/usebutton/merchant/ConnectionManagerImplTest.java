@@ -44,9 +44,11 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ConnectionManagerImplTest {
@@ -76,13 +78,42 @@ public class ConnectionManagerImplTest {
     }
 
     @Test
+    public void setApplicationId_cacheInMemory() {
+        connectionManager.setApplicationId("app-abcdef1234567890");
+        assertEquals("app-abcdef1234567890", connectionManager.getApplicationId());
+        verifyZeroInteractions(persistenceManager);
+    }
+
+    @Test
     public void setApplicationId_shouldUpdateEndpoint() {
-        connectionManager = new ConnectionManagerImpl(url, VALID_UA, persistenceManager);
+        connectionManager = new ConnectionManagerImpl(ButtonMerchant.BASE_URL, VALID_UA,
+                persistenceManager);
 
-        connectionManager.setApplicationId("valid_app_id");
+        connectionManager.setApplicationId("app-abcdef1234567890");
 
-        String expectedUrl = String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, "valid_app_id");
+        String expectedUrl =
+                String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, "app-abcdef1234567890");
         assertEquals(expectedUrl, ((ConnectionManagerImpl) connectionManager).baseUrl);
+    }
+
+    @Test
+    public void setApplicationId_invalidAppId_shouldNotCacheOrUpdateEndpoint() {
+        connectionManager.setApplicationId("invalid_app_id");
+
+        assertNull(connectionManager.getApplicationId());
+        assertEquals(url, ((ConnectionManagerImpl) connectionManager).baseUrl);
+    }
+
+    @Test
+    public void getApplicationId_validAppId_returnValidAppId() {
+        connectionManager.setApplicationId("app-abcdef1234567890");
+        assertEquals("app-abcdef1234567890", connectionManager.getApplicationId());
+    }
+
+    @Test
+    public void getApplicationId_invalidAppId_returnNull() {
+        connectionManager.setApplicationId("invalid_application_id");
+        assertNull(connectionManager.getApplicationId());
     }
 
     @Test(expected = ButtonNetworkException.class)
@@ -266,7 +297,7 @@ public class ConnectionManagerImplTest {
 
     @Test
     public void executeRequest_shouldIncludeApplicationId() throws Exception {
-        String applicationId = "valid_application_id";
+        String applicationId = "app-abcdef1234567890";
         connectionManager.setApplicationId(applicationId);
         ((ConnectionManagerImpl) connectionManager).baseUrl = url;
         server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));

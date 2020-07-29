@@ -61,9 +61,10 @@ final class ButtonUtil {
 
     private static final Pattern EMAIL_REGEX_PATTERN = Pattern.compile(EMAIL_REGEX);
 
+    private static final Pattern APP_ID_PATTERN = Pattern.compile("^app-[0-9a-zA-Z]+$");
+
     /**
      * @param date date to be formatted
-     *
      * @return date formatted in ISO_8601 format
      */
     public static String formatDate(Date date) {
@@ -90,6 +91,10 @@ final class ButtonUtil {
 
     public static boolean isValidEmail(String email) {
         return EMAIL_REGEX_PATTERN.matcher(email).matches();
+    }
+
+    public static boolean isApplicationIdValid(@Nullable String applicationId) {
+        return applicationId != null && APP_ID_PATTERN.matcher(applicationId).matches();
     }
 
     private static String encodeHex(byte[] digest) {
