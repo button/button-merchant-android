@@ -107,7 +107,7 @@ public class ButtonApiImplTest {
         JSONObject signals = body.getJSONObject("signals");
 
         assertEquals(apiRequest.getRequestMethod(), ApiRequest.RequestMethod.POST);
-        assertEquals(apiRequest.getPath(), "/v1/web/deferred-deeplink");
+        assertEquals(apiRequest.getPath(), "/v1/app/deferred-deeplink");
 
         // request body
         assertEquals("valid_application_id", body.getString("application_id"));

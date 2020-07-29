@@ -51,7 +51,8 @@ public final class ButtonMerchant {
     static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private static final String BASE_URL = "https://api.usebutton.com";
+    private static final String BASE_URL = "https://mobileapi.usebutton.com";
+    static final String FMT_BASE_URL_APP_ID = "https://%s.mobileapi.usebutton.com";
 
     /**
      * Configures {@link ButtonMerchant} with your application Id.

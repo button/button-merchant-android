@@ -67,7 +67,8 @@ final class ConnectionManagerImpl implements ConnectionManager {
 
     private String applicationId;
 
-    private final String baseUrl;
+    @VisibleForTesting
+    String baseUrl;
     private final String userAgent;
     private final PersistenceManager persistenceManager;
 
@@ -90,6 +91,9 @@ final class ConnectionManagerImpl implements ConnectionManager {
     @Override
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
+
+        // Update the endpoint to the App ID flavor
+        baseUrl = String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, applicationId);
     }
 
     @Override
