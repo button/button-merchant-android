@@ -50,7 +50,6 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class ButtonInternalImplTest {
@@ -71,15 +70,6 @@ public class ButtonInternalImplTest {
         buttonInternal.configure(buttonRepository, "app-abcdef1234567890");
 
         verify(buttonRepository).setApplicationId("app-abcdef1234567890");
-    }
-
-    @Test
-    public void configure_invalidAppId_shouldNotConfigure() {
-        ButtonRepository buttonRepository = mock(ButtonRepository.class);
-
-        buttonInternal.configure(buttonRepository, "invalid_application_id");
-
-        verifyZeroInteractions(buttonRepository);
     }
 
     @Test

@@ -68,6 +68,12 @@ final class ButtonApiImpl implements ButtonApi {
     }
 
     @Nullable
+    @Override
+    public String getApplicationId() {
+        return connectionManager.getApplicationId();
+    }
+
+    @Nullable
     @WorkerThread
     @Override
     public PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
