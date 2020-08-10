@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.usebutton.merchant.module.ButtonUserActivity;
 import com.usebutton.merchant.module.Features;
 
 import java.util.concurrent.Executor;
@@ -194,6 +195,15 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static Features features() {
         return FeaturesImpl.getInstance();
+    }
+
+    /**
+     * An interface through which user activities can be reported.
+     *
+     * @return Button user activity API
+     */
+    public static ButtonUserActivity activity() {
+        return ButtonUserActivityImpl.getInstance();
     }
 
     private static ButtonRepository getButtonRepository(Context context) {
