@@ -50,6 +50,13 @@
         />
 
     <Button
+        android:id="@+id/track_new_intent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track New Intent"
+        />
+
+    <Button
         android:id="@+id/track_order"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -64,17 +71,31 @@
         />
 
     <Button
+        android:id="@+id/track_product_viewed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track Product Viewed"
+        />
+
+    <Button
+        android:id="@+id/track_add_cart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track Add To Cart"
+        />
+
+    <Button
+        android:id="@+id/track_cart_viewed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Track Cart Viewed"
+        />
+
+    <Button
         android:id="@+id/clear_all_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Clear All Data"
-        />
-
-    <Button
-        android:id="@+id/track_new_intent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Track New Intent"
         />
 
 </LinearLayout>
