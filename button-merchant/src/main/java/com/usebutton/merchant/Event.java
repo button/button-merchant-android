@@ -31,6 +31,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.UUID;
+
 /**
  * Internal class used to encapsulate event data.
  */
@@ -74,12 +76,16 @@ class Event {
         }
     }
 
+    private final UUID id;
+    private final long timestamp;
     private final Name name;
     @Nullable
     private final String sourceToken;
     private final JSONObject eventBody;
 
     Event(Name name, @Nullable String sourceToken) {
+        this.id = UUID.randomUUID();
+        this.timestamp = System.currentTimeMillis();
         this.name = name;
         this.sourceToken = sourceToken;
         this.eventBody = new JSONObject();
@@ -91,6 +97,14 @@ class Event {
         } catch (JSONException e) {
             Log.e(TAG, String.format("Error adding property [%s] to event [%s]", key, name), e);
         }
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public Name getName() {
@@ -110,6 +124,8 @@ class Event {
         JSONObject json = new JSONObject();
         json.put("name", name.eventName);
         json.put("promotion_source_token", sourceToken);
+        json.put("time", ButtonUtil.formatTimestamp(timestamp));
+        json.put("uuid", id.toString());
         json.put("value", eventBody);
         return json;
     }

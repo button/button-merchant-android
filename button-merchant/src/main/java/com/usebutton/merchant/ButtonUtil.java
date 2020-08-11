@@ -71,6 +71,14 @@ final class ButtonUtil {
         return simpleDateFormat.format(date);
     }
 
+    /**
+     * @param timestamp timestamp to be formatted
+     * @return date formatted in ISO_8601 format
+     */
+    public static String formatTimestamp(long timestamp) {
+        return formatDate(new Date(timestamp));
+    }
+
     public static String base64Encode(String value) {
         return Base64.encodeToString(value.getBytes(), Base64.NO_WRAP);
     }
