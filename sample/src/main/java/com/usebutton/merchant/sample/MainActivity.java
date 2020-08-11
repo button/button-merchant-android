@@ -273,8 +273,8 @@ public class MainActivity extends AppCompatActivity {
         product.setCurrency("USD");
         product.setValue(129900);
         product.setQuantity(1);
-        product.setUrl(
-                "https://www.bestbuy.com/site/samsung-65-class-qled-q70-series-4k-uhd-tv-smart-led-with-hdr/6402399.p?skuId=6402399");
+        product.setUrl("https://www.bestbuy.com/site/samsung-65-class-qled-q70-series-4k-uhd-tv-sm"
+                + "art-led-with-hdr/6402399.p?skuId=6402399");
         product.setAttributes(attributes);
 
         return product;

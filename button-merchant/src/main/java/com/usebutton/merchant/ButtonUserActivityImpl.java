@@ -34,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Public API handler class for reporting user activity.
+ */
 class ButtonUserActivityImpl implements ButtonUserActivity {
 
     @VisibleForTesting static final String EVENT_PRODUCT_VIEWED = "product-viewed";
@@ -104,11 +107,14 @@ class ButtonUserActivityImpl implements ButtonUserActivity {
         queuedActivityEvents.clear();
     }
 
+    /**
+     * Internal class representing an activity event
+     */
     private static class Event {
         private final String name;
         private final List<ButtonProductCompatible> products;
 
-        public Event(String name, List<ButtonProductCompatible> products) {
+        Event(String name, List<ButtonProductCompatible> products) {
             this.name = name;
             this.products = products;
         }

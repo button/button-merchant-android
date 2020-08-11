@@ -67,7 +67,7 @@ public interface ButtonProductCompatible {
     String getCurrency();
 
     /**
-     * @return the value of the order. Includes any discounts, if applicable. Example: 1234 for $12.34
+     * @return the value of the order. Includes any discounts, if applicable. e.g: 1234 for $12.34
      */
     @Nullable
     Integer getValue();
