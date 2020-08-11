@@ -204,6 +204,68 @@ final class ButtonApiImpl implements ButtonApi {
 
     @Nullable
     @Override
+    public Void postActivity(String activityName, List<ButtonProductCompatible> products,
+            @Nullable String advertisingId) throws ButtonNetworkException {
+
+        try {
+            JSONArray productsArray = new JSONArray();
+            for (int i = 0; i < products.size(); i++) {
+                ButtonProductCompatible product = products.get(i);
+                List<String> categories = product.getCategories();
+                Map<String, String> attributes = product.getAttributes();
+                JSONObject productJson = new JSONObject();
+
+                // Convert categories list to JSON array
+                JSONArray categoriesJson = new JSONArray();
+                if (categories != null) {
+                    for (int j = 0; j < categories.size(); j++) {
+                        categoriesJson.put(j, categories.get(j));
+                    }
+                    productJson.put("categories", categoriesJson);
+                }
+
+                // Convert custom attributes map to JSON object
+                JSONObject attributesJson = new JSONObject();
+                if (attributes != null) {
+                    for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                        attributesJson.putOpt(entry.getKey(), entry.getValue());
+                    }
+                    productJson.put("attributes", attributesJson);
+                }
+
+                // Put product data into a JSON object
+                productJson.put("id", product.getId());
+                productJson.put("upc", product.getUpc());
+                productJson.put("name", product.getName());
+                productJson.put("currency", product.getCurrency());
+                productJson.put("value", product.getValue());
+                productJson.put("quantity", product.getQuantity());
+                productJson.put("url", product.getUrl());
+
+                // Add to JSON array of products
+                productsArray.put(i, productJson);
+            }
+
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("ifa", advertisingId);
+            requestBody.put("name", activityName);
+            requestBody.put("products", productsArray);
+
+            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                    "/v1/app/activity")
+                    .setBody(requestBody)
+                    .build();
+            connectionManager.executeRequest(apiRequest);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error creating request body", e);
+            throw new ButtonNetworkException(e);
+        }
+
+        return null;
+    }
+
+    @Nullable
+    @Override
     public Void postEvents(List<Event> events, @Nullable String advertisingId)
             throws ButtonNetworkException {
 

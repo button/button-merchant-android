@@ -45,6 +45,8 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     private static final String TAG = ButtonRepository.class.getSimpleName();
 
     private final ButtonApi buttonApi;
+    private final DeviceManager deviceManager;
+    private final Features features;
     private final PersistenceManager persistenceManager;
     private final ExecutorService executorService;
 
@@ -52,20 +54,23 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     private boolean isConfigured;
     private List<Task<?>> pendingTasks = new CopyOnWriteArrayList<>();
 
-    static ButtonRepository getInstance(ButtonApi buttonApi, PersistenceManager persistenceManager,
+    static ButtonRepository getInstance(ButtonApi buttonApi, DeviceManager deviceManager,
+            Features features, PersistenceManager persistenceManager,
             ExecutorService executorService) {
         if (buttonRepository == null) {
-            buttonRepository = new ButtonRepositoryImpl(buttonApi, persistenceManager,
-                    executorService);
+            buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, features,
+                    persistenceManager, executorService);
         }
 
         return buttonRepository;
     }
 
     @VisibleForTesting
-    ButtonRepositoryImpl(ButtonApi buttonApi, PersistenceManager persistenceManager,
-            ExecutorService executorService) {
+    ButtonRepositoryImpl(ButtonApi buttonApi, DeviceManager deviceManager, Features features,
+            PersistenceManager persistenceManager, ExecutorService executorService) {
         this.buttonApi = buttonApi;
+        this.deviceManager = deviceManager;
+        this.features = features;
         this.persistenceManager = persistenceManager;
         this.executorService = executorService;
     }
@@ -129,6 +134,25 @@ final class ButtonRepositoryImpl implements ButtonRepository {
         executorService.submit(
                 new PostOrderTask(listener, buttonApi, order, getApplicationId(),
                         getSourceToken(), deviceManager, features, new ThreadManager()));
+    }
+
+    @Override
+    public void trackActivity(final String eventName, List<ButtonProductCompatible> products) {
+        ActivityReportingTask task = new ActivityReportingTask(buttonApi, deviceManager, features,
+                eventName, products, new Task.Listener<Void>() {
+            @Override
+            public void onTaskComplete(@Nullable Void object) {
+                // ignored
+            }
+
+            @Override
+            public void onTaskError(Throwable throwable) {
+                Log.e(TAG, String.format("Error reporting user activity [%s]", eventName),
+                        throwable);
+            }
+        });
+
+        invokeIfConfigured(task);
     }
 
     @Override
