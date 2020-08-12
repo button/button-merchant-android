@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class EventTest {
@@ -40,6 +41,8 @@ public class EventTest {
         assertEquals(Event.Name.DEEPLINK_OPENED, event.getName());
         assertEquals("valid_token", event.getSourceToken());
         assertEquals((new JSONObject()).toString(), event.getEventBody().toString());
+        assertNotNull(event.getId());
+        assertTrue(event.getTimestamp() > 0);
     }
 
     @Test

@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -215,6 +216,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             JSONObject requestBody = new JSONObject();
             requestBody.put("ifa", advertisingId);
+            requestBody.put("current_time", ButtonUtil.formatDate(new Date()));
             requestBody.put("events", eventStream);
 
             ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,

@@ -46,6 +46,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -408,5 +409,21 @@ public class ButtonApiImplTest {
         JSONObject requestBody = apiRequest.getBody();
 
         assertEquals(requestBody.getString("ifa"), "valid_ifa");
+    }
+
+    @Test
+    public void postEvents_shouldIncludeTimestamp() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        List<Event> events = new ArrayList<>();
+        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
+        events.add(event);
+
+        buttonApi.postEvents(events, null);
+
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+
+        assertTrue(requestBody.has("current_time"));
     }
 }
