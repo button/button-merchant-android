@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import static org.junit.Assert.assertEquals;
@@ -44,21 +45,19 @@ import static org.mockito.Mockito.when;
 
 public class ButtonRepositoryImplTest {
 
-    @Mock
-    ButtonApi buttonApi;
-
-    @Mock
-    PersistenceManager persistenceManager;
-
-    @Mock
-    ExecutorService executorService;
+    @Mock ButtonApi buttonApi;
+    @Mock DeviceManager deviceManager;
+    @Mock Features features;
+    @Mock PersistenceManager persistenceManager;
+    @Mock ExecutorService executorService;
 
     private ButtonRepositoryImpl buttonRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        buttonRepository = new ButtonRepositoryImpl(buttonApi, persistenceManager, executorService);
+        buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, features,
+                persistenceManager, executorService);
     }
 
     @Test
@@ -148,6 +147,24 @@ public class ButtonRepositoryImplTest {
                 mock(Features.class), mock(Task.Listener.class));
 
         verify(executorService).submit(any(PostOrderTask.class));
+    }
+
+    @Test
+    public void trackActivity_configured_executeTask() {
+        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.trackActivity("test-activity", mock(List.class));
+
+        verify(executorService).submit(any(ActivityReportingTask.class));
+    }
+
+    @Test
+    public void trackActivity_unConfigured_queueTaskAndExecuteWhenConfigured() {
+        buttonRepository.trackActivity("test-activity", mock(List.class));
+
+        verify(executorService, never()).submit(any(EventReportingTask.class));
+        buttonRepository.setApplicationId("invalid_application_id");
+
+        verify(executorService).submit(any(ActivityReportingTask.class));
     }
 
     @Test

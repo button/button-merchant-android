@@ -1,7 +1,7 @@
 /*
- * ButtonRepository.java
+ * ActivityReportingTask.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2020 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,33 +32,33 @@ import com.usebutton.merchant.module.Features;
 import java.util.List;
 
 /**
- * Internal data layer interface.
+ * Asynchronous task used to report user activity to Button.
  */
-interface ButtonRepository {
+public class ActivityReportingTask extends Task<Void> {
 
-    void setApplicationId(String applicationId);
+    private final ButtonApi buttonApi;
+    private final DeviceManager deviceManager;
+    private final Features features;
+    private final String activityName;
+    private final List<ButtonProductCompatible> products;
+    private final String sourceToken;
+
+    public ActivityReportingTask(ButtonApi buttonApi, DeviceManager deviceManager,
+            Features features, String activityName, List<ButtonProductCompatible> products,
+            @Nullable String sourceToken, @Nullable Listener<Void> listener) {
+        super(listener);
+        this.buttonApi = buttonApi;
+        this.deviceManager = deviceManager;
+        this.features = features;
+        this.activityName = activityName;
+        this.products = products;
+        this.sourceToken = sourceToken;
+    }
 
     @Nullable
-    String getApplicationId();
-
-    void setSourceToken(String sourceToken);
-
-    @Nullable
-    String getSourceToken();
-
-    void clear();
-
-    void getPendingLink(DeviceManager deviceManager, Features features,
-            Task.Listener<PostInstallLink> listener);
-
-    boolean checkedDeferredDeepLink();
-
-    void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink);
-
-    void postOrder(Order order, DeviceManager deviceManager, Features features,
-            Task.Listener listener);
-
-    void trackActivity(String eventName, List<ButtonProductCompatible> products);
-
-    void reportEvent(DeviceManager deviceManager, Features features, Event event);
+    @Override
+    Void execute() throws Exception {
+        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
+        return buttonApi.postActivity(activityName, products, sourceToken, advertisingId);
+    }
 }

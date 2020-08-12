@@ -41,13 +41,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.usebutton.merchant.ButtonMerchant;
+import com.usebutton.merchant.ButtonProduct;
+import com.usebutton.merchant.ButtonProductCompatible;
 import com.usebutton.merchant.Order;
 import com.usebutton.merchant.OrderListener;
 import com.usebutton.merchant.PostInstallIntentListener;
 import com.usebutton.merchant.UserActivityListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -163,6 +167,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.track_product_viewed).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ButtonMerchant.activity().productViewed(null);
+            }
+        });
+
+        findViewById(R.id.track_add_cart).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ButtonMerchant.activity().productAddedToCart(getProduct());
+            }
+        });
+
+        findViewById(R.id.track_cart_viewed).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<ButtonProductCompatible> products = new ArrayList<>();
+                products.add(getProduct());
+                products.add(getProduct());
+                ButtonMerchant.activity().cartViewed(products);
+            }
+        });
+
         findViewById(R.id.clear_all_data).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,5 +253,30 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static ButtonProductCompatible getProduct() {
+        ButtonProduct product = new ButtonProduct();
+
+        List<String> categories = new ArrayList<>();
+        categories.add("daily-deals");
+        categories.add("black-friday");
+
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("size", "large");
+        attributes.put("in_stock", "true");
+
+        product.setId("prod-123");
+        product.setUpc("1234567890");
+        product.setCategories(categories);
+        product.setName("Sample Product");
+        product.setCurrency("USD");
+        product.setValue(129900);
+        product.setQuantity(1);
+        product.setUrl("https://www.bestbuy.com/site/samsung-65-class-qled-q70-series-4k-uhd-tv-sm"
+                + "art-led-with-hdr/6402399.p?skuId=6402399");
+        product.setAttributes(attributes);
+
+        return product;
     }
 }

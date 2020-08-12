@@ -12,7 +12,10 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.usebutton.merchant.ButtonMerchant
+import com.usebutton.merchant.ButtonProduct
+import com.usebutton.merchant.ButtonProductCompatible
 import com.usebutton.merchant.Order
+import com.usebutton.merchant.sample.R.id
 import java.util.Collections
 import java.util.Date
 import java.util.Locale
@@ -37,6 +40,7 @@ class KotlinActivity : AppCompatActivity() {
         checkForPostInstallIntent()
         initTrackNewIntentButton()
         initTrackOrderButton()
+        initActivityButtons();
         initClearDataButton()
         initAttributionTokenListener()
         initReportOrderButton()
@@ -119,6 +123,20 @@ class KotlinActivity : AppCompatActivity() {
         }
     }
 
+    private fun initActivityButtons() {
+        findViewById<View>(id.track_product_viewed).setOnClickListener {
+            ButtonMerchant.activity().productViewed(product)
+        }
+
+        findViewById<View>(id.track_add_cart).setOnClickListener {
+            ButtonMerchant.activity().productAddedToCart(product)
+        }
+
+        findViewById<View>(id.track_cart_viewed).setOnClickListener {
+            ButtonMerchant.activity().cartViewed(listOf(product, product))
+        }
+    }
+
     private fun initClearDataButton() {
         findViewById<View>(R.id.clear_all_data).setOnClickListener {
             ButtonMerchant.clearAllData(this)
@@ -147,6 +165,17 @@ class KotlinActivity : AppCompatActivity() {
         private var TEST_URL = String.format(Locale.getDefault(),
                 "https://example.com/p/123?btn_ref=srctok-abc%d&from_landing=true&from_tracking=false&btn_blargh=blergh&other_param=some_val",
                 Random().nextInt(100000))
+        private val product: ButtonProductCompatible = ButtonProduct().apply {
+            id = "prod-123"
+            upc = "1234567890"
+            categories = listOf("daily-deals", "black-friday")
+            name = "Sample Product"
+            currency = "USD"
+            value = 129900
+            quantity = 1
+            url = "https://www.bestbuy.com/site/samsung-65-class-qled-q70-series-4k-uhd-tv-smart-led-with-hdr/6402399.p?skuId=6402399"
+            attributes = mapOf(Pair("size", "large"), Pair("in_stock", "true"))
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

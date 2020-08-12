@@ -31,6 +31,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.usebutton.merchant.module.ButtonUserActivity;
 import com.usebutton.merchant.module.Features;
 
 import java.util.concurrent.Executor;
@@ -49,6 +50,8 @@ public final class ButtonMerchant {
     private static Executor executor = new MainThreadExecutor();
     @VisibleForTesting
     static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
+    @VisibleForTesting
+    static ButtonUserActivity activity = ButtonUserActivityImpl.getInstance();
 
     private static ExecutorService executorService = Executors.newSingleThreadExecutor();
     static final String BASE_URL = "https://mobileapi.usebutton.com";
@@ -63,6 +66,7 @@ public final class ButtonMerchant {
      */
     public static void configure(@NonNull Context context, @NonNull String applicationId) {
         buttonInternal.configure(getButtonRepository(context), applicationId);
+        ((ButtonUserActivityImpl) activity()).flushQueue(getButtonRepository(context));
     }
 
     /**
@@ -196,6 +200,15 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
         return FeaturesImpl.getInstance();
     }
 
+    /**
+     * An interface through which user activities can be reported.
+     *
+     * @return Button user activity API
+     */
+    public static ButtonUserActivity activity() {
+        return activity;
+    }
+
     private static ButtonRepository getButtonRepository(Context context) {
         PersistenceManager persistenceManager =
                 PersistenceManagerImpl.getInstance(context.getApplicationContext());
@@ -207,7 +220,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
 
         ButtonApi buttonApi = ButtonApiImpl.getInstance(connectionManager);
 
-        return ButtonRepositoryImpl.getInstance(buttonApi, persistenceManager, executorService);
+        return ButtonRepositoryImpl.getInstance(buttonApi, deviceManager, features(),
+                persistenceManager, executorService);
     }
 
     private static DeviceManager getDeviceManager(Context context) {

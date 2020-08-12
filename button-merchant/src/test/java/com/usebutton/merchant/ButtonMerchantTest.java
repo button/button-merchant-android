@@ -45,6 +45,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -85,6 +86,16 @@ public class ButtonMerchantTest {
     public void configure_verifyButtonInternal() {
         ButtonMerchant.configure(context, "valid_application_id");
         verify(buttonInternal).configure(any(ButtonRepository.class), eq("valid_application_id"));
+    }
+
+    @Test
+    public void configure_verifyFlushActivityQueue() {
+        ButtonMerchant.activity = spy(ButtonMerchant.activity);
+
+        ButtonMerchant.configure(context, "invalid_application_id");
+
+        verify((ButtonUserActivityImpl) ButtonMerchant.activity)
+                .flushQueue(any(ButtonRepository.class));
     }
 
     @Test
@@ -165,4 +176,8 @@ public class ButtonMerchantTest {
         assertTrue(ButtonMerchant.features() instanceof FeaturesImpl);
     }
 
+    @Test
+    public void activity_verifyInstanceType() {
+        assertTrue(ButtonMerchant.activity() instanceof ButtonUserActivityImpl);
+    }
 }

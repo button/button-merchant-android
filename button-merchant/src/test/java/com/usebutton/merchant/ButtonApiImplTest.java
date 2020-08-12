@@ -40,10 +40,12 @@ import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -349,6 +351,129 @@ public class ButtonApiImplTest {
         JSONObject requestBody = apiRequest.getBody();
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerEmail, customerJson.getString("email_sha256"));
+    }
+
+    @Test
+    public void postActivity_validateRequest() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+
+        buttonApi.postActivity("test-activity", Collections.<ButtonProductCompatible>emptyList(),
+                null, null);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        assertEquals("/v1/app/activity", apiRequest.getPath());
+        assertEquals(ApiRequest.RequestMethod.POST, apiRequest.getRequestMethod());
+    }
+
+    @Test
+    public void postActivity_noProducts_shouldPostActivity() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+
+        buttonApi.postActivity("test-activity", Collections.<ButtonProductCompatible>emptyList(),
+                "test-token", null);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject activityBody = requestBody.getJSONObject("activity_data");
+
+        assertEquals("test-activity", activityBody.getString("name"));
+        assertFalse(activityBody.has("products"));
+        assertEquals("test-token", requestBody.getString("btn_ref"));
+        assertFalse(requestBody.has("ifa"));
+    }
+
+    @Test
+    public void postActivity_multipleProducts_shouldPostActivity() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        final ButtonProductCompatible productOne = new ButtonProduct() {{
+            setId("one");
+        }};
+        final ButtonProductCompatible productTwo = new ButtonProduct() {{
+            setId("two");
+        }};
+
+        buttonApi.postActivity("test-activity", new ArrayList<ButtonProductCompatible>() {{
+            add(productOne);
+            add(productTwo);
+        }}, "test-token", null);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject activityBody = requestBody.getJSONObject("activity_data");
+
+        assertEquals("test-activity", activityBody.getString("name"));
+        assertEquals(2, activityBody.getJSONArray("products").length());
+        assertEquals("one", activityBody.getJSONArray("products").getJSONObject(0).getString("id"));
+        assertEquals("two", activityBody.getJSONArray("products").getJSONObject(1).getString("id"));
+        assertEquals("test-token", requestBody.getString("btn_ref"));
+        assertFalse(requestBody.has("ifa"));
+    }
+
+    @Test
+    public void postActivity_withEmptyProductInfo_shouldPostActivity() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        ButtonProductCompatible product = new ButtonProduct();
+
+        buttonApi.postActivity("test-activity", Collections.singletonList(product), null, null);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject activityBody = requestBody.getJSONObject("activity_data");
+
+        assertEquals("test-activity", activityBody.getString("name"));
+        assertEquals(1, activityBody.getJSONArray("products").length());
+        assertEquals(0, activityBody.getJSONArray("products").getJSONObject(0).length());
+        assertFalse(requestBody.has("btn_ref"));
+        assertFalse(requestBody.has("ifa"));
+    }
+
+    @Test
+    public void postActivity_withCompleteProductInfo_shouldPostActivity() throws Exception {
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        List<String> categories = new ArrayList<>();
+        categories.add("cat-one");
+        categories.add("cat-two");
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("attr-one", "1");
+        attributes.put("attr-two", "2");
+        final ButtonProduct product = new ButtonProduct();
+        product.setId("test-id");
+        product.setUpc("test-upc");
+        product.setCategories(categories);
+        product.setName("test-name");
+        product.setCurrency("test-curr");
+        product.setQuantity(2);
+        product.setValue(1234);
+        product.setUrl("test-url");
+        product.setAttributes(attributes);
+
+        buttonApi.postActivity("test-activity", new ArrayList<ButtonProductCompatible>() {{
+            add(product);
+        }}, "test-token", "test-ifa");
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject activityBody = requestBody.getJSONObject("activity_data");
+
+        assertEquals("test-ifa", requestBody.getString("ifa"));
+        assertEquals("test-token", requestBody.getString("btn_ref"));
+        assertEquals("test-activity", activityBody.getString("name"));
+        assertEquals(1, activityBody.getJSONArray("products").length());
+        JSONObject productJson = activityBody.getJSONArray("products").getJSONObject(0);
+        assertEquals("test-id", productJson.getString("id"));
+        assertEquals("test-upc", productJson.getString("upc"));
+        assertEquals("test-name", productJson.getString("name"));
+        assertEquals("test-curr", productJson.getString("currency"));
+        assertEquals("test-url", productJson.getString("url"));
+        assertEquals(2, productJson.getInt("quantity"));
+        assertEquals(1234, productJson.getInt("value"));
+        assertEquals(2, productJson.getJSONArray("categories").length());
+        assertEquals("cat-one", productJson.getJSONArray("categories").getString(0));
+        assertEquals("cat-two", productJson.getJSONArray("categories").getString(1));
+        assertEquals(2, productJson.getJSONObject("attributes").length());
+        assertEquals("1", productJson.getJSONObject("attributes").getString("attr-one"));
+        assertEquals("2", productJson.getJSONObject("attributes").getString("attr-two"));
     }
 
     @Test

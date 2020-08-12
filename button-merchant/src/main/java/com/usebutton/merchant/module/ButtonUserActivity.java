@@ -1,7 +1,7 @@
 /*
- * ButtonApi.java
+ * ButtonUserActivity.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2020 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,45 +23,37 @@
  *
  */
 
-package com.usebutton.merchant;
+package com.usebutton.merchant.module;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.merchant.ButtonProductCompatible;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Button API endpoints.
+ * An interface through which user activities can be reported.
  */
-interface ButtonApi {
+public interface ButtonUserActivity {
 
-    void setApplicationId(String applicationId);
+    /**
+     * Report that the user has viewed a product.
+     *
+     * @param product the viewed product
+     */
+    void productViewed(@Nullable ButtonProductCompatible product);
 
-    @Nullable
-    String getApplicationId();
+    /**
+     * Report that the user has added a product to their cart.
+     *
+     * @param product the added product
+     */
+    void productAddedToCart(@Nullable ButtonProductCompatible product);
 
-    @Nullable
-    @WorkerThread
-    PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
-            Map<String, String> signalsMap)
-            throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postOrder(Order order, String applicationId, String sourceToken,
-            @Nullable String advertisingId) throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postActivity(String activityName, List<ButtonProductCompatible> products,
-            @Nullable String sourceToken, @Nullable String advertisingId)
-            throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postEvents(List<Event> events, @Nullable String advertisingId)
-            throws ButtonNetworkException;
+    /**
+     * Report that the user viewed their cart.
+     *
+     * @param products the products in the cart
+     */
+    void cartViewed(@Nullable List<ButtonProductCompatible> products);
 }

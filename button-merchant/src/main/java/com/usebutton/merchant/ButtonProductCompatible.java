@@ -1,7 +1,7 @@
 /*
- * ButtonApi.java
+ * ButtonProductCompatible.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2020 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,42 +26,67 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
-
-import com.usebutton.merchant.exception.ButtonNetworkException;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Button API endpoints.
+ * An interface that defines the product properties that may be provided when reporting user
+ * activity.
  */
-interface ButtonApi {
+public interface ButtonProductCompatible {
 
-    void setApplicationId(String applicationId);
-
+    /**
+     * @return the product identifier
+     */
     @Nullable
-    String getApplicationId();
+    String getId();
 
+    /**
+     * @return the UPC (Universal Product Code) of the product
+     */
     @Nullable
-    @WorkerThread
-    PostInstallLink getPendingLink(String applicationId, @Nullable String advertisingId,
-            Map<String, String> signalsMap)
-            throws ButtonNetworkException;
+    String getUpc();
 
+    /**
+     * @return a flat array of the names of the categories to which the product belongs
+     */
     @Nullable
-    @WorkerThread
-    Void postOrder(Order order, String applicationId, String sourceToken,
-            @Nullable String advertisingId) throws ButtonNetworkException;
+    List<String> getCategories();
 
+    /**
+     * @return the name of the product
+     */
     @Nullable
-    @WorkerThread
-    Void postActivity(String activityName, List<ButtonProductCompatible> products,
-            @Nullable String sourceToken, @Nullable String advertisingId)
-            throws ButtonNetworkException;
+    String getName();
 
+    /**
+     * @return the ISO-4217 currency code in which the product's value is reported
+     */
     @Nullable
-    @WorkerThread
-    Void postEvents(List<Event> events, @Nullable String advertisingId)
-            throws ButtonNetworkException;
+    String getCurrency();
+
+    /**
+     * @return the value of the order. Includes any discounts, if applicable. e.g: 1234 for $12.34
+     */
+    @Nullable
+    Integer getValue();
+
+    /**
+     * @return the quantity of the product
+     */
+    @Nullable
+    Integer getQuantity();
+
+    /**
+     * @return the URL of the product
+     */
+    @Nullable
+    String getUrl();
+
+    /**
+     * @return any additional attributes to be included with the product
+     */
+    @Nullable
+    Map<String, String> getAttributes();
 }
