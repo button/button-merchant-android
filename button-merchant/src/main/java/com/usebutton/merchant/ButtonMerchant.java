@@ -169,15 +169,15 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
     /**
      * Checks to see if the user visited a url prior to installing your app.
      *
-     * If a url is found, {@link PostInstallIntentListener#onPostInstallIntent(Intent)} will be
+     * If a url is found, {@link PostInstallIntentListener#onResult(Intent, Throwable)} will be
      * called on the listener you passed and you are responsible for navigating the user to the
      * relevant content in your app. If a url is not found or an error occurs,
-     * {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} will be called on your
+     * {@link PostInstallIntentListener#onResult(Intent, Throwable)} will be called on your
      * listener and you can continue with your normal launch sequence.
      *
      * This method checks for a post-install url exactly *one time* after a user has installed your
      * app. Subsequent calls will result in a call to
-     * {@link PostInstallIntentListener#onNoPostInstallIntent(Throwable)} on your listener. You do
+     * {@link PostInstallIntentListener#onResult(Intent, Throwable)} on your listener. You do
      * not need to wait for the listener before continuing with your normal launch sequence but you
      * should be prepared to handle an intent if a post-install url is found.
      *
