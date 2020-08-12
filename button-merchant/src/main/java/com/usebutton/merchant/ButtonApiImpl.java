@@ -209,49 +209,57 @@ final class ButtonApiImpl implements ButtonApi {
             throws ButtonNetworkException {
 
         try {
-            JSONArray productsArray = new JSONArray();
-            for (int i = 0; i < products.size(); i++) {
-                ButtonProductCompatible product = products.get(i);
-                List<String> categories = product.getCategories();
-                Map<String, String> attributes = product.getAttributes();
-                JSONObject productJson = new JSONObject();
-
-                // Convert categories list to JSON array
-                JSONArray categoriesJson = new JSONArray();
-                if (categories != null) {
-                    for (int j = 0; j < categories.size(); j++) {
-                        categoriesJson.put(j, categories.get(j));
-                    }
-                    productJson.put("categories", categoriesJson);
-                }
-
-                // Convert custom attributes map to JSON object
-                JSONObject attributesJson = new JSONObject();
-                if (attributes != null) {
-                    for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                        attributesJson.putOpt(entry.getKey(), entry.getValue());
-                    }
-                    productJson.put("attributes", attributesJson);
-                }
-
-                // Put product data into a JSON object
-                productJson.put("id", product.getId());
-                productJson.put("upc", product.getUpc());
-                productJson.put("name", product.getName());
-                productJson.put("currency", product.getCurrency());
-                productJson.put("value", product.getValue());
-                productJson.put("quantity", product.getQuantity());
-                productJson.put("url", product.getUrl());
-
-                // Add to JSON array of products
-                productsArray.put(i, productJson);
-            }
-
             JSONObject requestBody = new JSONObject();
+            JSONObject activityBody = new JSONObject();
             requestBody.put("ifa", advertisingId);
             requestBody.put("btn_ref", sourceToken);
-            requestBody.put("name", activityName);
-            requestBody.put("products", productsArray);
+            activityBody.put("name", activityName);
+
+            if (!products.isEmpty()) {
+                JSONArray productsArray = new JSONArray();
+                for (int i = 0; i < products.size(); i++) {
+                    ButtonProductCompatible product = products.get(i);
+                    List<String> categories = product.getCategories();
+                    Map<String, String> attributes = product.getAttributes();
+                    JSONObject productJson = new JSONObject();
+
+                    // Convert categories list to JSON array
+                    JSONArray categoriesJson = new JSONArray();
+                    if (categories != null) {
+                        for (int j = 0; j < categories.size(); j++) {
+                            categoriesJson.put(j, categories.get(j));
+                        }
+                        productJson.put("categories", categoriesJson);
+                    }
+
+                    // Convert custom attributes map to JSON object
+                    JSONObject attributesJson = new JSONObject();
+                    if (attributes != null) {
+                        for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                            attributesJson.putOpt(entry.getKey(), entry.getValue());
+                        }
+                        productJson.put("attributes", attributesJson);
+                    }
+
+                    // Put product data into a JSON object
+                    productJson.put("id", product.getId());
+                    productJson.put("upc", product.getUpc());
+                    productJson.put("name", product.getName());
+                    productJson.put("currency", product.getCurrency());
+                    productJson.put("value", product.getValue());
+                    productJson.put("quantity", product.getQuantity());
+                    productJson.put("url", product.getUrl());
+
+                    // Add to JSON array of products
+                    productsArray.put(i, productJson);
+                }
+
+                // Append products only if available
+                activityBody.put("products", productsArray);
+            }
+
+            // Append activity data to request body
+            requestBody.put("activity_data", activityBody);
 
             ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
                     "/v1/app/activity")
