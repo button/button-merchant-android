@@ -205,7 +205,8 @@ final class ButtonApiImpl implements ButtonApi {
     @Nullable
     @Override
     public Void postActivity(String activityName, List<ButtonProductCompatible> products,
-            @Nullable String advertisingId) throws ButtonNetworkException {
+            @Nullable String sourceToken, @Nullable String advertisingId)
+            throws ButtonNetworkException {
 
         try {
             JSONArray productsArray = new JSONArray();
@@ -248,6 +249,7 @@ final class ButtonApiImpl implements ButtonApi {
 
             JSONObject requestBody = new JSONObject();
             requestBody.put("ifa", advertisingId);
+            requestBody.put("btn_ref", sourceToken);
             requestBody.put("name", activityName);
             requestBody.put("products", productsArray);
 

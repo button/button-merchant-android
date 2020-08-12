@@ -358,7 +358,7 @@ public class ButtonApiImplTest {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
 
         buttonApi.postActivity("test-activity", Collections.<ButtonProductCompatible>emptyList(),
-                null);
+                null, null);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
 
@@ -371,13 +371,14 @@ public class ButtonApiImplTest {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
 
         buttonApi.postActivity("test-activity", Collections.<ButtonProductCompatible>emptyList(),
-                null);
+                "test-token", null);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
         JSONObject requestBody = apiRequest.getBody();
 
         assertEquals("test-activity", requestBody.getString("name"));
         assertEquals(0, requestBody.getJSONArray("products").length());
+        assertEquals("test-token", requestBody.getString("btn_ref"));
         assertFalse(requestBody.has("ifa"));
     }
 
@@ -394,7 +395,7 @@ public class ButtonApiImplTest {
         buttonApi.postActivity("test-activity", new ArrayList<ButtonProductCompatible>() {{
             add(productOne);
             add(productTwo);
-        }}, null);
+        }}, "test-token", null);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
         JSONObject requestBody = apiRequest.getBody();
@@ -403,6 +404,7 @@ public class ButtonApiImplTest {
         assertEquals(2, requestBody.getJSONArray("products").length());
         assertEquals("one", requestBody.getJSONArray("products").getJSONObject(0).getString("id"));
         assertEquals("two", requestBody.getJSONArray("products").getJSONObject(1).getString("id"));
+        assertEquals("test-token", requestBody.getString("btn_ref"));
         assertFalse(requestBody.has("ifa"));
     }
 
@@ -411,7 +413,7 @@ public class ButtonApiImplTest {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         ButtonProductCompatible product = new ButtonProduct();
 
-        buttonApi.postActivity("test-activity", Collections.singletonList(product), null);
+        buttonApi.postActivity("test-activity", Collections.singletonList(product), null, null);
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
         JSONObject requestBody = apiRequest.getBody();
@@ -419,6 +421,7 @@ public class ButtonApiImplTest {
         assertEquals("test-activity", requestBody.getString("name"));
         assertEquals(1, requestBody.getJSONArray("products").length());
         assertEquals(0, requestBody.getJSONArray("products").getJSONObject(0).length());
+        assertFalse(requestBody.has("btn_ref"));
         assertFalse(requestBody.has("ifa"));
     }
 
@@ -444,12 +447,13 @@ public class ButtonApiImplTest {
 
         buttonApi.postActivity("test-activity", new ArrayList<ButtonProductCompatible>() {{
             add(product);
-        }}, "test-ifa");
+        }}, "test-token", "test-ifa");
         verify(connectionManager).executeRequest(argumentCaptor.capture());
         ApiRequest apiRequest = argumentCaptor.getValue();
         JSONObject requestBody = apiRequest.getBody();
 
         assertEquals("test-ifa", requestBody.getString("ifa"));
+        assertEquals("test-token", requestBody.getString("btn_ref"));
         assertEquals("test-activity", requestBody.getString("name"));
         assertEquals(1, requestBody.getJSONArray("products").length());
         JSONObject productJson = requestBody.getJSONArray("products").getJSONObject(0);

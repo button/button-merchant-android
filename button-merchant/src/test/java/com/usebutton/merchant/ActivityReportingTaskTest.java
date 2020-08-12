@@ -48,6 +48,7 @@ public class ActivityReportingTaskTest {
     @Mock private Task.Listener<Void> listener;
 
     private String activityName = "test-activity";
+    private String sourceToken = "test-token";
     private List<ButtonProductCompatible> products = new ArrayList<>();
 
     private ActivityReportingTask task;
@@ -56,7 +57,7 @@ public class ActivityReportingTaskTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         task = new ActivityReportingTask(buttonApi, deviceManager, features, activityName,
-                products, listener);
+                products, sourceToken, listener);
     }
 
     @Test
@@ -67,7 +68,7 @@ public class ActivityReportingTaskTest {
 
         task.execute();
 
-        verify(buttonApi).postActivity(activityName, products, "valid_advertising_id");
+        verify(buttonApi).postActivity(activityName, products, sourceToken, "valid_advertising_id");
     }
 
     @Test
@@ -77,7 +78,8 @@ public class ActivityReportingTaskTest {
 
         task.execute();
 
-        verify(buttonApi).postActivity(eq(activityName), eq(products), (String) isNull());
+        verify(buttonApi).postActivity(eq(activityName), eq(products), eq(sourceToken),
+                (String) isNull());
     }
 
     @Test
@@ -87,6 +89,7 @@ public class ActivityReportingTaskTest {
 
         task.execute();
 
-        verify(buttonApi).postActivity(eq(activityName), eq(products), (String) isNull());
+        verify(buttonApi).postActivity(eq(activityName), eq(products), eq(sourceToken),
+                (String) isNull());
     }
 }

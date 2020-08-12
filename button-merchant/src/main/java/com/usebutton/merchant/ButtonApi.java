@@ -57,7 +57,8 @@ interface ButtonApi {
     @Nullable
     @WorkerThread
     Void postActivity(String activityName, List<ButtonProductCompatible> products,
-            @Nullable String advertisingId) throws ButtonNetworkException;
+            @Nullable String sourceToken, @Nullable String advertisingId)
+            throws ButtonNetworkException;
 
     @Nullable
     @WorkerThread

@@ -139,7 +139,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
     @Override
     public void trackActivity(final String eventName, List<ButtonProductCompatible> products) {
         ActivityReportingTask task = new ActivityReportingTask(buttonApi, deviceManager, features,
-                eventName, products, new Task.Listener<Void>() {
+                eventName, products, getSourceToken(), new Task.Listener<Void>() {
             @Override
             public void onTaskComplete(@Nullable Void object) {
                 // ignored

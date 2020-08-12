@@ -41,22 +41,24 @@ public class ActivityReportingTask extends Task<Void> {
     private final Features features;
     private final String activityName;
     private final List<ButtonProductCompatible> products;
+    private final String sourceToken;
 
     public ActivityReportingTask(ButtonApi buttonApi, DeviceManager deviceManager,
             Features features, String activityName, List<ButtonProductCompatible> products,
-            @Nullable Listener<Void> listener) {
+            @Nullable String sourceToken, @Nullable Listener<Void> listener) {
         super(listener);
         this.buttonApi = buttonApi;
         this.deviceManager = deviceManager;
         this.features = features;
         this.activityName = activityName;
         this.products = products;
+        this.sourceToken = sourceToken;
     }
 
     @Nullable
     @Override
     Void execute() throws Exception {
         String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
-        return buttonApi.postActivity(activityName, products, advertisingId);
+        return buttonApi.postActivity(activityName, products, sourceToken, advertisingId);
     }
 }

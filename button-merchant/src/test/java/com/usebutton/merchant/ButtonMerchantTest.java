@@ -91,15 +91,11 @@ public class ButtonMerchantTest {
     @Test
     public void configure_verifyFlushActivityQueue() {
         ButtonMerchant.activity = spy(ButtonMerchant.activity);
-        ButtonProductCompatible product = mock(ButtonProductCompatible.class);
 
-        ButtonMerchant.activity().productViewed(product);
-        ButtonMerchant.activity().productViewed(product);
-        ButtonMerchant.activity().productViewed(product);
         ButtonMerchant.configure(context, "invalid_application_id");
 
-        verify((ButtonUserActivityImpl) ButtonMerchant.activity).flushQueue(
-                any(ButtonRepository.class));
+        verify((ButtonUserActivityImpl) ButtonMerchant.activity)
+                .flushQueue(any(ButtonRepository.class));
     }
 
     @Test
