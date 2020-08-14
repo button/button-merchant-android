@@ -1,7 +1,7 @@
 /*
  * MainThreadExecutorTest.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2020 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,35 +26,34 @@
 package com.usebutton.merchant;
 
 import android.os.Looper;
+import android.support.test.InstrumentationRegistry;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 
 import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(RobolectricTestRunner.class)
 public class MainThreadExecutorTest {
 
     private Executor executor = new MainThreadExecutor();
 
     @Test
-    public void executor_shouldExecute() throws Exception {
+    public void executor_shouldExecute() {
         final boolean[] executed = { false };
+        final Looper[] looper = { null };
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                assertEquals(Looper.myLooper(), Looper.getMainLooper());
+                looper[0] = Looper.myLooper();
                 executed[0] = true;
             }
         });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        Robolectric.flushForegroundThreadScheduler();
+        assertEquals(Looper.getMainLooper(), looper[0]);
         assertTrue(executed[0]);
     }
 }
