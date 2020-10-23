@@ -41,8 +41,8 @@ interface ButtonInternal {
     @Nullable
     String getApplicationId(ButtonRepository buttonRepository);
 
-    void trackIncomingIntent(ButtonRepository buttonRepository, DeviceManager deviceManager,
-            Features features, Intent intent);
+    void trackIncomingIntent(TestManager testManager, ButtonRepository buttonRepository,
+            DeviceManager deviceManager, Features features, Intent intent);
 
     @Nullable
     String getAttributionToken(ButtonRepository buttonRepository);
