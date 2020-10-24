@@ -34,11 +34,11 @@ version = libraryVersionName
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName version
 
