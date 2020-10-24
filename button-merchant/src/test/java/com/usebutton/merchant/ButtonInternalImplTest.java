@@ -93,8 +93,8 @@ public class ButtonInternalImplTest {
         when(builder.build()).thenReturn(uri);
         when(uri.getQueryParameter("btn_ref")).thenReturn("valid_source_token");
 
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository,
+                mock(DeviceManager.class), mock(Features.class), intent);
 
         verify(buttonRepository).setSourceToken("valid_source_token");
     }
@@ -105,10 +105,28 @@ public class ButtonInternalImplTest {
         Intent intent = mock(Intent.class);
         when(intent.getData()).thenReturn(null);
 
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository,
+                mock(DeviceManager.class), mock(Features.class), intent);
 
         verify(buttonRepository, never()).setSourceToken(anyString());
+    }
+
+    @Test
+    public void trackIncomingIntent_shouldPassIntentToTestManager() {
+        TestManager testManager = mock(TestManager.class);
+        Intent intent = mock(Intent.class);
+        Uri uri = mock(Uri.class);
+        Uri.Builder builder = mock(Uri.Builder.class);
+        when(intent.getData()).thenReturn(uri);
+        when(uri.buildUpon()).thenReturn(builder);
+        when(uri.buildUpon().clearQuery()).thenReturn(builder);
+        when(builder.build()).thenReturn(uri);
+        when(uri.getQueryParameter("btn_ref")).thenReturn("valid_source_token");
+
+        buttonInternal.trackIncomingIntent(testManager, mock(ButtonRepository.class),
+                mock(DeviceManager.class), mock(Features.class), intent);
+
+        verify(testManager).parseIntent(intent);
     }
 
     @Test
@@ -128,8 +146,8 @@ public class ButtonInternalImplTest {
         ButtonMerchant.AttributionTokenListener listener =
                 mock(ButtonMerchant.AttributionTokenListener.class);
         buttonInternal.addAttributionTokenListener(buttonRepository, listener);
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository,
+                mock(DeviceManager.class), mock(Features.class), intent);
 
         verify(buttonRepository).setSourceToken(validToken);
         verify(listener).onAttributionTokenChanged(validToken);
@@ -151,8 +169,8 @@ public class ButtonInternalImplTest {
         ButtonMerchant.AttributionTokenListener listener =
                 mock(ButtonMerchant.AttributionTokenListener.class);
         buttonInternal.addAttributionTokenListener(buttonRepository, listener);
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository,
+                mock(DeviceManager.class), mock(Features.class), intent);
 
         verify(buttonRepository, never()).setSourceToken(null);
         verify(listener, never()).onAttributionTokenChanged(null);
@@ -174,8 +192,8 @@ public class ButtonInternalImplTest {
         ButtonMerchant.AttributionTokenListener listener =
                 mock(ButtonMerchant.AttributionTokenListener.class);
         buttonInternal.addAttributionTokenListener(buttonRepository, listener);
-        buttonInternal.trackIncomingIntent(buttonRepository, mock(DeviceManager.class),
-                mock(Features.class), intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository,
+                mock(DeviceManager.class), mock(Features.class), intent);
 
         verify(buttonRepository, never()).setSourceToken("");
         verify(listener, never()).onAttributionTokenChanged("");
@@ -386,7 +404,8 @@ public class ButtonInternalImplTest {
                 new PostInstallLink(true, "ddl-6faffd3451edefd3", "uber://asdfasfasf",
                         attribution);
 
-        buttonInternal.trackIncomingIntent(buttonRepository, deviceManager, features, intent);
+        buttonInternal.trackIncomingIntent(mock(TestManager.class), buttonRepository, deviceManager,
+                features, intent);
         buttonInternal.handlePostInstallIntent(buttonRepository, deviceManager,
                 features, "com.usebutton.merchant", postInstallIntentListener);
 

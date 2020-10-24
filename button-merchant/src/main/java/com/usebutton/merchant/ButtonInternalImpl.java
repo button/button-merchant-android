@@ -93,8 +93,8 @@ final class ButtonInternalImpl implements ButtonInternal {
     }
 
     @Override
-    public void trackIncomingIntent(ButtonRepository buttonRepository, DeviceManager deviceManager,
-            Features features, Intent intent) {
+    public void trackIncomingIntent(TestManager testManager, ButtonRepository buttonRepository,
+            DeviceManager deviceManager, Features features, Intent intent) {
         Uri data = intent.getData();
         if (data == null) {
             return;
@@ -106,6 +106,7 @@ final class ButtonInternalImpl implements ButtonInternal {
             hasReceivedDirectDeeplink.set(true);
         }
 
+        testManager.parseIntent(intent);
         reportDeeplinkOpenEvent(buttonRepository, deviceManager, features, data);
     }
 

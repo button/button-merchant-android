@@ -101,8 +101,9 @@ public class ButtonMerchantTest {
     @Test
     public void trackIncomingIntent_verifyButtonInternal() {
         ButtonMerchant.trackIncomingIntent(context, mock(Intent.class));
-        verify(buttonInternal).trackIncomingIntent(any(ButtonRepository.class),
-                any(DeviceManager.class), any(Features.class), any(Intent.class));
+        verify(buttonInternal).trackIncomingIntent(any(TestManager.class),
+                any(ButtonRepository.class), any(DeviceManager.class), any(Features.class),
+                any(Intent.class));
     }
 
     @Test
