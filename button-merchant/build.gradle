@@ -35,7 +35,6 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
 
     defaultConfig {
         minSdkVersion 15
@@ -72,7 +71,7 @@ task javadocJar(type: Jar, dependsOn: "generateReleaseJavadoc") {
 android.libraryVariants.all { variant ->
 
     task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        source = variant.javaCompile.source
+        source = variant.javaCompileProvider.get().source
         title = null
         List<File> pathList = new ArrayList<File>()
         pathList.add(file('./doclava-1.0.6.jar'))
@@ -164,9 +163,9 @@ task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
     def mainSrc = "${project.projectDir}/src/main/java"
 
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-    executionData = fileTree(dir: "$buildDir", includes: [
+    sourceDirectories.setFrom files([mainSrc])
+    classDirectories.setFrom files([debugTree])
+    executionData.setFrom fileTree(dir: "$buildDir", includes: [
             "jacoco/testDebugUnitTest.exec",
             "outputs/code-coverage/connected/*coverage.ec"
     ])
