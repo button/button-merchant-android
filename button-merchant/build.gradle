@@ -34,12 +34,11 @@ version = libraryVersionName
 apply plugin: 'com.github.dcendents.android-maven'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
         versionName version
 
@@ -72,7 +71,7 @@ task javadocJar(type: Jar, dependsOn: "generateReleaseJavadoc") {
 android.libraryVariants.all { variant ->
 
     task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        source = variant.javaCompile.source
+        source = variant.javaCompileProvider.get().source
         title = null
         List<File> pathList = new ArrayList<File>()
         pathList.add(file('./doclava-1.0.6.jar'))
@@ -106,8 +105,8 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:3.10.0'
-    testImplementation 'org.json:json:20171018'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.4.0'
+    testImplementation 'org.json:json:20180813'
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
@@ -164,9 +163,9 @@ task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     def debugTree = fileTree(dir: "${buildDir}/intermediates/classes/debug", excludes: fileFilter)
     def mainSrc = "${project.projectDir}/src/main/java"
 
-    sourceDirectories = files([mainSrc])
-    classDirectories = files([debugTree])
-    executionData = fileTree(dir: "$buildDir", includes: [
+    sourceDirectories.setFrom files([mainSrc])
+    classDirectories.setFrom files([debugTree])
+    executionData.setFrom fileTree(dir: "$buildDir", includes: [
             "jacoco/testDebugUnitTest.exec",
             "outputs/code-coverage/connected/*coverage.ec"
     ])

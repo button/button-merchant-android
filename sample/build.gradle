@@ -31,7 +31,6 @@ def BUTTON_MERCHANT_API_KEY = hasProperty('buttonMerchantAppId') ? '"' + buttonM
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "com.usebutton.merchant.sample"
