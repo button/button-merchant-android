@@ -183,6 +183,10 @@ final class ButtonApiImpl implements ButtonApi {
                     customerJson.put("email_sha256", email);
                 }
 
+                if (customer.isNew() != null) {
+                    customerJson.put("is_new", customer.isNew());
+                }
+
                 requestBody.put("customer", customerJson);
             }
 

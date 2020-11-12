@@ -267,6 +267,7 @@ public class ButtonApiImplTest {
         String customerEmail = "valid_customer_email";
         Order.Customer customer = new Order.Customer.Builder(customerId)
                 .setEmail(customerEmail)
+                .setIsNew(true)
                 .build();
 
         Order order = new Order.Builder("123", new Date(),
@@ -285,6 +286,31 @@ public class ButtonApiImplTest {
         JSONObject customerJson = requestBody.getJSONObject("customer");
         assertEquals(customerId, customerJson.getString("id"));
         assertEquals(customerEmail, customerJson.getString("email_sha256"));
+        assertTrue(customerJson.getBoolean("is_new"));
+    }
+
+    @Test
+    public void postOrder_shouldNotIncludeMissingCustomerProperties() throws Exception {
+        String customerId = "valid_customer_id";
+        Order.Customer customer = new Order.Customer.Builder(customerId).build();
+
+        Order order = new Order.Builder("123", new Date(),
+                Collections.<Order.LineItem>emptyList())
+                .setCustomer(customer)
+                .build();
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        JSONObject customerJson = requestBody.getJSONObject("customer");
+        assertEquals(customerId, customerJson.getString("id"));
+        assertFalse(customerJson.has("email_sha256"));
+        assertFalse(customerJson.has("is_new"));
     }
 
     @Test(expected = ButtonNetworkException.class)
