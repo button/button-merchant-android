@@ -350,10 +350,13 @@ public class Order {
         private String id;
         @Nullable
         private String email;
+        @Nullable
+        private Boolean isNew;
 
         private Customer(Builder builder) {
             this.id = builder.id;
             this.email = builder.email;
+            this.isNew = builder.isNew;
         }
 
         public String getId() {
@@ -365,6 +368,11 @@ public class Order {
             return email;
         }
 
+        @Nullable
+        public Boolean isNew() {
+            return isNew;
+        }
+
         /**
          * Builder class for order customer {@link Order.Customer}.
          */
@@ -373,6 +381,8 @@ public class Order {
             private String id;
             @Nullable
             private String email;
+            @Nullable
+            private Boolean isNew;
 
             /**
              * @param id The id for the transacting customer in your system (required)
@@ -390,6 +400,14 @@ public class Order {
              */
             public Builder setEmail(String email) {
                 this.email = email;
+                return this;
+            }
+
+            /**
+             * A flag indicating whether the customer is new (or not).
+             */
+            public Builder setIsNew(boolean isNew) {
+                this.isNew = isNew;
                 return this;
             }
 
