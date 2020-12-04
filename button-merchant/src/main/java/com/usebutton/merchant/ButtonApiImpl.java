@@ -134,8 +134,9 @@ final class ButtonApiImpl implements ButtonApi {
             requestBody.put("customer_order_id", order.getCustomerOrderId());
             requestBody.put("advertising_id", advertisingId);
 
-            for (Order.LineItem lineItem : order.getLineItems()) {
-                JSONArray lineItemsJson = new JSONArray();
+            JSONArray lineItemsJson = new JSONArray();
+            for (int i = 0; i < order.getLineItems().size(); i++) {
+                Order.LineItem lineItem = order.getLineItems().get(i);
                 JSONObject lineItemJson = new JSONObject();
 
                 List<String> lineItemCategory = lineItem.getCategory();
@@ -166,7 +167,9 @@ final class ButtonApiImpl implements ButtonApi {
                 lineItemJson.put("description", lineItem.getDescription());
                 lineItemJson.put("sku", lineItem.getSku());
 
-                lineItemsJson.put(lineItemJson);
+                lineItemsJson.put(i, lineItemJson);
+            }
+            if (lineItemsJson.length() > 0) {
                 requestBody.put("line_items", lineItemsJson);
             }
 

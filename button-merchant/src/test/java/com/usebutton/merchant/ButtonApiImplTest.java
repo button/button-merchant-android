@@ -262,6 +262,77 @@ public class ButtonApiImplTest {
     }
 
     @Test
+    public void postOrder_validateMultipleLineItems() throws Exception {
+        Order.LineItem lineItem1 = new Order.LineItem.Builder("valid_item_id_1", 100)
+                .setAttributes(Collections.singletonMap("valid_key_1", "valid_value_1"))
+                .setCategory(Collections.singletonList("valid_line_item_category_1"))
+                .setUpc("valid_line_item_upc_1")
+                .setSku("valid_line_item_sku_1")
+                .setDescription("valid_line_item_description_1")
+                .setQuantity(5)
+                .build();
+        Order.LineItem lineItem2 = new Order.LineItem.Builder("valid_item_id_2", 200)
+                .setAttributes(Collections.singletonMap("valid_key_2", "valid_value_2"))
+                .setCategory(Collections.singletonList("valid_line_item_category_2"))
+                .setUpc("valid_line_item_upc_2")
+                .setSku("valid_line_item_sku_2")
+                .setDescription("valid_line_item_description_2")
+                .setQuantity(10)
+                .build();
+        List<Order.LineItem> lineItems = new ArrayList<>();
+        lineItems.add(lineItem1);
+        lineItems.add(lineItem2);
+        Order order = new Order.Builder("123", new Date(), lineItems).build();
+
+        buttonApi.postOrder(order, "valid_application_id",
+                "valid_source_token", "valid_advertising_id");
+
+        ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
+        verify(connectionManager).executeRequest(argumentCaptor.capture());
+        ApiRequest apiRequest = argumentCaptor.getValue();
+
+        JSONObject requestBody = apiRequest.getBody();
+        JSONArray lineItemsJsonArray = requestBody.getJSONArray("line_items");
+        assertEquals(2, lineItemsJsonArray.length());
+
+        JSONObject lineItem1Json = lineItemsJsonArray.getJSONObject(0);
+        assertEquals(lineItem1.getId(), lineItem1Json.getString("identifier"));
+        assertEquals(lineItem1.getQuantity(), lineItem1Json.getInt("quantity"));
+        assertEquals(lineItem1.getTotal(), lineItem1Json.getLong("total"));
+        assertEquals(lineItem1.getUpc(), lineItem1Json.getString("upc"));
+        assertEquals(lineItem1.getDescription(), lineItem1Json.getString("description"));
+        assertEquals(lineItem1.getSku(), lineItem1Json.getString("sku"));
+        JSONArray category1Json = lineItem1Json.getJSONArray("category");
+        assertEquals(lineItem1.getCategory().size(), category1Json.length());
+        for (int i = 0; i < lineItem1.getCategory().size(); i++) {
+            assertEquals(lineItem1.getCategory().get(i), category1Json.getString(i));
+        }
+        JSONObject attributes1Json = lineItem1Json.getJSONObject("attributes");
+        assertEquals(lineItem1.getAttributes().size(), attributes1Json.length());
+        for (Map.Entry<String, String> attribute : lineItem1.getAttributes().entrySet()) {
+            assertEquals(attribute.getValue(), attributes1Json.getString(attribute.getKey()));
+        }
+
+        JSONObject lineItem2Json = lineItemsJsonArray.getJSONObject(1);
+        assertEquals(lineItem2.getId(), lineItem2Json.getString("identifier"));
+        assertEquals(lineItem2.getQuantity(), lineItem2Json.getInt("quantity"));
+        assertEquals(lineItem2.getTotal(), lineItem2Json.getLong("total"));
+        assertEquals(lineItem2.getUpc(), lineItem2Json.getString("upc"));
+        assertEquals(lineItem2.getDescription(), lineItem2Json.getString("description"));
+        assertEquals(lineItem2.getSku(), lineItem2Json.getString("sku"));
+        JSONArray category2Json = lineItem2Json.getJSONArray("category");
+        assertEquals(lineItem2.getCategory().size(), category2Json.length());
+        for (int i = 0; i < lineItem2.getCategory().size(); i++) {
+            assertEquals(lineItem2.getCategory().get(i), category2Json.getString(i));
+        }
+        JSONObject attributes2Json = lineItem2Json.getJSONObject("attributes");
+        assertEquals(lineItem2.getAttributes().size(), attributes2Json.length());
+        for (Map.Entry<String, String> attribute : lineItem2.getAttributes().entrySet()) {
+            assertEquals(attribute.getValue(), attributes2Json.getString(attribute.getKey()));
+        }
+    }
+
+    @Test
     public void postOrder_validateCustomer() throws Exception {
         String customerId = "valid_customer_id";
         String customerEmail = "valid_customer_email";
