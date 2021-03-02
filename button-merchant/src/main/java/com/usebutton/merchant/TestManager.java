@@ -25,10 +25,14 @@
 
 package com.usebutton.merchant;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
 import java.util.List;
@@ -70,7 +74,8 @@ class TestManager {
             String action = segments.get(1);
             switch (action) {
                 case ACTION_QUIT:
-                    quit();
+                    boolean forceQuit = data.getBooleanQueryParameter("should_force_quit", false);
+                    quit(forceQuit);
                     break;
                 case ACTION_GET_TOKEN:
                     sendToken(ACTION_GET_TOKEN);
@@ -89,7 +94,7 @@ class TestManager {
         }
     }
 
-    private void quit() {
+    private void quit(boolean shouldForceQuit) {
         Uri responseDeeplink = new Uri.Builder()
                 .scheme(TEST_HARNESS_SCHEME)
                 .authority(ACTION_RESPONSE)
@@ -98,7 +103,7 @@ class TestManager {
         boolean successful = submitResult(responseDeeplink);
 
         if (successful) {
-            terminator.terminate();
+            terminator.terminate(context, shouldForceQuit);
         }
     }
 
@@ -137,7 +142,7 @@ class TestManager {
     private boolean submitResult(Uri result) {
         Intent intent = new Intent(Intent.ACTION_VIEW, result);
         intent.setPackage(TEST_HARNESS_PACKAGE);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try {
             context.startActivity(intent);
@@ -151,8 +156,37 @@ class TestManager {
      * Internal class responsible for terminating the host application.
      */
     static class Terminator {
-        void terminate() {
-            android.os.Process.killProcess(android.os.Process.myPid());
+        void terminate(Context context, boolean shouldForceQuit) {
+            TestExitActivity.exit(context, shouldForceQuit);
+        }
+    }
+
+    public static class TestExitActivity extends Activity {
+
+        private static final String EXTRA_QUIT = "should_force_quit";
+
+        @Override
+        protected void onCreate(@Nullable Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                finishAndRemoveTask();
+            } else {
+                finish();
+            }
+
+            if (getIntent().getBooleanExtra(EXTRA_QUIT, false)) {
+                System.exit(0);
+            }
+        }
+
+        public static void exit(Context context, boolean shouldForceQuit) {
+            Intent intent = new Intent(context, TestExitActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    | Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            intent.putExtra(EXTRA_QUIT, shouldForceQuit);
+            context.startActivity(intent);
         }
     }
 }
