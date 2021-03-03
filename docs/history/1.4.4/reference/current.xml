@@ -1,0 +1,486 @@
+<api>
+    <package name="com.usebutton.merchant">
+        <class name="ActivityReportingTask" extends="com.usebutton.merchant.Task" abstract="false"
+            static="false" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="ActivityReportingTask"
+                type="com.usebutton.merchant.ActivityReportingTask" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="buttonApi" type="com.usebutton.merchant.ButtonApi"></parameter>
+                <parameter name="deviceManager"
+                    type="com.usebutton.merchant.DeviceManager"></parameter>
+                <parameter name="features"
+                    type="com.usebutton.merchant.module.Features"></parameter>
+                <parameter name="activityName" type="java.lang.String"></parameter>
+                <parameter name="products"
+                    type="java.util.List&lt;com.usebutton.merchant.ButtonProductCompatible&gt;"></parameter>
+                <parameter name="sourceToken" type="java.lang.String"></parameter>
+                <parameter name="listener"
+                    type="com.usebutton.merchant.Task.Listener&lt;java.lang.Void&gt;"></parameter>
+            </constructor>
+        </class>
+        <class name="ButtonMerchant" extends="java.lang.Object" abstract="false" static="false"
+            final="true" deprecated="not deprecated" visibility="public">
+            <method name="activity" return="com.usebutton.merchant.module.ButtonUserActivity"
+                abstract="false" native="false" synchronized="false" static="true" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="addAttributionTokenListener" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="listener"
+                    type="com.usebutton.merchant.ButtonMerchant.AttributionTokenListener"></parameter>
+            </method>
+            <method name="clearAllData" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+            </method>
+            <method name="configure" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="applicationId" type="java.lang.String"></parameter>
+            </method>
+            <method name="features" return="com.usebutton.merchant.module.Features" abstract="false"
+                native="false" synchronized="false" static="true" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getAttributionToken" return="java.lang.String" abstract="false"
+                native="false" synchronized="false" static="true" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="context" type="Context"></parameter>
+            </method>
+            <method name="handlePostInstallIntent" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="listener"
+                    type="com.usebutton.merchant.PostInstallIntentListener"></parameter>
+            </method>
+            <method name="removeAttributionTokenListener" return="void" abstract="false"
+                native="false" synchronized="false" static="true" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="listener"
+                    type="com.usebutton.merchant.ButtonMerchant.AttributionTokenListener"></parameter>
+            </method>
+            <method name="reportOrder" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="order" type="com.usebutton.merchant.Order"></parameter>
+                <parameter name="orderListener"
+                    type="com.usebutton.merchant.OrderListener"></parameter>
+            </method>
+            <method name="trackIncomingIntent" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="intent" type="Intent"></parameter>
+            </method>
+            <method name="trackOrder" return="void" abstract="false" native="false"
+                synchronized="false" static="true" final="false" deprecated="deprecated"
+                visibility="public">
+                <parameter name="context" type="Context"></parameter>
+                <parameter name="order" type="com.usebutton.merchant.Order"></parameter>
+                <parameter name="userActivityListener"
+                    type="com.usebutton.merchant.UserActivityListener"></parameter>
+            </method>
+        </class>
+        <interface name="ButtonMerchant.AttributionTokenListener" abstract="true" static="true"
+            final="false" deprecated="not deprecated" visibility="public">
+            <method name="onAttributionTokenChanged" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="token" type="java.lang.String"></parameter>
+            </method>
+        </interface>
+        <class name="ButtonProduct" extends="java.lang.Object" abstract="false" static="false"
+            final="false" deprecated="not deprecated" visibility="public">
+            <implements name="com.usebutton.merchant.ButtonProductCompatible"></implements>
+            <constructor name="ButtonProduct" type="com.usebutton.merchant.ButtonProduct"
+                static="false" final="false" deprecated="not deprecated"
+                visibility="public"></constructor>
+            <method name="getAttributes"
+                return="java.util.Map&lt;java.lang.String, java.lang.String&gt;" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCategories" return="java.util.List&lt;java.lang.String&gt;"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCurrency" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getId" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getName" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getQuantity" return="java.lang.Integer" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getUpc" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getUrl" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getValue" return="java.lang.Integer" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="setAttributes" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="attributes"
+                    type="java.util.Map&lt;java.lang.String, java.lang.String&gt;"></parameter>
+            </method>
+            <method name="setCategories" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="categories"
+                    type="java.util.List&lt;java.lang.String&gt;"></parameter>
+            </method>
+            <method name="setCurrency" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="currency" type="java.lang.String"></parameter>
+            </method>
+            <method name="setId" return="void" abstract="false" native="false" synchronized="false"
+                static="false" final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="id" type="java.lang.String"></parameter>
+            </method>
+            <method name="setName" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="name" type="java.lang.String"></parameter>
+            </method>
+            <method name="setQuantity" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="quantity" type="java.lang.Integer"></parameter>
+            </method>
+            <method name="setUpc" return="void" abstract="false" native="false" synchronized="false"
+                static="false" final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="upc" type="java.lang.String"></parameter>
+            </method>
+            <method name="setUrl" return="void" abstract="false" native="false" synchronized="false"
+                static="false" final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="url" type="java.lang.String"></parameter>
+            </method>
+            <method name="setValue" return="void" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="value" type="java.lang.Integer"></parameter>
+            </method>
+        </class>
+        <interface name="ButtonProductCompatible" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="getAttributes"
+                return="java.util.Map&lt;java.lang.String, java.lang.String&gt;" abstract="true"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCategories" return="java.util.List&lt;java.lang.String&gt;"
+                abstract="true" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCurrency" return="java.lang.String" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getId" return="java.lang.String" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getName" return="java.lang.String" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getQuantity" return="java.lang.Integer" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getUpc" return="java.lang.String" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getUrl" return="java.lang.String" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getValue" return="java.lang.Integer" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+        </interface>
+        <class name="Order" extends="java.lang.Object" abstract="false" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="getAmount" return="long" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="deprecated"
+                visibility="public"></method>
+            <method name="getCurrencyCode" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getCustomer" return="com.usebutton.merchant.Order.Customer"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCustomerOrderId" return="java.lang.String" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getId" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getLineItems"
+                return="java.util.List&lt;com.usebutton.merchant.Order.LineItem&gt;"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getPurchaseDate" return="java.util.Date" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+        </class>
+        <class name="Order.Builder" extends="java.lang.Object" abstract="false" static="true"
+            final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="Builder" type="com.usebutton.merchant.Order.Builder" static="false"
+                final="false" deprecated="deprecated" visibility="public">
+                <parameter name="id" type="java.lang.String"></parameter>
+            </constructor>
+            <constructor name="Builder" type="com.usebutton.merchant.Order.Builder" static="false"
+                final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="id" type="java.lang.String"></parameter>
+                <parameter name="purchaseDate" type="java.util.Date"></parameter>
+                <parameter name="lineItems"
+                    type="java.util.List&lt;com.usebutton.merchant.Order.LineItem&gt;"></parameter>
+            </constructor>
+            <method name="build" return="com.usebutton.merchant.Order" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="setAmount" return="com.usebutton.merchant.Order.Builder" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="deprecated" visibility="public">
+                <parameter name="amount" type="long"></parameter>
+            </method>
+            <method name="setCurrencyCode" return="com.usebutton.merchant.Order.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="currencyCode" type="java.lang.String"></parameter>
+            </method>
+            <method name="setCustomer" return="com.usebutton.merchant.Order.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="customer" type="com.usebutton.merchant.Order.Customer"></parameter>
+            </method>
+            <method name="setCustomerOrderId" return="com.usebutton.merchant.Order.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="customerOrderId" type="java.lang.String"></parameter>
+            </method>
+        </class>
+        <class name="Order.Customer" extends="java.lang.Object" abstract="false" static="true"
+            final="false" deprecated="not deprecated" visibility="public">
+            <method name="getEmail" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getId" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="isNew" return="java.lang.Boolean" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+        </class>
+        <class name="Order.Customer.Builder" extends="java.lang.Object" abstract="false"
+            static="true" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="Builder" type="com.usebutton.merchant.Order.Customer.Builder"
+                static="false" final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="id" type="java.lang.String"></parameter>
+            </constructor>
+            <method name="build" return="com.usebutton.merchant.Order.Customer" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="setEmail" return="com.usebutton.merchant.Order.Customer.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="email" type="java.lang.String"></parameter>
+            </method>
+            <method name="setIsNew" return="com.usebutton.merchant.Order.Customer.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="isNew" type="boolean"></parameter>
+            </method>
+        </class>
+        <class name="Order.LineItem" extends="java.lang.Object" abstract="false" static="true"
+            final="false" deprecated="not deprecated" visibility="public">
+            <method name="getAttributes"
+                return="java.util.Map&lt;java.lang.String, java.lang.String&gt;" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getCategory" return="java.util.List&lt;java.lang.String&gt;"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="getDescription" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getId" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getQuantity" return="int" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getSku" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getTotal" return="long" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="getUpc" return="java.lang.String" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+        </class>
+        <class name="Order.LineItem.Builder" extends="java.lang.Object" abstract="false"
+            static="true" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="Builder" type="com.usebutton.merchant.Order.LineItem.Builder"
+                static="false" final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="id" type="java.lang.String"></parameter>
+                <parameter name="total" type="long"></parameter>
+            </constructor>
+            <method name="build" return="com.usebutton.merchant.Order.LineItem" abstract="false"
+                native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public"></method>
+            <method name="setAttributes" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="attributes"
+                    type="java.util.Map&lt;java.lang.String, java.lang.String&gt;"></parameter>
+            </method>
+            <method name="setCategory" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="category"
+                    type="java.util.List&lt;java.lang.String&gt;"></parameter>
+            </method>
+            <method name="setDescription" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="description" type="java.lang.String"></parameter>
+            </method>
+            <method name="setQuantity" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="quantity" type="int"></parameter>
+            </method>
+            <method name="setSku" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="sku" type="java.lang.String"></parameter>
+            </method>
+            <method name="setUpc" return="com.usebutton.merchant.Order.LineItem.Builder"
+                abstract="false" native="false" synchronized="false" static="false" final="false"
+                deprecated="not deprecated" visibility="public">
+                <parameter name="upc" type="java.lang.String"></parameter>
+            </method>
+        </class>
+        <interface name="OrderListener" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="onResult" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="throwable" type="java.lang.Throwable"></parameter>
+            </method>
+        </interface>
+        <interface name="PostInstallIntentListener" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="onResult" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="intent" type="Intent"></parameter>
+                <parameter name="t" type="java.lang.Throwable"></parameter>
+            </method>
+        </interface>
+        <interface name="UserActivityListener" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="onResult" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="t" type="java.lang.Throwable"></parameter>
+            </method>
+        </interface>
+    </package>
+    <package name="com.usebutton.merchant.exception">
+        <class name="ApplicationIdNotFoundException" extends="java.lang.IllegalStateException"
+            abstract="false" static="false" final="false" deprecated="not deprecated"
+            visibility="public">
+            <constructor name="ApplicationIdNotFoundException"
+                type="com.usebutton.merchant.exception.ApplicationIdNotFoundException"
+                static="false" final="false" deprecated="not deprecated"
+                visibility="public"></constructor>
+        </class>
+        <class name="ButtonNetworkException" extends="java.lang.Exception" abstract="false"
+            static="false" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="ButtonNetworkException"
+                type="com.usebutton.merchant.exception.ButtonNetworkException" static="false"
+                final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="e" type="java.lang.Exception"></parameter>
+            </constructor>
+            <constructor name="ButtonNetworkException"
+                type="com.usebutton.merchant.exception.ButtonNetworkException" static="false"
+                final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="message" type="java.lang.String"></parameter>
+            </constructor>
+        </class>
+        <class name="HttpStatusException"
+            extends="com.usebutton.merchant.exception.ButtonNetworkException" abstract="false"
+            static="false" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="HttpStatusException"
+                type="com.usebutton.merchant.exception.HttpStatusException" static="false"
+                final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="message" type="java.lang.String"></parameter>
+                <parameter name="statusCode" type="int"></parameter>
+            </constructor>
+            <method name="wasBadRequest" return="boolean" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="wasRateLimited" return="boolean" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="wasServerError" return="boolean" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="wasUnauthorized" return="boolean" abstract="false" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+        </class>
+        <class name="NetworkNotFoundException"
+            extends="com.usebutton.merchant.exception.ButtonNetworkException" abstract="false"
+            static="false" final="false" deprecated="not deprecated" visibility="public">
+            <constructor name="NetworkNotFoundException"
+                type="com.usebutton.merchant.exception.NetworkNotFoundException" static="false"
+                final="false" deprecated="not deprecated" visibility="public">
+                <parameter name="e" type="java.lang.Exception"></parameter>
+            </constructor>
+        </class>
+    </package>
+    <package name="com.usebutton.merchant.module">
+        <interface name="ButtonUserActivity" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="cartViewed" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="products"
+                    type="java.util.List&lt;com.usebutton.merchant.ButtonProductCompatible&gt;"></parameter>
+            </method>
+            <method name="productAddedToCart" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="product"
+                    type="com.usebutton.merchant.ButtonProductCompatible"></parameter>
+            </method>
+            <method name="productViewed" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="product"
+                    type="com.usebutton.merchant.ButtonProductCompatible"></parameter>
+            </method>
+        </interface>
+        <interface name="Features" abstract="true" static="false" final="false"
+            deprecated="not deprecated" visibility="public">
+            <method name="getIncludesIfa" return="boolean" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public"></method>
+            <method name="setIncludesIfa" return="void" abstract="true" native="false"
+                synchronized="false" static="false" final="false" deprecated="not deprecated"
+                visibility="public">
+                <parameter name="includesIfa" type="boolean"></parameter>
+            </method>
+        </interface>
+    </package>
+</api>
