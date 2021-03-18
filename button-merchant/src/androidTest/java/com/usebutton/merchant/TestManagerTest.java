@@ -37,8 +37,6 @@ import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -89,7 +87,7 @@ public class TestManagerTest {
         testManager.parseIntent(intent);
 
         verifyBaseResponseStructure(TestManager.ACTION_QUIT);
-        verify(terminator).terminate(eq(context), anyBoolean());
+        verify(terminator).terminate();
     }
 
     @Test
@@ -99,29 +97,7 @@ public class TestManagerTest {
 
         testManager.parseIntent(intent);
 
-        verify(terminator, never()).terminate(eq(context), anyBoolean());
-    }
-
-    @Test
-    public void parseIntent_quit_noForceQuit_shouldNotForceQuit() {
-        Intent intent = createIntentForAction(TestManager.ACTION_QUIT);
-
-        testManager.parseIntent(intent);
-
-        verifyBaseResponseStructure(TestManager.ACTION_QUIT);
-        verify(terminator).terminate(context, false);
-    }
-
-    @Test
-    public void parseIntent_quit_forceQuit_shouldForceQuit() {
-        Uri uri = Uri.parse(String.format("test://home/action/%s?should_force_quit=true",
-                TestManager.ACTION_QUIT));
-        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-
-        testManager.parseIntent(intent);
-
-        verifyBaseResponseStructure(TestManager.ACTION_QUIT);
-        verify(terminator).terminate(context, true);
+        verify(terminator, never()).terminate();
     }
 
     @Test
@@ -201,8 +177,7 @@ public class TestManagerTest {
         Intent intent = intentCaptor.getValue();
         assertNotNull(intent);
         assertEquals(TestManager.TEST_HARNESS_PACKAGE, intent.getPackage());
-        assertEquals(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK,
-                intent.getFlags());
+        assertEquals(Intent.FLAG_ACTIVITY_SINGLE_TOP, intent.getFlags());
 
         Uri data = intent.getData();
         assertNotNull(data);
