@@ -30,8 +30,13 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
-        maven { url 'https://oss.jfrog.org/artifactory/oss-snapshot-local' }
+        mavenCentral()
+        maven {
+            url 'https://oss.jfrog.org/artifactory/oss-snapshot-local'
+            mavenContent {
+                includeGroup 'com.dicedmelon.gradle'
+            }
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
@@ -47,7 +52,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
