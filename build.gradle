@@ -51,6 +51,13 @@ buildscript {
 
 allprojects {
     repositories {
+        maven {
+            url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            mavenContent {
+                snapshotsOnly()
+                includeGroup 'com.usebutton.merchant'
+            }
+        }
         google()
         mavenCentral()
     }

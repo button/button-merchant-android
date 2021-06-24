@@ -22,7 +22,7 @@ if [ -z "$1" ]; then
 fi
 
 echo "generating javadoc version $1"
-./gradlew clean :button-merchant:generateReleaseJavadoc
+./gradlew clean :button-merchant:androidJavadocs
 cp -r button-merchant/build/docs/javadoc docs/history/$1
 rm docs/latest
 ln -s history/$1 docs/latest
