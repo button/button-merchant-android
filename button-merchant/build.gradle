@@ -24,14 +24,10 @@
  */
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'jacoco-android'
+apply plugin: 'com.vanniktech.android.junit.jacoco'
 
-group = 'com.usebutton.merchant'
-version = libraryVersionName
-
-apply plugin: 'com.github.dcendents.android-maven'
+apply from: "${rootProject.projectDir}/button-merchant/publish-maven-central.gradle"
 
 android {
     compileSdkVersion 28
@@ -63,44 +59,7 @@ configurations {
     classpaths
 }
 
-task javadocJar(type: Jar, dependsOn: "generateReleaseJavadoc") {
-    classifier = 'javadoc'
-    from new File(project(':button-merchant').buildDir, "/docs/javadoc/")
-}
-
-android.libraryVariants.all { variant ->
-
-    task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
-        source = variant.javaCompileProvider.get().source
-        title = null
-        List<File> pathList = new ArrayList<File>()
-        pathList.add(file('./doclava-1.0.6.jar'))
-        options.docletpath = pathList
-        options.classpath = configurations.classpaths.files.asType(List)
-        options.noTimestamp = false
-        options {
-            doclet "com.google.doclava.Doclava"
-            bootClasspath new File(System.getenv('JAVA_HOME') + "/jre/lib/rt.jar")
-            addStringOption "hdf project.name", "Button Merchant Library ${libraryVersionName}"
-            addStringOption "public"
-            addStringOption "templatedir", "javadoc"
-            addStringOption "verbose"
-
-            addStringOption "federate jdk", "http://download.oracle.com/javase/6/docs/api/index.html?"
-            addStringOption "federationxml jdk", "http://doclava.googlecode.com/svn/static/api/openjdk-6.xml"
-            addStringOption "federate android", "http://d.android.com/reference"
-            addStringOption "federationxml android", "http://doclava.googlecode.com/svn/static/api/android-10.xml"
-        }
-        exclude '**/BuildConfig.java'
-        exclude '**/R.java'
-        exclude '**/internal/**'
-        exclude '**/thirdparty/**'
-    }
-}
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     implementation "com.android.support:support-annotations:$supportLibVersion"
     implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
@@ -111,38 +70,6 @@ dependencies {
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
-}
-
-bintray {
-    user = project.hasProperty('bintrayUsername') ? project.property('bintrayUsername') :
-            System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') :
-            System.getenv('BINTRAY_API_KEY')
-
-    configurations = ['archives']
-    publish = true
-    override = libraryVersionName.endsWith("-SNAPSHOT")
-
-    pkg {
-        repo = 'Public'
-        name = 'android-merchant-library'
-        desc = "Button Merchant Library for Android v${libraryVersionName}"
-        userOrg = 'button'
-        websiteUrl = 'https://github.com/button/button-merchant-android'
-        issueTrackerUrl = 'https://github.com/button/button-merchant-android/issues'
-        vcsUrl = 'https://github.com/button/button-merchant-android.git'
-        labels = ['aar', 'android', 'button']
-        publicDownloadNumbers = false
-        licenses = ['MIT']
-
-        version {
-            name = libraryVersionName
-        }
-    }
-}
-
-artifacts {
-    archives javadocJar
 }
 
 task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
