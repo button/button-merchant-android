@@ -25,7 +25,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'jacoco-android'
+apply plugin: 'com.vanniktech.android.junit.jacoco'
 
 apply from: "${rootProject.projectDir}/button-merchant/publish-maven-central.gradle"
 
