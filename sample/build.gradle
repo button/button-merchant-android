@@ -57,6 +57,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':button-merchant')
     implementation "com.android.support:appcompat-v7:$supportLibVersion"
+    implementation "com.google.android.gms:play-services-ads:17.2.1"
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation "com.android.support:design:$supportLibVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
