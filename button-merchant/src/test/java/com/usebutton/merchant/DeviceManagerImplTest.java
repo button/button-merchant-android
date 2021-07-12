@@ -59,13 +59,15 @@ public class DeviceManagerImplTest {
 
     @Mock
     Context context;
+    @Mock
+    IdentifierForAdvertiserProvider advertiserProvider;
 
     private DeviceManagerImpl deviceManager;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        deviceManager = new DeviceManagerImpl(context);
+        deviceManager = new DeviceManagerImpl(context, advertiserProvider);
     }
 
     @Test
@@ -211,5 +213,12 @@ public class DeviceManagerImplTest {
                 "com.usebutton.merchant/%s+%d (Android null; null null; com.usebutton.app/1.1.0+11; Scale/2.0; en_us)",
                 sdkVersionName, sdkVersionCode);
         assertEquals(expectedUserAgent, userAgent);
+    }
+
+    @Test
+    public void getAdvertisingId_verifyResponse() {
+        when(advertiserProvider.getPrimaryIdentifier()).thenReturn("1337");
+
+        assertEquals("1337", deviceManager.getAdvertisingId());
     }
 }
