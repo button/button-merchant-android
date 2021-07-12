@@ -33,15 +33,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.google.android.gms.ads.identifier.AdvertisingIdClient;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,9 +49,8 @@ import java.util.concurrent.TimeUnit;
 
 final class DeviceManagerImpl implements DeviceManager {
 
-    private static final String TAG = DeviceManagerImpl.class.getSimpleName();
-
     private final Context context;
+    private final IdentifierForAdvertiserProvider advertiserProvider;
 
     private static DeviceManager deviceManager;
 
@@ -79,33 +72,24 @@ final class DeviceManagerImpl implements DeviceManager {
 
     static DeviceManager getInstance(Context context) {
         if (deviceManager == null) {
-            deviceManager = new DeviceManagerImpl(context);
+            IdentifierForAdvertiserProvider provider = new IdentifierForAdvertiserProvider(context);
+            deviceManager = new DeviceManagerImpl(context, provider);
         }
 
         return deviceManager;
     }
 
     @VisibleForTesting
-    DeviceManagerImpl(Context context) {
+    DeviceManagerImpl(Context context, IdentifierForAdvertiserProvider advertiserProvider) {
         this.context = context;
+        this.advertiserProvider = advertiserProvider;
     }
 
     @WorkerThread
     @Nullable
     @Override
     public String getAdvertisingId() {
-        try {
-            return isLimitAdTrackingEnabled() ? null
-                    : AdvertisingIdClient.getAdvertisingIdInfo(context).getId();
-        } catch (IOException e) {
-            Log.e(TAG, "Error has occurred", e);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            Log.e(TAG, "Error has occurred", e);
-        } catch (GooglePlayServicesRepairableException e) {
-            Log.e(TAG, "Error has occurred", e);
-        }
-
-        return null;
+        return advertiserProvider.getPrimaryIdentifier();
     }
 
     @VisibleForTesting
@@ -195,16 +179,6 @@ final class DeviceManagerImpl implements DeviceManager {
                 .append(')');
 
         return sb.toString();
-    }
-
-    /**
-     * @return true is ad tracking is limited
-     */
-    @WorkerThread
-    private boolean isLimitAdTrackingEnabled()
-            throws GooglePlayServicesNotAvailableException, IOException,
-            GooglePlayServicesRepairableException {
-        return AdvertisingIdClient.getAdvertisingIdInfo(context).isLimitAdTrackingEnabled();
     }
 
     private String getSdkVersionName() {
