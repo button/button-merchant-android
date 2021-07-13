@@ -1,10 +1,10 @@
-[![Coverage Status](https://coveralls.io/repos/github/button/button-merchant-android-private/badge.svg?branch=master&t=VbxDcA)](https://coveralls.io/github/button/button-merchant-android-private?branch=master)
+[![Maven Central](https://img.shields.io/maven-central/v/com.usebutton.merchant/button-merchant?color=greeb&style=flat-square)](https://search.maven.org/search?q=g:com.usebutton.merchant)
 
 # Button Merchant Android
 An open source client library for Button merchants.
 
 ## Documentation
-Documentation for the Merchant Library can be found on the [Button Developer site](https://developer.usebutton.com/guides/merchants/android/open-source-merchant-library).
+Documentation for the Merchant Library can be found on the [Button Developer site](https://developer.usebutton.com/docs/android-add-merchant-library). JavaDocs can be found [here](https://building.usebutton.com/button-merchant-android/latest/reference/packages.html).
 
 
 ## Build and run the sample app
