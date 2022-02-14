@@ -25,7 +25,9 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,16 +56,17 @@ public class GetPendingLinkTaskTest {
     private Task.Listener<PostInstallLink> listener;
 
     @Mock
-    private Features features;
+    private MemoryStore memoryStore;
 
-    private String applicationId = "valid_application_id";
+    private final String applicationId = "app-xxxxxxxxxxxxxxxx";
 
     private GetPendingLinkTask task;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        task = new GetPendingLinkTask(buttonApi, deviceManager, features, applicationId, listener);
+        task = new GetPendingLinkTask(buttonApi, deviceManager, memoryStore, applicationId,
+                listener);
     }
 
     @Test
@@ -72,7 +75,7 @@ public class GetPendingLinkTaskTest {
 
         Map<String, String> signalsMap = Collections.emptyMap();
 
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         String advertisingId = "valid_advertising_id";
         when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
         when(deviceManager.getSignals()).thenReturn(signalsMap);
@@ -88,7 +91,7 @@ public class GetPendingLinkTaskTest {
     public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
         Map<String, String> signalsMap = Collections.emptyMap();
 
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         when(deviceManager.getAdvertisingId()).thenReturn(null);
         when(deviceManager.getSignals()).thenReturn(signalsMap);
 
@@ -102,7 +105,7 @@ public class GetPendingLinkTaskTest {
     public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
         Map<String, String> signalsMap = Collections.emptyMap();
 
-        when(features.getIncludesIfa()).thenReturn(false);
+        when(memoryStore.getIncludesIfa()).thenReturn(false);
         when(deviceManager.getAdvertisingId()).thenReturn("");
         when(deviceManager.getSignals()).thenReturn(signalsMap);
 

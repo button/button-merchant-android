@@ -26,120 +26,66 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.PersistentStore;
+import com.usebutton.core.data.RepositoryImpl;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.ThreadManager;
 import com.usebutton.merchant.module.Features;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Class handles retrieving data from memory, api, and disk
  */
 
-final class ButtonRepositoryImpl implements ButtonRepository {
+final class ButtonRepositoryImpl extends RepositoryImpl implements ButtonRepository {
 
-    private static final String TAG = ButtonRepository.class.getSimpleName();
+    private static final String TAG = ButtonRepositoryImpl.class.getSimpleName();
 
     private final ButtonApi buttonApi;
-    private final DeviceManager deviceManager;
-    private final Features features;
-    private final PersistenceManager persistenceManager;
-    private final ExecutorService executorService;
 
-    private static ButtonRepository buttonRepository;
-    private boolean isConfigured;
-    private List<Task<?>> pendingTasks = new CopyOnWriteArrayList<>();
-
-    static ButtonRepository getInstance(ButtonApi buttonApi, DeviceManager deviceManager,
-            Features features, PersistenceManager persistenceManager,
-            ExecutorService executorService) {
-        if (buttonRepository == null) {
-            buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, features,
-                    persistenceManager, executorService);
-        }
-
-        return buttonRepository;
-    }
-
-    @VisibleForTesting
-    ButtonRepositoryImpl(ButtonApi buttonApi, DeviceManager deviceManager, Features features,
-            PersistenceManager persistenceManager, ExecutorService executorService) {
+    ButtonRepositoryImpl(ButtonApi buttonApi, DeviceManager deviceManager,
+            ExecutorService executorService, PersistentStore persistentStore,
+            MemoryStore memoryStore) {
+        super(buttonApi, deviceManager, executorService, persistentStore, memoryStore);
         this.buttonApi = buttonApi;
-        this.deviceManager = deviceManager;
-        this.features = features;
-        this.persistenceManager = persistenceManager;
-        this.executorService = executorService;
-    }
-
-    @Override
-    public void setApplicationId(String applicationId) {
-        isConfigured = true;
-        buttonApi.setApplicationId(applicationId);
-
-        for (Task<?> task : pendingTasks) {
-            executorService.submit(task);
-        }
-        pendingTasks.clear();
-    }
-
-    @Nullable
-    @Override
-    public String getApplicationId() {
-        return buttonApi.getApplicationId();
-    }
-
-    @Override
-    public void setSourceToken(String sourceToken) {
-        persistenceManager.setSourceToken(sourceToken);
-    }
-
-    @Nullable
-    @Override
-    public String getSourceToken() {
-        return persistenceManager.getSourceToken();
-    }
-
-    @Override
-    public void clear() {
-        persistenceManager.clear();
     }
 
     @Override
     public void getPendingLink(DeviceManager deviceManager, Features features,
             Task.Listener<PostInstallLink> listener) {
-        GetPendingLinkTask getPendingLinkTask =
-                new GetPendingLinkTask(buttonApi, deviceManager, features, getApplicationId(),
-                        listener);
-
-        executorService.submit(getPendingLinkTask);
+        GetPendingLinkTask getPendingLinkTask = new GetPendingLinkTask(buttonApi, deviceManager,
+                memoryStore, getApplicationId(), listener);
+        submitTask(getPendingLinkTask, true);
     }
 
     @Override
     public boolean checkedDeferredDeepLink() {
-        return persistenceManager.checkedDeferredDeepLink();
+        return persistentStore.checkedDeferredDeepLink();
     }
 
     @Override
     public void updateCheckDeferredDeepLink(boolean checkedDeferredDeepLink) {
-        persistenceManager.updateCheckDeferredDeepLink(checkedDeferredDeepLink);
+        persistentStore.updateCheckDeferredDeepLink(checkedDeferredDeepLink);
     }
 
     @Override
     public void postOrder(Order order, DeviceManager deviceManager, Features features,
             Task.Listener listener) {
-        executorService.submit(
-                new PostOrderTask(listener, buttonApi, order, getApplicationId(),
-                        getSourceToken(), deviceManager, features, new ThreadManager()));
+        PostOrderTask task = new PostOrderTask(listener, buttonApi, order, getApplicationId(),
+                getSourceToken(), deviceManager, memoryStore, new ThreadManager());
+        submitTask(task, true);
     }
 
     @Override
     public void trackActivity(final String eventName, List<ButtonProductCompatible> products) {
-        ActivityReportingTask task = new ActivityReportingTask(buttonApi, deviceManager, features,
-                eventName, products, getSourceToken(), new Task.Listener<Void>() {
+        ActivityReportingTask task = new ActivityReportingTask(buttonApi, deviceManager,
+                memoryStore, eventName, products, getSourceToken(), new Task.Listener<Void>() {
             @Override
             public void onTaskComplete(@Nullable Void object) {
                 // ignored
@@ -152,39 +98,7 @@ final class ButtonRepositoryImpl implements ButtonRepository {
             }
         });
 
-        invokeIfConfigured(task);
+        submitTask(task, false);
     }
 
-    @Override
-    public void reportEvent(DeviceManager deviceManager, Features features, final Event event) {
-        EventReportingTask task = new EventReportingTask(buttonApi, deviceManager, features,
-                Collections.singletonList(event), new Task.Listener<Void>() {
-            @Override
-            public void onTaskComplete(@Nullable Void object) {
-                // ignored
-            }
-
-            @Override
-            public void onTaskError(Throwable throwable) {
-                Log.e(TAG, String.format("Error reporting event [%s]", event.getName()), throwable);
-            }
-        });
-
-        invokeIfConfigured(task);
-    }
-
-    /**
-     * If the Merchant Library has been configured, the provided {@link Task} is submitted
-     * immediately. Otherwise, it queued up to be invoked once the Library is configured.
-     *
-     * @param task the task to submit
-     */
-    private void invokeIfConfigured(Task<?> task) {
-        if (isConfigured) {
-            executorService.submit(task);
-        } else {
-            Log.d(TAG, "Application ID unavailable! Queueing Task.");
-            pendingTasks.add(task);
-        }
-    }
 }

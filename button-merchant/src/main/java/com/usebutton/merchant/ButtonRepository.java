@@ -25,8 +25,9 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.Nullable;
-
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.Repository;
+import com.usebutton.core.data.Task;
 import com.usebutton.merchant.module.Features;
 
 import java.util.List;
@@ -34,19 +35,7 @@ import java.util.List;
 /**
  * Internal data layer interface.
  */
-interface ButtonRepository {
-
-    void setApplicationId(String applicationId);
-
-    @Nullable
-    String getApplicationId();
-
-    void setSourceToken(String sourceToken);
-
-    @Nullable
-    String getSourceToken();
-
-    void clear();
+interface ButtonRepository extends Repository {
 
     void getPendingLink(DeviceManager deviceManager, Features features,
             Task.Listener<PostInstallLink> listener);
@@ -60,5 +49,4 @@ interface ButtonRepository {
 
     void trackActivity(String eventName, List<ButtonProductCompatible> products);
 
-    void reportEvent(DeviceManager deviceManager, Features features, Event event);
 }

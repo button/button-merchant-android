@@ -29,6 +29,8 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.DeviceManager;
 import com.usebutton.merchant.module.Features;
 
 /**
@@ -36,7 +38,8 @@ import com.usebutton.merchant.module.Features;
  */
 interface ButtonInternal {
 
-    void configure(ButtonRepository buttonRepository, String applicationId);
+    void configure(ButtonRepository buttonRepository, ConnectionManager connectionManager,
+            String applicationId);
 
     @Nullable
     String getApplicationId(ButtonRepository buttonRepository);

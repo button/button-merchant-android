@@ -26,52 +26,32 @@
 package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 import android.util.Log;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.core.ButtonUtil;
+import com.usebutton.core.data.ApiRequest;
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.CoreApiImpl;
+import com.usebutton.core.data.models.NetworkResponse;
+import com.usebutton.core.exception.ButtonNetworkException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Button API endpoint request implementations.
  */
-final class ButtonApiImpl implements ButtonApi {
+final class ButtonApiImpl extends CoreApiImpl implements ButtonApi {
 
     private static final String TAG = ButtonApiImpl.class.getSimpleName();
-    private static ButtonApi buttonApi;
 
-    private final ConnectionManager connectionManager;
-
-    static ButtonApi getInstance(ConnectionManager connectionManager) {
-        if (buttonApi == null) {
-            buttonApi = new ButtonApiImpl(connectionManager);
-        }
-
-        return buttonApi;
-    }
-
-    @VisibleForTesting
     ButtonApiImpl(ConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
-    @Override
-    public void setApplicationId(String applicationId) {
-        connectionManager.setApplicationId(applicationId);
-    }
-
-    @Nullable
-    @Override
-    public String getApplicationId() {
-        return connectionManager.getApplicationId();
+        super(connectionManager);
     }
 
     @Nullable
@@ -281,33 +261,4 @@ final class ButtonApiImpl implements ButtonApi {
         return null;
     }
 
-    @Nullable
-    @Override
-    public Void postEvents(List<Event> events, @Nullable String advertisingId)
-            throws ButtonNetworkException {
-
-        try {
-            JSONArray eventStream = new JSONArray();
-            for (int i = 0; i < events.size(); i++) {
-                JSONObject eventJson = events.get(i).toJson();
-                eventStream.put(i, eventJson);
-            }
-
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("ifa", advertisingId);
-            requestBody.put("current_time", ButtonUtil.formatDate(new Date()));
-            requestBody.put("events", eventStream);
-
-            ApiRequest apiRequest = new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
-                    "/v1/app/events")
-                    .setBody(requestBody)
-                    .build();
-            connectionManager.executeRequest(apiRequest);
-        } catch (JSONException e) {
-            Log.e(TAG, "Error creating request body", e);
-            throw new ButtonNetworkException(e);
-        }
-
-        return null;
-    }
 }

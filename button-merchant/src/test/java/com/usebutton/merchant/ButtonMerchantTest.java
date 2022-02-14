@@ -25,13 +25,15 @@
 
 package com.usebutton.merchant;
 
-import android.content.Context;
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.DeviceManager;
 import com.usebutton.merchant.module.Features;
 
 import org.junit.Before;
@@ -56,7 +58,7 @@ public class ButtonMerchantTest {
     private ButtonInternal buttonInternal;
 
     @Mock
-    private Context context;
+    private Application context;
 
     @Mock
     private PackageManager packageManager;
@@ -85,7 +87,8 @@ public class ButtonMerchantTest {
     @Test
     public void configure_verifyButtonInternal() {
         ButtonMerchant.configure(context, "valid_application_id");
-        verify(buttonInternal).configure(any(ButtonRepository.class), eq("valid_application_id"));
+        verify(buttonInternal).configure(any(ButtonRepository.class), any(ConnectionManager.class),
+                eq("valid_application_id"));
     }
 
     @Test

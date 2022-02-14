@@ -25,9 +25,12 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.exception.HttpStatusException;
-import com.usebutton.merchant.exception.NetworkNotFoundException;
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.ThreadManager;
+import com.usebutton.core.exception.HttpStatusException;
+import com.usebutton.core.exception.NetworkNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +62,7 @@ public class PostOrderTaskTest {
     private DeviceManager deviceManager;
 
     @Mock
-    private Features features;
+    private MemoryStore memoryStore;
 
     @Mock
     private ThreadManager threadManager;
@@ -73,12 +76,12 @@ public class PostOrderTaskTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         task = new PostOrderTask(listener, buttonApi, order, applicationId, sourceToken,
-                deviceManager, features, threadManager);
+                deviceManager, memoryStore, threadManager);
     }
 
     @Test
     public void execute_includesIfa_hasAdvertisingId_verifyApiCall() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         String advertisingId = "valid_advertising_id";
         when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
 
@@ -89,7 +92,7 @@ public class PostOrderTaskTest {
 
     @Test
     public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         when(deviceManager.getAdvertisingId()).thenReturn(null);
 
         task.execute();
@@ -100,7 +103,7 @@ public class PostOrderTaskTest {
 
     @Test
     public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(false);
+        when(memoryStore.getIncludesIfa()).thenReturn(false);
         when(deviceManager.getAdvertisingId()).thenReturn("");
 
         task.execute();

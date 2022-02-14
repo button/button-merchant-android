@@ -25,18 +25,18 @@
 
 package com.usebutton.merchant;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
+import com.usebutton.core.data.MainThreadExecutor;
 import com.usebutton.merchant.module.ButtonUserActivity;
 import com.usebutton.merchant.module.Features;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Primary entry point for the Button merchant library.
@@ -47,15 +47,15 @@ public final class ButtonMerchant {
 
     }
 
-    private static Executor executor = new MainThreadExecutor();
+    private static final Executor executor = new MainThreadExecutor();
     @VisibleForTesting
     static ButtonInternal buttonInternal = new ButtonInternalImpl(executor);
     @VisibleForTesting
     static ButtonUserActivity activity = ButtonUserActivityImpl.getInstance();
 
-    private static ExecutorService executorService = Executors.newSingleThreadExecutor();
     static final String BASE_URL = "https://mobileapi.usebutton.com";
     static final String FMT_BASE_URL_APP_ID = "https://%s.mobileapi.usebutton.com";
+    private static final DependencyManager dependencyManager = DependencyManager.getInstance();
 
     /**
      * Configures {@link ButtonMerchant} with your application Id.
@@ -65,8 +65,10 @@ public final class ButtonMerchant {
      * @param applicationId Your applicationId (required)
      */
     public static void configure(@NonNull Context context, @NonNull String applicationId) {
-        buttonInternal.configure(getButtonRepository(context), applicationId);
-        ((ButtonUserActivityImpl) activity()).flushQueue(getButtonRepository(context));
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.configure(dependencyManager.getButtonRepository(),
+                dependencyManager.getConnectionManager(), applicationId);
+        ((ButtonUserActivityImpl) activity()).flushQueue(dependencyManager.getButtonRepository());
     }
 
     /**
@@ -77,10 +79,11 @@ public final class ButtonMerchant {
      * @param intent An intent that has entered your app from a third party source.
      */
     public static void trackIncomingIntent(@NonNull Context context, @NonNull Intent intent) {
-        TestManager testManager = new TestManager(context, getButtonRepository(context),
+        TestManager testManager = new TestManager(context, dependencyManager.getButtonRepository(),
                 new TestManager.Terminator());
-        buttonInternal.trackIncomingIntent(testManager, getButtonRepository(context),
-                getDeviceManager(context), features(), intent);
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.trackIncomingIntent(testManager, dependencyManager.getButtonRepository(),
+                dependencyManager.getDeviceManager(), features(), intent);
     }
 
     /**
@@ -115,8 +118,14 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void reportOrder(@NonNull Context context, @NonNull Order order,
             @Nullable OrderListener orderListener) {
-        buttonInternal.reportOrder(getButtonRepository(context), getDeviceManager(context),
-                FeaturesImpl.getInstance(), order, orderListener);
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.reportOrder(
+                dependencyManager.getButtonRepository(),
+                dependencyManager.getDeviceManager(),
+                FeaturesImpl.getInstance(dependencyManager.getMemoryStore()),
+                order,
+                orderListener
+        );
     }
 
     /**
@@ -134,7 +143,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      **/
     @Nullable
     public static String getAttributionToken(@NonNull Context context) {
-        return buttonInternal.getAttributionToken(getButtonRepository(context));
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        return buttonInternal.getAttributionToken(dependencyManager.getButtonRepository());
     }
 
     /**
@@ -145,7 +155,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void addAttributionTokenListener(@NonNull Context context,
             @NonNull AttributionTokenListener listener) {
-        buttonInternal.addAttributionTokenListener(getButtonRepository(context),
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.addAttributionTokenListener(dependencyManager.getButtonRepository(),
                 listener);
     }
 
@@ -157,7 +168,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void removeAttributionTokenListener(@NonNull Context context,
             @NonNull AttributionTokenListener listener) {
-        buttonInternal.removeAttributionTokenListener(getButtonRepository(context),
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.removeAttributionTokenListener(dependencyManager.getButtonRepository(),
                 listener);
     }
 
@@ -165,7 +177,8 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      * Discards the current session and all persisted data.
      */
     public static void clearAllData(@NonNull Context context) {
-        buttonInternal.clearAllData(getButtonRepository(context));
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.clearAllData(dependencyManager.getButtonRepository());
     }
 
     /**
@@ -188,9 +201,14 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static void handlePostInstallIntent(@NonNull Context context, @NonNull
             PostInstallIntentListener listener) {
-        buttonInternal.handlePostInstallIntent(getButtonRepository(context),
-                getDeviceManager(context), FeaturesImpl.getInstance(),
-                context.getPackageName(), listener);
+        dependencyManager.updateApplicationContext((Application) context.getApplicationContext());
+        buttonInternal.handlePostInstallIntent(
+                dependencyManager.getButtonRepository(),
+                dependencyManager.getDeviceManager(),
+                FeaturesImpl.getInstance(dependencyManager.getMemoryStore()),
+                context.getPackageName(),
+                listener
+        );
     }
 
     /**
@@ -199,7 +217,7 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      * @return Button features API
      */
     public static Features features() {
-        return FeaturesImpl.getInstance();
+        return FeaturesImpl.getInstance(dependencyManager.getMemoryStore());
     }
 
     /**
@@ -209,25 +227,6 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
      */
     public static ButtonUserActivity activity() {
         return activity;
-    }
-
-    private static ButtonRepository getButtonRepository(Context context) {
-        PersistenceManager persistenceManager =
-                PersistenceManagerImpl.getInstance(context.getApplicationContext());
-
-        DeviceManager deviceManager = getDeviceManager(context);
-
-        ConnectionManager connectionManager = ConnectionManagerImpl.getInstance(BASE_URL,
-                deviceManager.getUserAgent(), persistenceManager);
-
-        ButtonApi buttonApi = ButtonApiImpl.getInstance(connectionManager);
-
-        return ButtonRepositoryImpl.getInstance(buttonApi, deviceManager, features(),
-                persistenceManager, executorService);
-    }
-
-    private static DeviceManager getDeviceManager(Context context) {
-        return DeviceManagerImpl.getInstance(context.getApplicationContext());
     }
 
     /**
