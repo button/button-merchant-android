@@ -29,8 +29,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.exception.ApplicationIdNotFoundException;
+import com.usebutton.core.exception.ButtonNetworkException;
 import com.usebutton.merchant.module.Features;
 
 import org.junit.Before;
@@ -67,9 +70,21 @@ public class ButtonInternalImplTest {
     public void configure_saveApplicationIdInMemory() {
         ButtonRepository buttonRepository = mock(ButtonRepository.class);
 
-        buttonInternal.configure(buttonRepository, "app-abcdef1234567890");
+        buttonInternal.configure(buttonRepository, mock(ConnectionManager.class),
+                "app-abcdef1234567890");
 
         verify(buttonRepository).setApplicationId("app-abcdef1234567890");
+    }
+
+    @Test
+    public void configure_setConnectionManagerBaseUrl() {
+        ConnectionManager connectionManager = mock(ConnectionManager.class);
+
+        buttonInternal.configure(mock(ButtonRepository.class), connectionManager,
+                "app-abcdef1234567890");
+
+        verify(connectionManager).updateBaseUrl(
+                String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, "app-abcdef1234567890"));
     }
 
     @Test
@@ -226,7 +241,7 @@ public class ButtonInternalImplTest {
 
         buttonInternal.clearAllData(buttonRepository);
 
-        verify(buttonRepository).clear();
+        verify(buttonRepository).clearAllData();
     }
 
     @Test

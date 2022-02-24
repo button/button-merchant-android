@@ -27,7 +27,9 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
 
 /**
  * Class handles getting the pending link from the backend when a user is going from web to native
@@ -37,22 +39,22 @@ final class GetPendingLinkTask extends Task<PostInstallLink> {
 
     private final ButtonApi buttonApi;
     private final DeviceManager deviceManager;
-    private final Features features;
+    private final MemoryStore memoryStore;
     private final String applicationId;
 
-    GetPendingLinkTask(ButtonApi buttonApi, DeviceManager deviceManager, Features features,
+    GetPendingLinkTask(ButtonApi buttonApi, DeviceManager deviceManager, MemoryStore memoryStore,
             String applicationId, Listener<PostInstallLink> listener) {
         super(listener);
         this.buttonApi = buttonApi;
         this.deviceManager = deviceManager;
-        this.features = features;
+        this.memoryStore = memoryStore;
         this.applicationId = applicationId;
     }
 
     @Nullable
     @Override
-    PostInstallLink execute() throws Exception {
-        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
-        return buttonApi.getPendingLink(applicationId, advertisingId, deviceManager.getSignals());
+    protected PostInstallLink execute() throws Exception {
+        String ifa = memoryStore.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
+        return buttonApi.getPendingLink(applicationId, ifa, deviceManager.getSignals());
     }
 }

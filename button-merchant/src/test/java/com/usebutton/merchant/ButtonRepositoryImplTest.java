@@ -25,6 +25,11 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.PersistentStore;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.tasks.EventReportingTask;
 import com.usebutton.merchant.module.Features;
 
 import org.junit.Before;
@@ -39,7 +44,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,76 +51,17 @@ public class ButtonRepositoryImplTest {
 
     @Mock ButtonApi buttonApi;
     @Mock DeviceManager deviceManager;
-    @Mock Features features;
-    @Mock PersistenceManager persistenceManager;
     @Mock ExecutorService executorService;
+    @Mock PersistentStore persistentStore;
+    @Mock MemoryStore memoryStore;
 
-    private ButtonRepositoryImpl buttonRepository;
+    private ButtonRepository buttonRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, features,
-                persistenceManager, executorService);
-    }
-
-    @Test
-    public void setApplicationId_provideToButtonApi() {
-        buttonRepository.setApplicationId("invalid_application_id");
-        verify(buttonApi).setApplicationId("invalid_application_id");
-    }
-
-    @Test
-    public void setApplicationId_submitsPendingTasks() {
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-
-        buttonRepository.setApplicationId("invalid_application_id");
-
-        verify(executorService, times(3)).submit(any(EventReportingTask.class));
-    }
-
-    @Test
-    public void setApplicationId_clearsPendingTasksAfterSubmission() {
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-
-        buttonRepository.setApplicationId("invalid_application_id");
-        buttonRepository.setApplicationId("invalid_application_id");
-        buttonRepository.setApplicationId("invalid_application_id");
-        buttonRepository.setApplicationId("invalid_application_id");
-        buttonRepository.setApplicationId("invalid_application_id");
-
-        verify(executorService, times(3)).submit(any(EventReportingTask.class));
-    }
-
-    @Test
-    public void setSourceToken_persistToPersistenceManager() {
-        buttonRepository.setSourceToken("valid_source_token");
-        verify(persistenceManager).setSourceToken("valid_source_token");
-    }
-
-    @Test
-    public void getSourceToken_retrieveFromPersistenceManager() {
-        when(persistenceManager.getSourceToken()).thenReturn("valid_source_token");
-
-        String sourceToken = buttonRepository.getSourceToken();
-        assertEquals("valid_source_token", sourceToken);
-    }
-
-    @Test
-    public void clear_clearPersistenceManager() {
-        buttonRepository.clear();
-
-        verify(persistenceManager).clear();
+        buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, executorService,
+                persistentStore, memoryStore);
     }
 
     @Test
@@ -129,7 +74,7 @@ public class ButtonRepositoryImplTest {
 
     @Test
     public void checkedDeferredDeepLink_retrieveFromPersistenceManager() {
-        when(persistenceManager.checkedDeferredDeepLink()).thenReturn(true);
+        when(persistentStore.checkedDeferredDeepLink()).thenReturn(true);
 
         boolean checkedDeferredDeepLink = buttonRepository.checkedDeferredDeepLink();
         assertEquals(true, checkedDeferredDeepLink);
@@ -138,7 +83,7 @@ public class ButtonRepositoryImplTest {
     @Test
     public void updateCheckDeferredDeepLink_persistToPersistenceManager() {
         buttonRepository.updateCheckDeferredDeepLink(true);
-        verify(persistenceManager).updateCheckDeferredDeepLink(true);
+        verify(persistentStore).updateCheckDeferredDeepLink(true);
     }
 
     @Test
@@ -151,7 +96,7 @@ public class ButtonRepositoryImplTest {
 
     @Test
     public void trackActivity_configured_executeTask() {
-        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("app-xxxxxxxxxxxxxxxx");
         buttonRepository.trackActivity("test-activity", mock(List.class));
 
         verify(executorService).submit(any(ActivityReportingTask.class));
@@ -162,28 +107,8 @@ public class ButtonRepositoryImplTest {
         buttonRepository.trackActivity("test-activity", mock(List.class));
 
         verify(executorService, never()).submit(any(EventReportingTask.class));
-        buttonRepository.setApplicationId("invalid_application_id");
+        buttonRepository.setApplicationId("app-xxxxxxxxxxxxxxxx");
 
         verify(executorService).submit(any(ActivityReportingTask.class));
-    }
-
-    @Test
-    public void reportEvent_configured_executeTask() {
-        buttonRepository.setApplicationId("invalid_application_id");
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-
-        verify(executorService).submit(any(EventReportingTask.class));
-    }
-
-    @Test
-    public void reportEvent_unConfigured_queueTaskAndExecuteWhenConfigured() {
-        buttonRepository.reportEvent(mock(DeviceManager.class), mock(Features.class),
-                mock(Event.class));
-
-        verify(executorService, never()).submit(any(EventReportingTask.class));
-        buttonRepository.setApplicationId("invalid_application_id");
-
-        verify(executorService).submit(any(EventReportingTask.class));
     }
 }

@@ -32,7 +32,13 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
+import com.usebutton.core.ButtonUtil;
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MainThreadExecutor;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.models.Event;
+import com.usebutton.core.exception.ApplicationIdNotFoundException;
 import com.usebutton.merchant.module.Features;
 
 import java.util.ArrayList;
@@ -76,14 +82,19 @@ final class ButtonInternalImpl implements ButtonInternal {
         this.executor = executor;
     }
 
-    public void configure(ButtonRepository buttonRepository, String applicationId) {
+    @Override
+    public void configure(ButtonRepository buttonRepository, ConnectionManager connectionManager,
+            String applicationId) {
         if (!ButtonUtil.isApplicationIdValid(applicationId)) {
             Log.e(TAG, "Application ID [" + applicationId + "] is not valid. "
                     + "You can find your Application ID in the dashboard by logging in at"
                     + " https://app.usebutton.com/");
+            return;
         }
 
         buttonRepository.setApplicationId(applicationId);
+        connectionManager.updateBaseUrl(
+                String.format(ButtonMerchant.FMT_BASE_URL_APP_ID, applicationId));
     }
 
     @Nullable
@@ -107,7 +118,7 @@ final class ButtonInternalImpl implements ButtonInternal {
         }
 
         testManager.parseIntent(intent);
-        reportDeeplinkOpenEvent(buttonRepository, deviceManager, features, data);
+        reportDeeplinkOpenEvent(buttonRepository, data);
     }
 
     @Nullable
@@ -130,7 +141,7 @@ final class ButtonInternalImpl implements ButtonInternal {
 
     @Override
     public void clearAllData(ButtonRepository buttonRepository) {
-        buttonRepository.clear();
+        buttonRepository.clearAllData();
     }
 
     @Override
@@ -288,8 +299,7 @@ final class ButtonInternalImpl implements ButtonInternal {
      *
      * @param link the deeplink URL
      */
-    private void reportDeeplinkOpenEvent(ButtonRepository buttonRepository,
-            DeviceManager deviceManager, Features features, @Nullable Uri link) {
+    private void reportDeeplinkOpenEvent(ButtonRepository buttonRepository, @Nullable Uri link) {
         if (link == null) {
             return;
         }
@@ -309,10 +319,10 @@ final class ButtonInternalImpl implements ButtonInternal {
 
         // Construct deeplink open event
         String sourceToken = getAttributionToken(buttonRepository);
-        Event deeplinkEvent = new Event(Event.Name.DEEPLINK_OPENED, sourceToken);
-        deeplinkEvent.addProperty(Event.Property.URL, strippedLink);
+        Event deeplinkEvent = new Event("btn:deeplink-opened", sourceToken);
+        deeplinkEvent.addProperty("url", strippedLink);
 
         // Report event
-        buttonRepository.reportEvent(deviceManager, features, deeplinkEvent);
+        buttonRepository.reportEvent(deeplinkEvent);
     }
 }

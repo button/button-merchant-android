@@ -25,7 +25,12 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.core.ButtonUtil;
+import com.usebutton.core.data.ApiRequest;
+import com.usebutton.core.data.ConnectionManager;
+import com.usebutton.core.data.models.Event;
+import com.usebutton.core.data.models.NetworkResponse;
+import com.usebutton.core.exception.ButtonNetworkException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -65,13 +70,6 @@ public class ButtonApiImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-    }
-
-    @Test
-    public void setApplicationId_shouldProvideToConnectionManager() {
-        buttonApi.setApplicationId("valid_application_id");
-
-        verify(connectionManager).setApplicationId("valid_application_id");
     }
 
     @Test
@@ -577,8 +575,8 @@ public class ButtonApiImplTest {
     public void postEvents_singleEvent_shouldReportCorrectly() throws Exception {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         List<Event> events = new ArrayList<>();
-        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
-        event.addProperty(Event.Property.URL, "valid_url");
+        Event event = new Event("btn:deeplink-opened", "valid_token");
+        event.addProperty("url", "valid_url");
         events.add(event);
 
         buttonApi.postEvents(events, null);
@@ -597,8 +595,8 @@ public class ButtonApiImplTest {
     public void postEvents_multipleEvents_shouldReportCorrectly() throws Exception {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         List<Event> events = new ArrayList<>();
-        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
-        event.addProperty(Event.Property.URL, "valid_url");
+        Event event = new Event("btn:deeplink-opened", "valid_token");
+        event.addProperty("url", "valid_url");
         events.add(event);
         events.add(event);
 
@@ -620,8 +618,8 @@ public class ButtonApiImplTest {
     public void postEvents_validIfa_shouldIncludeIfa() throws Exception {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         List<Event> events = new ArrayList<>();
-        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
-        event.addProperty(Event.Property.URL, "valid_url");
+        Event event = new Event("btn:deeplink-opened", "valid_token");
+        event.addProperty("url", "valid_url");
         events.add(event);
 
         buttonApi.postEvents(events, "valid_ifa");
@@ -637,7 +635,7 @@ public class ButtonApiImplTest {
     public void postEvents_shouldIncludeTimestamp() throws Exception {
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         List<Event> events = new ArrayList<>();
-        Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
+        Event event = new Event("btn:deeplink-opened", "valid_token");
         events.add(event);
 
         buttonApi.postEvents(events, null);

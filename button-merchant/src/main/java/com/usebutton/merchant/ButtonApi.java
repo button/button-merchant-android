@@ -28,7 +28,8 @@ package com.usebutton.merchant;
 import android.support.annotation.Nullable;
 import android.support.annotation.WorkerThread;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
+import com.usebutton.core.data.CoreApi;
+import com.usebutton.core.exception.ButtonNetworkException;
 
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,7 @@ import java.util.Map;
 /**
  * Button API endpoints.
  */
-interface ButtonApi {
-
-    void setApplicationId(String applicationId);
-
-    @Nullable
-    String getApplicationId();
+interface ButtonApi extends CoreApi {
 
     @Nullable
     @WorkerThread
@@ -58,10 +54,5 @@ interface ButtonApi {
     @WorkerThread
     Void postActivity(String activityName, List<ButtonProductCompatible> products,
             @Nullable String sourceToken, @Nullable String advertisingId)
-            throws ButtonNetworkException;
-
-    @Nullable
-    @WorkerThread
-    Void postEvents(List<Event> events, @Nullable String advertisingId)
             throws ButtonNetworkException;
 }

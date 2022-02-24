@@ -25,6 +25,9 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.MemoryStoreImpl;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,11 +36,13 @@ import static org.junit.Assert.assertTrue;
 
 public class FeaturesImplTest {
 
+    private MemoryStore memoryStore;
     private FeaturesImpl features;
 
     @Before
     public void setUp() {
-        features = new FeaturesImpl();
+        memoryStore = new MemoryStoreImpl();
+        features = new FeaturesImpl(memoryStore);
     }
 
     @Test

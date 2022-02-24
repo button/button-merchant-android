@@ -25,7 +25,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Run Checkstyle
-        run: ./gradlew :button-merchant:checkstyle
+        run: ./gradlew :button-merchant:checkstyle :core:checkstyle
 
   unit-tests:
     name: Unit tests
@@ -45,7 +45,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
 
       - name: Run Unit tests
-        run: ./gradlew :button-merchant:testDebugUnitTest
+        run: ./gradlew :button-merchant:testDebugUnitTest :core:testDebugUnitTest
 
   instrumentation-test:
     name: Android API ${{ matrix.api-level }} Tests
@@ -78,4 +78,4 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           target: google_apis
-          script: ./gradlew :button-merchant:connectedDebugAndroidTest
+          script: ./gradlew :button-merchant:connectedDebugAndroidTest :core:connectedDebugAndroidTest

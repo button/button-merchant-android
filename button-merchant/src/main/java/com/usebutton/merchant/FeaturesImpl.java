@@ -25,6 +25,7 @@
 
 package com.usebutton.merchant;
 
+import com.usebutton.core.data.MemoryStore;
 import com.usebutton.merchant.module.Features;
 
 /**
@@ -32,16 +33,20 @@ import com.usebutton.merchant.module.Features;
  */
 final class FeaturesImpl implements Features {
 
-    private boolean includesIfa = true;
+    private final MemoryStore memoryStore;
 
     private static Features features;
 
-    static Features getInstance() {
+    static Features getInstance(MemoryStore memoryStore) {
         if (features == null) {
-            features = new FeaturesImpl();
+            features = new FeaturesImpl(memoryStore);
         }
 
         return features;
+    }
+
+    FeaturesImpl(MemoryStore memoryStore) {
+        this.memoryStore = memoryStore;
     }
 
     /**
@@ -51,11 +56,11 @@ final class FeaturesImpl implements Features {
      */
     @Override
     public void setIncludesIfa(boolean includesIfa) {
-        this.includesIfa = includesIfa;
+        memoryStore.setIncludesIfa(includesIfa);
     }
 
     @Override
     public boolean getIncludesIfa() {
-        return includesIfa;
+        return memoryStore.getIncludesIfa();
     }
 }

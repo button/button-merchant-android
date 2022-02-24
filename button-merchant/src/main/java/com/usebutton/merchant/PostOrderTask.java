@@ -28,10 +28,13 @@ package com.usebutton.merchant;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 
-import com.usebutton.merchant.exception.ButtonNetworkException;
-import com.usebutton.merchant.exception.HttpStatusException;
-import com.usebutton.merchant.exception.NetworkNotFoundException;
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.ThreadManager;
+import com.usebutton.core.exception.ButtonNetworkException;
+import com.usebutton.core.exception.HttpStatusException;
+import com.usebutton.core.exception.NetworkNotFoundException;
 
 /**
  * Asynchronous task used to report order to the Button API.
@@ -43,7 +46,7 @@ class PostOrderTask extends Task {
     private final String sourceToken;
     private final Order order;
     private final DeviceManager deviceManager;
-    private final Features features;
+    private final MemoryStore memoryStore;
     private final ThreadManager threadManager;
 
     @VisibleForTesting
@@ -53,25 +56,25 @@ class PostOrderTask extends Task {
 
     PostOrderTask(@Nullable Listener listener, ButtonApi buttonApi, Order order,
             String applicationId, String sourceToken, DeviceManager deviceManager,
-            Features features, ThreadManager threadManager) {
+            MemoryStore memoryStore, ThreadManager threadManager) {
         super(listener);
         this.buttonApi = buttonApi;
         this.order = order;
         this.applicationId = applicationId;
         this.sourceToken = sourceToken;
         this.deviceManager = deviceManager;
-        this.features = features;
+        this.memoryStore = memoryStore;
         this.threadManager = threadManager;
     }
 
     @Nullable
     @Override
-    Void execute() throws Exception {
-        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
+    protected Void execute() throws Exception {
+        String ifa = memoryStore.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
         // loop and execute postOrder until max retries is met or non case exception is met
         while (true) {
             try {
-                return buttonApi.postOrder(order, applicationId, sourceToken, advertisingId);
+                return buttonApi.postOrder(order, applicationId, sourceToken, ifa);
             } catch (ButtonNetworkException exception) {
                 if (!shouldRetry(exception)) {
                     throw exception;

@@ -25,7 +25,9 @@
 
 package com.usebutton.merchant;
 
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,25 +46,25 @@ public class ActivityReportingTaskTest {
 
     @Mock private ButtonApi buttonApi;
     @Mock private DeviceManager deviceManager;
-    @Mock private Features features;
+    @Mock private MemoryStore memoryStore;
     @Mock private Task.Listener<Void> listener;
 
-    private String activityName = "test-activity";
-    private String sourceToken = "test-token";
-    private List<ButtonProductCompatible> products = new ArrayList<>();
+    private final String activityName = "test-activity";
+    private final String sourceToken = "test-token";
+    private final List<ButtonProductCompatible> products = new ArrayList<>();
 
     private ActivityReportingTask task;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        task = new ActivityReportingTask(buttonApi, deviceManager, features, activityName,
+        task = new ActivityReportingTask(buttonApi, deviceManager, memoryStore, activityName,
                 products, sourceToken, listener);
     }
 
     @Test
     public void execute_includesIfa_hasAdvertisingId_verifyApiCall() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         String advertisingId = "valid_advertising_id";
         when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
 
@@ -73,7 +75,7 @@ public class ActivityReportingTaskTest {
 
     @Test
     public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(true);
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
         when(deviceManager.getAdvertisingId()).thenReturn(null);
 
         task.execute();
@@ -84,7 +86,7 @@ public class ActivityReportingTaskTest {
 
     @Test
     public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
-        when(features.getIncludesIfa()).thenReturn(false);
+        when(memoryStore.getIncludesIfa()).thenReturn(false);
         when(deviceManager.getAdvertisingId()).thenReturn("");
 
         task.execute();

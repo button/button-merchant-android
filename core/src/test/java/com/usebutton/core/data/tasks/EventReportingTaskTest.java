@@ -1,0 +1,95 @@
+/*
+ * EventReportingTaskTest.java
+ *
+ * Copyright (c) 2022 Button, Inc. (https://usebutton.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+package com.usebutton.core.data.tasks;
+
+import com.usebutton.core.data.CoreApi;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
+import com.usebutton.core.data.models.Event;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class EventReportingTaskTest {
+
+    @Mock private CoreApi coreApi;
+    @Mock private DeviceManager deviceManager;
+    @Mock private MemoryStore memoryStore;
+    @Mock private Task.Listener listener;
+
+    private List<Event> events;
+
+    private EventReportingTask task;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        events = new ArrayList<>();
+        task = new EventReportingTask(coreApi, deviceManager, memoryStore, events, listener);
+    }
+
+    @Test
+    public void execute_includesIfa_hasAdvertisingId_verifyApiCall() throws Exception {
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
+        String advertisingId = "valid_advertising_id";
+        when(deviceManager.getAdvertisingId()).thenReturn(advertisingId);
+
+        task.execute();
+
+        verify(coreApi).postEvents(events, advertisingId);
+    }
+
+    @Test
+    public void execute_includesIfa_nullAdvertisingId_verifyNullAdvertisingId() throws Exception {
+        when(memoryStore.getIncludesIfa()).thenReturn(true);
+        when(deviceManager.getAdvertisingId()).thenReturn(null);
+
+        task.execute();
+
+        verify(coreApi).postEvents(eq(events), (String) isNull());
+    }
+
+    @Test
+    public void execute_doesNotIncludesIfa_verifyNullAdvertisingId() throws Exception {
+        when(memoryStore.getIncludesIfa()).thenReturn(false);
+        when(deviceManager.getAdvertisingId()).thenReturn("");
+
+        task.execute();
+
+        verify(coreApi).postEvents(eq(events), (String) isNull());
+    }
+}

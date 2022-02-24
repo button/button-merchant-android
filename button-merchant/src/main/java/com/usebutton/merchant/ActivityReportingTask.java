@@ -27,7 +27,9 @@ package com.usebutton.merchant;
 
 import android.support.annotation.Nullable;
 
-import com.usebutton.merchant.module.Features;
+import com.usebutton.core.data.DeviceManager;
+import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.Task;
 
 import java.util.List;
 
@@ -38,18 +40,18 @@ public class ActivityReportingTask extends Task<Void> {
 
     private final ButtonApi buttonApi;
     private final DeviceManager deviceManager;
-    private final Features features;
+    private final MemoryStore memoryStore;
     private final String activityName;
     private final List<ButtonProductCompatible> products;
     private final String sourceToken;
 
     public ActivityReportingTask(ButtonApi buttonApi, DeviceManager deviceManager,
-            Features features, String activityName, List<ButtonProductCompatible> products,
+            MemoryStore memoryStore, String activityName, List<ButtonProductCompatible> products,
             @Nullable String sourceToken, @Nullable Listener<Void> listener) {
         super(listener);
         this.buttonApi = buttonApi;
         this.deviceManager = deviceManager;
-        this.features = features;
+        this.memoryStore = memoryStore;
         this.activityName = activityName;
         this.products = products;
         this.sourceToken = sourceToken;
@@ -57,8 +59,8 @@ public class ActivityReportingTask extends Task<Void> {
 
     @Nullable
     @Override
-    Void execute() throws Exception {
-        String advertisingId = features.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
-        return buttonApi.postActivity(activityName, products, sourceToken, advertisingId);
+    protected Void execute() throws Exception {
+        String ifa = memoryStore.getIncludesIfa() ? deviceManager.getAdvertisingId() : null;
+        return buttonApi.postActivity(activityName, products, sourceToken, ifa);
     }
 }
