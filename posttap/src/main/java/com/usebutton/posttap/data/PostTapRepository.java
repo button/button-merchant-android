@@ -1,7 +1,7 @@
 /*
- * settings.gradle
+ * PostTapRepository.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2022 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,17 @@
  *
  */
 
-include ':sample', ':button-merchant'
-include ':core'
-include ':posttap'
+package com.usebutton.posttap.data;
+
+import android.support.annotation.Nullable;
+
+import com.usebutton.core.data.Repository;
+import com.usebutton.core.data.Task;
+import com.usebutton.posttap.data.models.CollectionCampaignData;
+
+public interface PostTapRepository extends Repository {
+
+    void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaignData> listener);
+
+    void enrollPhoneNumber(String phoneNumber, @Nullable Task.Listener<String> listener);
+}

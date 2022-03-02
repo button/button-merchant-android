@@ -1,7 +1,7 @@
 /*
- * settings.gradle
+ * PostTapApi.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2022 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,20 @@
  *
  */
 
-include ':sample', ':button-merchant'
-include ':core'
-include ':posttap'
+package com.usebutton.posttap.data;
+
+import android.support.annotation.Nullable;
+
+import com.usebutton.core.data.CoreApi;
+import com.usebutton.core.exception.ButtonNetworkException;
+import com.usebutton.posttap.data.models.CollectionCampaignData;
+
+public interface PostTapApi extends CoreApi {
+
+    @Nullable
+    CollectionCampaignData postCampaignEligibility() throws ButtonNetworkException;
+
+    @Nullable
+    String postCampaignEnrollment(String templateUrl, String campaignId, String phoneNumber,
+            String timezone) throws ButtonNetworkException;
+}

@@ -1,7 +1,7 @@
 /*
- * settings.gradle
+ * WidgetFetchingTask.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2022 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,27 @@
  *
  */
 
-include ':sample', ':button-merchant'
-include ':core'
-include ':posttap'
+package com.usebutton.posttap.data.tasks;
+
+import android.support.annotation.Nullable;
+
+import com.usebutton.core.data.Task;
+import com.usebutton.posttap.data.PostTapApi;
+import com.usebutton.posttap.data.models.CollectionCampaignData;
+
+public final class WidgetFetchingTask extends Task<CollectionCampaignData> {
+
+    private final PostTapApi api;
+
+    public WidgetFetchingTask(PostTapApi api,
+            @Nullable Listener<CollectionCampaignData> listener) {
+        super(listener);
+        this.api = api;
+    }
+
+    @Nullable
+    @Override
+    protected CollectionCampaignData execute() throws Exception {
+        return api.postCampaignEligibility();
+    }
+}

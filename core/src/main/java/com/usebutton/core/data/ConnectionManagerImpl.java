@@ -89,11 +89,12 @@ public class ConnectionManagerImpl implements ConnectionManager {
                 urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
             }
 
-            JSONObject body = request.getBody();
+            JSONObject body = request.getBody() != null ? request.getBody() : new JSONObject();
 
             // Append necessary information to each request
             body.put("application_id", memoryStore.getApplicationId());
             body.put("session_id", persistentStore.getSessionId());
+            body.put("source_token", persistentStore.getSourceToken());
 
             OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream(),
                     ENCODING);
@@ -112,6 +113,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
 
             JSONObject responseJson = readResponseBody(urlConnection);
             refreshSessionIfAvailable(responseJson);
+            refreshSourceTokenIfAvailable(responseJson);
             return new NetworkResponse(responseCode, responseJson);
         } catch (IOException e) {
             Log.e(TAG, "Error has occurred", e);
@@ -170,6 +172,28 @@ public class ConnectionManagerImpl implements ConnectionManager {
                     persistentStore.setSessionId(sessionId);
                 } else {
                     persistentStore.clearAllData();
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing session data from response body", e);
+        }
+    }
+
+    /**
+     * Refreshes the current source token if provided in the network response.
+     * Older source token is retained if no new token was provided.
+     *
+     * @param responseBody the JSON body of the network response
+     */
+    private void refreshSourceTokenIfAvailable(@Nullable JSONObject responseBody) {
+        if (responseBody == null) return;
+
+        try {
+            JSONObject metaJson = responseBody.getJSONObject("meta");
+            if (metaJson.has("source_token")) {
+                String sourceToken = metaJson.optString("source_token", "");
+                if (!sourceToken.isEmpty()) {
+                    persistentStore.setSourceToken(sourceToken);
                 }
             }
         } catch (JSONException e) {

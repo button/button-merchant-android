@@ -1,7 +1,7 @@
 /*
- * settings.gradle
+ * CollectionCampaignData.java
  *
- * Copyright (c) 2018 Button, Inc. (https://usebutton.com)
+ * Copyright (c) 2022 Button, Inc. (https://usebutton.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,25 @@
  *
  */
 
-include ':sample', ':button-merchant'
-include ':core'
-include ':posttap'
+package com.usebutton.posttap.data.models;
+
+import org.json.JSONObject;
+
+public class CollectionCampaignData {
+
+    private final String templateUrl;
+    private final JSONObject campaign;
+
+    public CollectionCampaignData(String templateUrl, JSONObject campaign) {
+        this.templateUrl = templateUrl;
+        this.campaign = campaign;
+    }
+
+    public String getTemplateUrl() {
+        return templateUrl;
+    }
+
+    public JSONObject getCampaign() {
+        return campaign;
+    }
+}

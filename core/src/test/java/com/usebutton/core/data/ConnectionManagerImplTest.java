@@ -47,7 +47,6 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ConnectionManagerImplTest {
@@ -236,7 +235,6 @@ public class ConnectionManagerImplTest {
         );
 
         verify(persistentStore).getSessionId();
-        verifyNoMoreInteractions(persistentStore);
     }
 
     @Test
@@ -255,6 +253,37 @@ public class ConnectionManagerImplTest {
     }
 
     @Test
+    public void executeRequest_providedToken_shouldPersistProvidedToken() throws Exception {
+        String sourceToken = "srctok-xxxxxxxxxxxxxxxx";
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"meta\":{\"source_token\":\"" + sourceToken + "\"}}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        verify(persistentStore).setSourceToken(sourceToken);
+    }
+
+    @Test
+    public void executeRequest_unavailableToken_shouldPersistPreviousToken() throws Exception {
+        server.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{\"meta\":{}}")
+        );
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        verify(persistentStore).getSourceToken();
+    }
+
+    @Test
     public void executeRequest_shouldIncludeSessionId() throws Exception {
         String sessionId = "valid_session_id";
         when(persistentStore.getSessionId()).thenReturn(sessionId);
@@ -268,6 +297,22 @@ public class ConnectionManagerImplTest {
         RecordedRequest recordedRequest = server.takeRequest();
         JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
         assertEquals(sessionId, request.getString("session_id"));
+    }
+
+    @Test
+    public void executeRequest_shouldIncludeSourceToken() throws Exception {
+        String sourceToken = "srctok-xxxxxxxxxxxxxxxx";
+        when(persistentStore.getSourceToken()).thenReturn(sourceToken);
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+
+        connectionManager.executeRequest(new ApiRequest.Builder(ApiRequest.RequestMethod.POST,
+                "/test")
+                .build()
+        );
+
+        RecordedRequest recordedRequest = server.takeRequest();
+        JSONObject request = new JSONObject(recordedRequest.getBody().readUtf8());
+        assertEquals(sourceToken, request.getString("source_token"));
     }
 
     @Test
