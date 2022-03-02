@@ -29,21 +29,21 @@ import android.support.annotation.Nullable;
 
 import com.usebutton.core.data.Task;
 import com.usebutton.posttap.data.PostTapApi;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
-public final class WidgetFetchingTask extends Task<CollectionCampaignData> {
+public final class WidgetFetchingTask extends Task<CollectionCampaign> {
 
     private final PostTapApi api;
 
     public WidgetFetchingTask(PostTapApi api,
-            @Nullable Listener<CollectionCampaignData> listener) {
+            @Nullable Listener<CollectionCampaign> listener) {
         super(listener);
         this.api = api;
     }
 
     @Nullable
     @Override
-    protected CollectionCampaignData execute() throws Exception {
+    protected CollectionCampaign execute() throws Exception {
         return api.postCampaignEligibility();
     }
 }

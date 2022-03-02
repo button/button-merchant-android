@@ -32,7 +32,7 @@ import com.usebutton.core.data.MemoryStore;
 import com.usebutton.core.data.PersistentStore;
 import com.usebutton.core.data.RepositoryImpl;
 import com.usebutton.core.data.Task;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 import com.usebutton.posttap.data.tasks.PhoneEnrollmentTask;
 import com.usebutton.posttap.data.tasks.WidgetFetchingTask;
 
@@ -51,7 +51,7 @@ public class PostTapRepositoryImpl extends RepositoryImpl implements PostTapRepo
     }
 
     @Override
-    public void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaignData> listener) {
+    public void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaign> listener) {
         WidgetFetchingTask task = new WidgetFetchingTask(api, listener);
         submitTask(task, false);
     }

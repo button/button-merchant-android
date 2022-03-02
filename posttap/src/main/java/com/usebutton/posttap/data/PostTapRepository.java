@@ -29,11 +29,11 @@ import android.support.annotation.Nullable;
 
 import com.usebutton.core.data.Repository;
 import com.usebutton.core.data.Task;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
 public interface PostTapRepository extends Repository {
 
-    void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaignData> listener);
+    void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaign> listener);
 
     void enrollPhoneNumber(String phoneNumber, @Nullable Task.Listener<String> listener);
 }

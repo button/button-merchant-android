@@ -28,7 +28,7 @@ package com.usebutton.posttap.data;
 import com.usebutton.core.data.ApiRequest;
 import com.usebutton.core.data.ConnectionManager;
 import com.usebutton.core.data.models.NetworkResponse;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
 import org.json.JSONObject;
 import org.junit.Before;
@@ -37,6 +37,7 @@ import org.mockito.ArgumentCaptor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,8 +58,12 @@ public class PostTapApiImplTest {
                 + "{\n"
                 + "  \"meta\": { \"status\": \"ok\" },\n"
                 + "  \"object\": {\n"
-                + "     \"template_url\": \"https://cdn.usebutton.com/xxxxxxxxx.html\",\n"
-                + "     \"smscampaign\": { \"smscampaign_id\": \"smscampaign-12345\" },\n"
+                + "     \"smscampaign\": { \n"
+                + "        \"smscampaign_id\": \"smscampaign-12345\", \n"
+                + "        \"inapp_style\": { \n"
+                + "           \"template\": \"https://cdn.usebutton.com/xxxxxxxxx.html\" \n"
+                + "        }, \n"
+                + "     }, \n"
                 + "     \"check_widget_eligibility\": true\n"
                 + "  }\n"
                 + "}");
@@ -66,7 +71,7 @@ public class PostTapApiImplTest {
         ArgumentCaptor<ApiRequest> requestCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         when(connectionManager.executeRequest(requestCaptor.capture())).thenReturn(response);
 
-        CollectionCampaignData data = api.postCampaignEligibility();
+        CollectionCampaign campaign = api.postCampaignEligibility();
 
         ApiRequest request = requestCaptor.getValue();
         assertEquals(ApiRequest.RequestMethod.POST, request.getRequestMethod());
@@ -75,10 +80,12 @@ public class PostTapApiImplTest {
         JSONObject requestBody = request.getBody();
         assertNotNull(requestBody);
 
-        assertNotNull(data);
-        assertEquals("https://cdn.usebutton.com/xxxxxxxxx.html", data.getTemplateUrl());
-        assertNotNull(data.getCampaign());
-        assertEquals("smscampaign-12345", data.getCampaign().getString("smscampaign_id"));
+        assertNotNull(campaign);
+        assertEquals("https://cdn.usebutton.com/xxxxxxxxx.html", campaign.getTemplateUrl());
+        assertEquals("smscampaign-12345", campaign.getCampaignId());
+        assertNotNull(campaign.asJson());
+        assertNotNull(campaign.getStyles());
+        assertNull(campaign.getExperimentalValues());
     }
 
     @Test
