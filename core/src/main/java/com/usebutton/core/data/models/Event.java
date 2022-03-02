@@ -47,7 +47,7 @@ public class Event {
     private final String name;
     @Nullable
     private final String sourceToken;
-    private final JSONObject eventBody;
+    private JSONObject eventBody;
 
     public Event(String name, @Nullable String sourceToken) {
         this.id = UUID.randomUUID();
@@ -63,6 +63,10 @@ public class Event {
         } catch (JSONException e) {
             Log.e(TAG, String.format("Error adding property [%s] to event [%s]", key, name), e);
         }
+    }
+
+    public void setValue(JSONObject eventBody) {
+        this.eventBody = eventBody;
     }
 
     public UUID getId() {
@@ -89,9 +93,10 @@ public class Event {
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("name", name);
-        json.put("promotion_source_token", sourceToken);
+        json.put("source_token", sourceToken);
         json.put("time", ButtonUtil.formatTimestamp(timestamp));
         json.put("uuid", id.toString());
+        eventBody.put("promotion_source_token", sourceToken);
         json.put("value", eventBody);
         return json;
     }
