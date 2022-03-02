@@ -39,9 +39,13 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.ExecutorService;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class PostTapRepositoryImplTest {
 
@@ -50,6 +54,7 @@ public class PostTapRepositoryImplTest {
     @Mock MemoryStore memoryStore;
     @Mock PersistentStore persistentStore;
     @Mock ExecutorService executorService;
+    @Mock CookieJar cookieJar;
 
     private PostTapRepository repository;
 
@@ -57,7 +62,7 @@ public class PostTapRepositoryImplTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         repository = new PostTapRepositoryImpl(api, deviceManager, executorService, persistentStore,
-                memoryStore);
+                memoryStore, cookieJar);
         repository.setApplicationId("app-xxxxxxxxxxxxxxxx");
     }
 
@@ -73,5 +78,35 @@ public class PostTapRepositoryImplTest {
         repository.enrollPhoneNumber("+15161237890", mock(Task.Listener.class));
 
         verify(executorService).submit(any(PhoneEnrollmentTask.class));
+    }
+
+    @Test
+    public void setCookie_withoutExpiry_providesToCookieJar() {
+        repository.setCookie("hello", "world");
+
+        verify(cookieJar).setCookie("hello", "world");
+        verifyNoMoreInteractions(cookieJar);
+    }
+
+    @Test
+    public void setCookie_withExpiry_providesToCookieJar() {
+        repository.setCookie("hello", "world", 786);
+
+        verify(cookieJar).setCookie("hello", "world", 786);
+        verifyNoMoreInteractions(cookieJar);
+    }
+
+    @Test
+    public void getCookie_retrievesFromCookieJar() {
+        when(cookieJar.getCookie(eq("hello"))).thenReturn("world");
+
+        assertEquals("world", repository.getCookie("hello"));
+    }
+
+    @Test
+    public void getAllCookies_retrievesFromCookieJar() {
+        when(cookieJar.getCookieString()).thenReturn("hello=world;");
+
+        assertEquals("hello=world;", repository.getAllCookies());
     }
 }

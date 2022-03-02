@@ -42,12 +42,14 @@ import java.util.concurrent.ExecutorService;
 public class PostTapRepositoryImpl extends RepositoryImpl implements PostTapRepository {
 
     private final PostTapApi api;
+    private final CookieJar cookieJar;
 
     public PostTapRepositoryImpl(PostTapApi api, DeviceManager deviceManager,
             ExecutorService executorService, PersistentStore persistentStore,
-            MemoryStore memoryStore) {
+            MemoryStore memoryStore, CookieJar cookieJar) {
         super(api, deviceManager, executorService, persistentStore, memoryStore);
         this.api = api;
+        this.cookieJar = cookieJar;
     }
 
     @Override
@@ -61,5 +63,26 @@ public class PostTapRepositoryImpl extends RepositoryImpl implements PostTapRepo
         PhoneEnrollmentTask task = new PhoneEnrollmentTask(api, "TODO", "TODO", phoneNumber,
                 TimeZone.getDefault(), listener);
         submitTask(task, false);
+    }
+
+    @Override
+    public void setCookie(String key, @Nullable String value) {
+        cookieJar.setCookie(key, value);
+    }
+
+    @Override
+    public void setCookie(String key, @Nullable String value, long maxAgeInSeconds) {
+        cookieJar.setCookie(key, value, maxAgeInSeconds);
+    }
+
+    @Nullable
+    @Override
+    public String getCookie(String key) {
+        return cookieJar.getCookie(key);
+    }
+
+    @Override
+    public String getAllCookies() {
+        return cookieJar.getCookieString();
     }
 }
