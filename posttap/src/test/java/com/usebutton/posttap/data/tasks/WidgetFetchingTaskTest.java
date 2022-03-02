@@ -27,7 +27,7 @@ package com.usebutton.posttap.data.tasks;
 
 import com.usebutton.core.data.Task;
 import com.usebutton.posttap.data.PostTapApi;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +40,8 @@ import static org.mockito.Mockito.when;
 public class WidgetFetchingTaskTest {
 
     @Mock private PostTapApi api;
-    @Mock private Task.Listener<CollectionCampaignData> listener;
-    @Mock private CollectionCampaignData campaignData;
+    @Mock private Task.Listener<CollectionCampaign> listener;
+    @Mock private CollectionCampaign campaignData;
 
     private WidgetFetchingTask task;
 

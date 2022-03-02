@@ -29,12 +29,12 @@ import android.support.annotation.Nullable;
 
 import com.usebutton.core.data.CoreApi;
 import com.usebutton.core.exception.ButtonNetworkException;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
 public interface PostTapApi extends CoreApi {
 
     @Nullable
-    CollectionCampaignData postCampaignEligibility() throws ButtonNetworkException;
+    CollectionCampaign postCampaignEligibility() throws ButtonNetworkException;
 
     @Nullable
     String postCampaignEnrollment(String templateUrl, String campaignId, String phoneNumber,

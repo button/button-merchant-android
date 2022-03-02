@@ -33,7 +33,7 @@ import com.usebutton.core.data.ConnectionManager;
 import com.usebutton.core.data.CoreApiImpl;
 import com.usebutton.core.data.models.NetworkResponse;
 import com.usebutton.core.exception.ButtonNetworkException;
-import com.usebutton.posttap.data.models.CollectionCampaignData;
+import com.usebutton.posttap.data.models.CollectionCampaign;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +48,7 @@ public class PostTapApiImpl extends CoreApiImpl implements PostTapApi {
 
     @Nullable
     @Override
-    public CollectionCampaignData postCampaignEligibility() throws ButtonNetworkException {
+    public CollectionCampaign postCampaignEligibility() throws ButtonNetworkException {
         ApiRequest.RequestMethod method = ApiRequest.RequestMethod.POST;
         String endpoint = "/v1/app/collection-campaign/eligibility";
 
@@ -57,9 +57,8 @@ public class PostTapApiImpl extends CoreApiImpl implements PostTapApi {
             NetworkResponse response = connectionManager.executeRequest(apiRequest);
             JSONObject responseBody = response.getBody().optJSONObject("object");
             if (responseBody != null) {
-                String templateUrl = responseBody.getString("template_url");
                 JSONObject campaign = responseBody.getJSONObject("smscampaign");
-                return new CollectionCampaignData(templateUrl, campaign);
+                return CollectionCampaign.fromJson(campaign);
             }
             return null;
         } catch (JSONException e) {
