@@ -61,7 +61,7 @@ public class EventTest {
         JSONObject eventJson = event.toJson();
 
         assertEquals("btn:deeplink-opened", eventJson.getString("name"));
-        assertEquals("valid_token", eventJson.getString("promotion_source_token"));
+        assertEquals("valid_token", eventJson.getString("source_token"));
         assertTrue(eventJson.has("value"));
     }
 }
