@@ -57,8 +57,10 @@ public class PostTapApiImpl extends CoreApiImpl implements PostTapApi {
             NetworkResponse response = connectionManager.executeRequest(apiRequest);
             JSONObject responseBody = response.getBody().optJSONObject("object");
             if (responseBody != null) {
+                String campaignId = responseBody.getString("smscampaign_id");
+                String templateUrl = responseBody.getString("template_url");
                 JSONObject campaign = responseBody.getJSONObject("smscampaign");
-                return CollectionCampaign.fromJson(campaign);
+                return new CollectionCampaign(campaign, campaignId, templateUrl);
             }
             return null;
         } catch (JSONException e) {
