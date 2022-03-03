@@ -25,29 +25,18 @@
 
 package com.usebutton.posttap.data.models;
 
-import android.support.annotation.Nullable;
-import android.util.Log;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class CollectionCampaign {
 
-    private static final String TAG = CollectionCampaign.class.getSimpleName();
-
     private final JSONObject campaign;
     private final String campaignId;
     private final String templateUrl;
-    private final JSONObject styles;
-    private final JSONObject experimentalValues;
 
-    private CollectionCampaign(JSONObject campaign, String campaignId, String templateUrl,
-            JSONObject styles, @Nullable JSONObject experimentalValues) {
+    public CollectionCampaign(JSONObject campaign, String campaignId, String templateUrl) {
         this.campaign = campaign;
         this.campaignId = campaignId;
         this.templateUrl = templateUrl;
-        this.styles = styles;
-        this.experimentalValues = experimentalValues;
     }
 
     public String getCampaignId() {
@@ -58,36 +47,7 @@ public class CollectionCampaign {
         return templateUrl;
     }
 
-    public JSONObject getStyles() {
-        return styles;
-    }
-
-    @Nullable
-    public JSONObject getExperimentalValues() {
-        return experimentalValues;
-    }
-
     public JSONObject asJson() {
         return campaign;
-    }
-
-    @Nullable
-    public static CollectionCampaign fromJson(JSONObject json) {
-        try {
-            String campaignId = json.getString("smscampaign_id");
-            JSONObject styles = json.getJSONObject("inapp_style");
-            String templateUrl = styles.getString("template");
-            JSONObject expValues = json.optJSONObject("experimental_values");
-            return new CollectionCampaign(
-                    json,
-                    campaignId,
-                    templateUrl,
-                    styles,
-                    expValues
-            );
-        } catch (JSONException e) {
-            Log.e(TAG, "Error parsing campaign", e);
-            return null;
-        }
     }
 }

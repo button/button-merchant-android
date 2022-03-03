@@ -37,7 +37,6 @@ import org.mockito.ArgumentCaptor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,6 +57,8 @@ public class PostTapApiImplTest {
                 + "{\n"
                 + "  \"meta\": { \"status\": \"ok\" },\n"
                 + "  \"object\": {\n"
+                + "     \"smscampaign_id\": \"smscampaign-12345\", \n"
+                + "     \"template_url\": \"https://cdn.usebutton.com/xxxxxxxxx.html\", \n"
                 + "     \"smscampaign\": { \n"
                 + "        \"smscampaign_id\": \"smscampaign-12345\", \n"
                 + "        \"inapp_style\": { \n"
@@ -84,8 +85,6 @@ public class PostTapApiImplTest {
         assertEquals("https://cdn.usebutton.com/xxxxxxxxx.html", campaign.getTemplateUrl());
         assertEquals("smscampaign-12345", campaign.getCampaignId());
         assertNotNull(campaign.asJson());
-        assertNotNull(campaign.getStyles());
-        assertNull(campaign.getExperimentalValues());
     }
 
     @Test
