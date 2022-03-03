@@ -64,12 +64,12 @@ dependencies {
     implementation project(":core")
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation "junit:junit:$junitVersion"
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+    testImplementation "org.mockito:mockito-inline:$mockitoVersion"
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.9.0'
     testImplementation 'org.json:json:20180813'
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
+    androidTestImplementation "org.mockito:mockito-android:3.0.0"
 }
 
 task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
