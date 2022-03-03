@@ -35,7 +35,8 @@ public interface PostTapRepository extends Repository {
 
     void fetchCollectionCampaign(@Nullable Task.Listener<CollectionCampaign> listener);
 
-    void enrollPhoneNumber(String phoneNumber, @Nullable Task.Listener<String> listener);
+    void enrollPhoneNumber(String phoneNumber, String templateUrl, String campaignId,
+            @Nullable Task.Listener<String> listener);
 
     void setCookie(String key, @Nullable String value);
 

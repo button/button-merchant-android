@@ -59,9 +59,10 @@ public class PostTapRepositoryImpl extends RepositoryImpl implements PostTapRepo
     }
 
     @Override
-    public void enrollPhoneNumber(String phoneNumber, @Nullable Task.Listener<String> listener) {
-        PhoneEnrollmentTask task = new PhoneEnrollmentTask(api, "TODO", "TODO", phoneNumber,
-                TimeZone.getDefault(), listener);
+    public void enrollPhoneNumber(String phoneNumber, String templateUrl, String campaignId,
+            @Nullable Task.Listener<String> listener) {
+        PhoneEnrollmentTask task = new PhoneEnrollmentTask(api, templateUrl, campaignId,
+                phoneNumber, TimeZone.getDefault(), listener);
         submitTask(task, false);
     }
 
