@@ -26,11 +26,33 @@
 package com.usebutton.core.data;
 
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 
-public class MemoryStoreImpl implements MemoryStore {
+/**
+ * Internal memory store. This class should NOT be subclassed and should instead be shared
+ * between dependencies.
+ */
+public final class MemoryStoreImpl implements MemoryStore {
 
     private String applicationId;
     private boolean includesIfa = true;
+
+    private static MemoryStore instance;
+
+    public static MemoryStore getInstance() {
+        if (instance == null) {
+            synchronized (MemoryStore.class) {
+                if (instance == null) {
+                    instance = new MemoryStoreImpl();
+                }
+            }
+        }
+        return instance;
+    }
+
+    @VisibleForTesting
+    MemoryStoreImpl() {
+    }
 
     @Override
     public void setApplicationId(String applicationId) {
@@ -51,5 +73,11 @@ public class MemoryStoreImpl implements MemoryStore {
     @Override
     public boolean getIncludesIfa() {
         return includesIfa;
+    }
+
+    @Override
+    public void clearAllData() {
+        applicationId = null;
+        includesIfa = true;
     }
 }
