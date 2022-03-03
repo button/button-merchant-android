@@ -77,7 +77,8 @@ public class PostTapRepositoryImplTest {
 
     @Test
     public void enrollPhoneNumber_submitsTask() {
-        repository.enrollPhoneNumber("+15161237890", mock(Task.Listener.class));
+        repository.enrollPhoneNumber("+15161237890", "https://cdn.usebutton.com/test.html",
+                "smscampaign-123", mock(Task.Listener.class));
 
         verify(executorService).submit(any(PhoneEnrollmentTask.class));
     }
