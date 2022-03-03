@@ -40,4 +40,6 @@ public interface MemoryStore {
     void setIncludesIfa(boolean includesIfa);
 
     boolean getIncludesIfa();
+
+    void clearAllData();
 }

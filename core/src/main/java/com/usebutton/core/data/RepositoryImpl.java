@@ -47,7 +47,6 @@ public class RepositoryImpl implements Repository {
     protected final PersistentStore persistentStore;
     protected final MemoryStore memoryStore;
 
-    private boolean isConfigured;
     private final List<Task<?>> pendingTasks = new CopyOnWriteArrayList<>();
 
     protected RepositoryImpl(CoreApi coreApi, DeviceManager deviceManager,
@@ -66,7 +65,6 @@ public class RepositoryImpl implements Repository {
         // However, we would still let the network requests proceed instead of failing silently
         // on the client-side.
         if (ButtonUtil.isApplicationIdValid(applicationId)) {
-            isConfigured = true;
             memoryStore.setApplicationId(applicationId);
 
             for (Task<?> task : pendingTasks) {
@@ -118,7 +116,7 @@ public class RepositoryImpl implements Repository {
 
     @Override
     public void submitTask(Task<?> task, boolean forceSubmit) {
-        if (isConfigured || forceSubmit) {
+        if (memoryStore.getApplicationId() != null || forceSubmit) {
             executorService.submit(task);
         } else {
             Log.d(TAG, "Application ID unavailable! Queueing Task.");

@@ -27,6 +27,7 @@ package com.usebutton.merchant;
 
 import com.usebutton.core.data.DeviceManager;
 import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.MemoryStoreImpl;
 import com.usebutton.core.data.PersistentStore;
 import com.usebutton.core.data.Task;
 import com.usebutton.core.data.tasks.EventReportingTask;
@@ -53,13 +54,14 @@ public class ButtonRepositoryImplTest {
     @Mock DeviceManager deviceManager;
     @Mock ExecutorService executorService;
     @Mock PersistentStore persistentStore;
-    @Mock MemoryStore memoryStore;
+    private final MemoryStore memoryStore = MemoryStoreImpl.getInstance();
 
     private ButtonRepository buttonRepository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        memoryStore.clearAllData();
         buttonRepository = new ButtonRepositoryImpl(buttonApi, deviceManager, executorService,
                 persistentStore, memoryStore);
     }

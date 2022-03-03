@@ -27,6 +27,7 @@ package com.usebutton.posttap.data;
 
 import com.usebutton.core.data.DeviceManager;
 import com.usebutton.core.data.MemoryStore;
+import com.usebutton.core.data.MemoryStoreImpl;
 import com.usebutton.core.data.PersistentStore;
 import com.usebutton.core.data.Task;
 import com.usebutton.posttap.data.tasks.PhoneEnrollmentTask;
@@ -51,16 +52,17 @@ public class PostTapRepositoryImplTest {
 
     @Mock PostTapApi api;
     @Mock DeviceManager deviceManager;
-    @Mock MemoryStore memoryStore;
     @Mock PersistentStore persistentStore;
     @Mock ExecutorService executorService;
     @Mock CookieJar cookieJar;
+    private final MemoryStore memoryStore = MemoryStoreImpl.getInstance();
 
     private PostTapRepository repository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        memoryStore.clearAllData();
         repository = new PostTapRepositoryImpl(api, deviceManager, executorService, persistentStore,
                 memoryStore, cookieJar);
         repository.setApplicationId("app-xxxxxxxxxxxxxxxx");

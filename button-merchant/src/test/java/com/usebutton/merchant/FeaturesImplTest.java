@@ -36,12 +36,12 @@ import static org.junit.Assert.assertTrue;
 
 public class FeaturesImplTest {
 
-    private MemoryStore memoryStore;
+    private final MemoryStore memoryStore = MemoryStoreImpl.getInstance();
     private FeaturesImpl features;
 
     @Before
     public void setUp() {
-        memoryStore = new MemoryStoreImpl();
+        memoryStore.clearAllData();
         features = new FeaturesImpl(memoryStore);
     }
 

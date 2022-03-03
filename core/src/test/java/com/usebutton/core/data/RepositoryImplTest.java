@@ -47,15 +47,16 @@ public class RepositoryImplTest {
 
     @Mock CoreApi coreApi;
     @Mock DeviceManager deviceManager;
-    @Mock MemoryStore memoryStore;
     @Mock PersistentStore persistentStore;
     @Mock ExecutorService executorService;
+    private final MemoryStore memoryStore = spy(MemoryStoreImpl.getInstance());
 
     private Repository repository;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        memoryStore.clearAllData();
         repository = new RepositoryImpl(coreApi, deviceManager, executorService, persistentStore,
                 memoryStore);
     }

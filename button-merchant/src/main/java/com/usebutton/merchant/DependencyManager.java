@@ -44,7 +44,6 @@ final class DependencyManager {
 
     private Application application;
     private ExecutorService executorService;
-    private MemoryStore memoryStore;
     private PersistentStore persistentStore;
     private DeviceManager deviceManager;
     private ConnectionManager connectionManager;
@@ -72,10 +71,7 @@ final class DependencyManager {
     }
 
     MemoryStore getMemoryStore() {
-        if (memoryStore == null) {
-            memoryStore = new MemoryStoreImpl();
-        }
-        return memoryStore;
+        return MemoryStoreImpl.getInstance();
     }
 
     PersistentStore getPersistentStore() {
