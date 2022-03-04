@@ -25,9 +25,11 @@
 
 package com.usebutton.core;
 
+import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -103,6 +105,14 @@ public final class ButtonUtil {
 
     public static boolean isApplicationIdValid(@Nullable String applicationId) {
         return applicationId != null && APP_ID_PATTERN.matcher(applicationId).matches();
+    }
+
+    public static float dpToPixel(Resources resources, int dp) {
+        return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                resources.getDisplayMetrics()
+        );
     }
 
     private static String encodeHex(byte[] digest) {
