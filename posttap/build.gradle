@@ -54,6 +54,7 @@ android {
 
 dependencies {
     implementation "com.android.support:support-annotations:$supportLibVersion"
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     implementation project(path: ':core')
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     testImplementation "junit:junit:$junitVersion"
