@@ -34,6 +34,7 @@ import android.support.annotation.VisibleForTesting;
 import com.usebutton.merchant.module.ButtonUserActivity;
 import com.usebutton.merchant.module.Features;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -117,6 +118,29 @@ button#report-orders-to-buttons-order-api">Reporting Orders to Button</a>
             @Nullable OrderListener orderListener) {
         buttonInternal.reportOrder(getButtonRepository(context), getDeviceManager(context),
                 FeaturesImpl.getInstance(), order, orderListener);
+    }
+
+    /**
+     * Reports an event and associated properties to Button
+     *
+     * @param context a {@link Context) instance that can be used to access app resources like
+     * SharedPreferences.
+     * @param name The name of the event.
+     * @param properties Optional key value pairs to be associated with the event.
+     *
+     * @see also {@link #reportEvent(Context, String)}
+     */
+    public static void reportEvent(@NonNull Context context, @NonNull String name,
+                                   @Nullable Map<String, String> properties) {
+        buttonInternal.reportCustomEvent(getButtonRepository(context), getDeviceManager(context),
+                FeaturesImpl.getInstance(), name, properties);
+    }
+
+    /**
+     * @see {@link #reportEvent(Context, String, Map)}
+     */
+    public static void reportEvent(@NonNull Context context, @NonNull String name) {
+        reportEvent(context, name, null);
     }
 
     /**

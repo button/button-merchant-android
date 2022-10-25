@@ -31,6 +31,8 @@ import android.support.annotation.Nullable;
 
 import com.usebutton.merchant.module.Features;
 
+import java.util.Map;
+
 /**
  * Internal implementation of the {@link ButtonMerchant} interface.
  */
@@ -60,4 +62,7 @@ interface ButtonInternal {
 
     void reportOrder(ButtonRepository buttonRepository, DeviceManager deviceManager,
             Features features, Order order, @Nullable OrderListener orderListener);
+
+    void reportCustomEvent(ButtonRepository buttonRepository, DeviceManager deviceManager,
+                           Features features, String eventName, Map<String, String> properties);
 }

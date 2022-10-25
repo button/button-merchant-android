@@ -36,6 +36,7 @@ import com.usebutton.merchant.exception.ApplicationIdNotFoundException;
 import com.usebutton.merchant.module.Features;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -247,6 +248,23 @@ final class ButtonInternalImpl implements ButtonInternal {
                 }
             }
         });
+    }
+
+    public void reportCustomEvent(ButtonRepository buttonRepository, DeviceManager deviceManager,
+            Features features, String eventName, Map<String, String> properties) {
+        if (buttonRepository.getApplicationId() == null) {
+            Log.e(TAG, "Application ID [null] is not valid. "
+                    + "You can find your Application ID in the dashboard by logging in at"
+                    + " https://app.usebutton.com/");
+            return;
+        }
+
+        // Construct event
+        String sourceToken = getAttributionToken(buttonRepository);
+        Event event = new Event(eventName, sourceToken, properties);
+
+        // Report event
+        buttonRepository.reportEvent(deviceManager, features, event);
     }
 
     /**

@@ -30,15 +30,19 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Collections;
 
 public class EventTest {
 
     @Test
-    public void constructor_shouldConstructEmptyEvent() {
+    public void constructor_knownName_shouldConstructEmptyButtonEvent() {
         Event event = new Event(Event.Name.DEEPLINK_OPENED, "valid_token");
 
-        assertEquals(Event.Name.DEEPLINK_OPENED, event.getName());
+        assertEquals(Event.Name.DEEPLINK_OPENED.toString(), event.getName());
+        assertEquals(Event.Source.BUTTON, event.getSource());
         assertEquals("valid_token", event.getSourceToken());
         assertEquals((new JSONObject()).toString(), event.getEventBody().toString());
         assertNotNull(event.getId());
@@ -61,7 +65,41 @@ public class EventTest {
         JSONObject eventJson = event.toJson();
 
         assertEquals(Event.Name.DEEPLINK_OPENED.toString(), eventJson.getString("name"));
-        assertEquals("valid_token", eventJson.getString("promotion_source_token"));
+        assertEquals(Event.Source.BUTTON, event.getSource());
+        assertEquals("valid_token", eventJson.getString("source_token"));
         assertTrue(eventJson.has("value"));
+    }
+
+    @Test
+    public void constructor_stringName_shouldConstructCustomEvent() throws Exception {
+        Event event = new Event("custom-event", "valid_token",
+                Collections.singletonMap("key", "value"));
+
+        assertEquals("custom-event", event.getName());
+        assertEquals(Event.Source.CUSTOM, event.getSource());
+        assertEquals("valid_token", event.getSourceToken());
+        assertEquals("{\"key\":\"value\"}", event.getEventBody().toString());
+        assertNotNull(event.getId());
+        assertTrue(event.getTimestamp() > 0);
+
+
+    }
+
+    @Test
+    public void toJson_shouldConvertCustomEventToJsonObject() throws Exception {
+        Event event = new Event("custom-event", "valid_token",
+                Collections.singletonMap("key", "value"));
+
+        JSONObject eventJson = event.toJson();
+        assertEquals("custom-event", eventJson.getString("name"));
+        assertEquals("custom", eventJson.getString("source"));
+        assertEquals("valid_token", eventJson.getString("source_token"));
+        assertEquals("{\"extra\":{\"key\":\"value\"}}", eventJson.getJSONObject("value").toString());
+        assertNotNull(eventJson.getString("uuid"));
+        assertNotNull(eventJson.getString("time"));
+
+        event = new Event("custom-event", "valid_token", null);
+        eventJson = event.toJson();
+        assertEquals("{}", eventJson.getJSONObject("value").toString());
     }
 }

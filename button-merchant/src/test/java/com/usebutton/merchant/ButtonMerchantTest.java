@@ -50,6 +50,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class ButtonMerchantTest {
 
     @Mock
@@ -170,6 +173,16 @@ public class ButtonMerchantTest {
 
         verify(buttonInternal).reportOrder(any(ButtonRepository.class), any(DeviceManager.class),
                 any(Features.class), eq(order), eq(orderListener));
+    }
+
+    @Test
+    public void reportEvent_verifyButtonInternal() {
+        Map<String, String> props = Collections.singletonMap("test-key", "test-value");
+
+        ButtonMerchant.reportEvent(context, "test-event", props);
+
+        verify(buttonInternal).reportCustomEvent(any(ButtonRepository.class), any(DeviceManager.class),
+                any(Features.class), eq("test-event"), eq(props));
     }
 
     @Test
