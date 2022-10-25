@@ -35,8 +35,8 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName version
+        buildConfigField 'int', 'VERSION_CODE', "1"
+        buildConfigField 'String', 'VERSION_NAME', "\"${version}\""
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -52,6 +52,7 @@ android {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
     }
+    namespace 'com.usebutton.merchant'
 }
 
 configurations {
