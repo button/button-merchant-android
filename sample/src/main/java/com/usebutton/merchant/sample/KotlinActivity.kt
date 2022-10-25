@@ -16,11 +16,7 @@ import com.usebutton.merchant.ButtonProduct
 import com.usebutton.merchant.ButtonProductCompatible
 import com.usebutton.merchant.Order
 import com.usebutton.merchant.sample.R.id
-import java.util.Collections
-import java.util.Date
-import java.util.Locale
-import java.util.Random
-import java.util.UUID
+import java.util.*
 
 class KotlinActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +36,11 @@ class KotlinActivity : AppCompatActivity() {
         checkForPostInstallIntent()
         initTrackNewIntentButton()
         initTrackOrderButton()
-        initActivityButtons();
+        initActivityButtons()
         initClearDataButton()
         initAttributionTokenListener()
         initReportOrderButton()
+        initReportEventButton()
     }
 
     private fun checkForPostInstallIntent() {
@@ -123,7 +120,14 @@ class KotlinActivity : AppCompatActivity() {
         }
     }
 
+    private fun initReportEventButton() {
+        findViewById<View>(R.id.report_event).setOnClickListener {
+            ButtonMerchant.reportEvent(this, "signup", mapOf("is_new" to "false"))
+        }
+    }
+
     private fun initActivityButtons() {
+        ButtonMerchant.reportEvent(this, "test-event", mapOf("isNewCustomer" to "false"))
         findViewById<View>(id.track_product_viewed).setOnClickListener {
             ButtonMerchant.activity().productViewed(product)
         }

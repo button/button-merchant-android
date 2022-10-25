@@ -37,14 +37,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.Collections;
 import java.util.concurrent.Executor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
@@ -475,6 +478,56 @@ public class ButtonInternalImplTest {
         Exception exception = mock(Exception.class);
         argumentCaptor.getValue().onTaskError(exception);
         verify(orderListener).onResult(exception);
+    }
+
+    @Test
+    public void reportEvent_nullApplicationId_doesNothing() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn(null);
+
+        buttonInternal.reportCustomEvent(buttonRepository, mock(DeviceManager.class),
+                mock(Features.class), "test-event", null);
+
+        verify(buttonRepository, never()).reportEvent(any(DeviceManager.class),
+                any(Features.class), any(Event.class));
+    }
+
+    @Test
+    public void reportEvent_withProperties_reportsCustomEvent() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+        when(buttonRepository.getSourceToken()).thenReturn("test-token");
+
+        buttonInternal.reportCustomEvent(buttonRepository, mock(DeviceManager.class),
+                mock(Features.class), "test-event", Collections.singletonMap("key", "value"));
+
+        final ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(buttonRepository).reportEvent(any(DeviceManager.class),
+                any(Features.class), captor.capture());
+        final Event event = captor.getValue();
+
+        assertEquals("test-event", event.getName());
+        assertEquals(Event.Source.CUSTOM, event.getSource());
+        assertEquals("test-token", event.getSourceToken());
+        assertEquals("{\"key\":\"value\"}", event.getEventBody().toString());
+    }
+
+    @Test
+    public void reportEvent_noProperties_reportsCustomEvent() {
+        ButtonRepository buttonRepository = mock(ButtonRepository.class);
+        when(buttonRepository.getApplicationId()).thenReturn("valid_application_id");
+
+        buttonInternal.reportCustomEvent(buttonRepository, mock(DeviceManager.class),
+                mock(Features.class), "test-event", null);
+
+        final ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(buttonRepository).reportEvent(any(DeviceManager.class),
+                any(Features.class), captor.capture());
+        final Event event = captor.getValue();
+
+        assertEquals("test-event", event.getName());
+        assertEquals(Event.Source.CUSTOM, event.getSource());
+        assertEquals(0, event.getEventBody().length());
     }
 
     private class TestMainThreadExecutor implements Executor {

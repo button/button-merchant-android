@@ -145,6 +145,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.report_event).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ButtonMerchant.reportEvent(context, "test-event-2");
+                ButtonMerchant.reportEvent(context, "test-event", Collections.singletonMap("test-key", "test-value"));
+            }
+        });
+
         findViewById(R.id.track_order).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
