@@ -25,8 +25,8 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import com.usebutton.merchant.exception.ButtonNetworkException;
 

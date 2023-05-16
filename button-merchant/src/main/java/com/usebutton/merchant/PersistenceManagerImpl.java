@@ -27,8 +27,8 @@ package com.usebutton.merchant;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * Class handles persisting anything in the {@link SharedPreferences}

@@ -26,9 +26,9 @@
 package com.usebutton.merchant;
 
 import android.os.SystemClock;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * This class is a convenience class for objects that we want to expire after a certain amount

@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ConnectionManagerImplTest {
@@ -81,7 +81,7 @@ public class ConnectionManagerImplTest {
     public void setApplicationId_cacheInMemory() {
         connectionManager.setApplicationId("app-abcdef1234567890");
         assertEquals("app-abcdef1234567890", connectionManager.getApplicationId());
-        verifyZeroInteractions(persistenceManager);
+        verifyNoInteractions(persistenceManager);
     }
 
     @Test
