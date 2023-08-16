@@ -30,15 +30,15 @@ def BUTTON_MERCHANT_API_KEY = hasProperty('buttonMerchantAppId') ? '"' + buttonM
         : '"app-1234567890abcdef"'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.usebutton.merchant.sample"
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -52,17 +52,25 @@ android {
     buildTypes.each {
         it.buildConfigField 'String', 'BUTTON_MERCHANT_APP_ID', BUTTON_MERCHANT_API_KEY
     }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':button-merchant')
-    implementation "com.android.support:appcompat-v7:$supportLibVersion"
-    implementation "com.google.android.gms:play-services-ads:17.2.1"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation "com.android.support:design:$supportLibVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    testImplementation "junit:junit:$junitVersion"
-    androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    implementation "androidx.annotation:annotation:1.6.0"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "com.google.android.material:material:1.9.0"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:1.2.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "androidx.multidex:multidex:2.0.1"
+
+    // This version of play-services-ads is specifically chosen because it matches the minSdk
+    // requirements, while also removing internal dependencies to support libraries.
+    //noinspection GradleDependency,OutdatedLibrary,RiskyLibrary
+    implementation "com.google.android.gms:play-services-ads:18.3.0"
 }

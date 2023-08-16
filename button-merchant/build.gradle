@@ -25,20 +25,20 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.kt3k.coveralls'
-apply plugin: 'com.vanniktech.android.junit.jacoco'
+apply plugin: 'jacoco'
 
 apply from: "${rootProject.projectDir}/button-merchant/publish-maven-central.gradle"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 33
         buildConfigField 'int', 'VERSION_CODE', "1"
         buildConfigField 'String', 'VERSION_NAME', "\"${version}\""
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -61,21 +61,23 @@ configurations {
 }
 
 dependencies {
-    implementation "com.android.support:support-annotations:$supportLibVersion"
+    implementation "androidx.annotation:annotation:$annotationVersion"
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.4.0'
-    testImplementation 'org.json:json:20180813'
-    androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserverVersion"
+    testImplementation 'org.json:json:20230618'
+
+    androidTestImplementation "androidx.test:runner:$testRunnerVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.mockito:mockito-android:$mockitoVersion"
 }
 
 task jacocoReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 
     def fileFilter = ['**/R.class',

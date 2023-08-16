@@ -21,10 +21,10 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-echo "generating javadoc version $1"
-./gradlew clean :button-merchant:androidJavadocs
-cp -r button-merchant/build/docs/javadoc docs/history/$1
-rm docs/latest
+echo "generating html docs version $1"
+./gradlew clean :button-merchant:androidHtmlDocs
+cp -r button-merchant/build/docs/html docs/history/$1
+rm -f docs/latest
 ln -s history/$1 docs/latest
 
-echo "javadoc done"
+echo "html docs done"

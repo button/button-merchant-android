@@ -26,7 +26,7 @@
 package com.usebutton.merchant;
 
 import android.content.Intent;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Callbacks for post-install intent handler.
