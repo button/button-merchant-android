@@ -25,39 +25,56 @@
 
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka'
 
 group = 'com.usebutton.merchant'
 version = libraryVersionName
-project.archivesBaseName = 'button-merchant'
 
-task androidJavadocs(type: Javadoc) {
-    source = android.sourceSets.main.java.source
-    title = null
-    options.docletpath = [file('./doclava-1.0.6.jar')]
-    options.classpath = classpath as List
-    options.noTimestamp = false
-    options {
-        doclet "com.google.doclava.Doclava"
-        bootClasspath new File(System.getenv('JAVA_HOME') + "/jre/lib/rt.jar")
-        addStringOption "hdf project.name", "Button Merchant Library v${libraryVersionName}"
-        addStringOption "public"
-        addStringOption "templatedir", "javadoc"
-        addStringOption "verbose"
-
-        addStringOption "federate jdk", "http://download.oracle.com/javase/6/docs/api/index.html?"
-        addStringOption "federationxml jdk", "http://doclava.googlecode.com/svn/static/api/openjdk-6.xml"
-        addStringOption "federate android", "https://d.android.com/reference"
-        addStringOption "federationxml android", "http://doclava.googlecode.com/svn/static/api/android-10.xml"
+dokkaHtml.configure {
+    outputDirectory.set(file("$buildDir/docs/html"))
+    dokkaSourceSets {
+        named("main") {
+            moduleName.set("Button Merchant Library")
+            includeNonPublic.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(true)
+            reportUndocumented.set(false)
+            suppressInheritedMembers.set(true)
+            documentedVisibilities.set([Visibility.PUBLIC])
+        }
     }
-    exclude '**/BuildConfig.java'
-    exclude '**/R.java'
-    exclude '**/internal/**'
-    exclude '**/thirdparty/**'
 }
 
-task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    archiveClassifier.set('javadoc')
-    from new File(buildDir, '/docs/javadoc/')
+dokkaJavadoc.configure {
+    outputDirectory.set(file("$buildDir/docs/javadoc"))
+    dokkaSourceSets {
+        named("main") {
+            moduleName.set("Button Merchant Library")
+            includeNonPublic.set(false)
+            skipEmptyPackages.set(true)
+            skipDeprecated.set(true)
+            reportUndocumented.set(false)
+            suppressInheritedMembers.set(true)
+            documentedVisibilities.set([Visibility.PUBLIC])
+        }
+    }
+}
+
+task androidHtmlDocs() {
+    dependsOn(dokkaHtml)
+}
+
+tasks.register('dokkaHtmlJar', Jar.class) {
+    dependsOn(dokkaHtml)
+    from(dokkaHtml)
+    archiveClassifier.set("html-docs")
+}
+
+tasks.register('androidJavadocsJar', Jar.class) {
+    dependsOn(dokkaJavadoc)
+    from(dokkaJavadoc)
+    archiveClassifier.set("javadoc")
 }
 
 task androidSourcesJar(type: Jar) {
@@ -93,7 +110,7 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 groupId group
-                artifactId project.archivesBaseName
+                artifactId 'button-merchant'
                 version version
 
                 artifact("$buildDir/outputs/aar/${artifactId}-release.aar")

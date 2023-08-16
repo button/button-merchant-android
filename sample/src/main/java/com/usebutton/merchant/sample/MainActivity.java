@@ -29,16 +29,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.usebutton.merchant.ButtonMerchant;
 import com.usebutton.merchant.ButtonProduct;
@@ -249,16 +250,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_switch_java:
-                break;
-            case R.id.action_switch_kotlin:
-                Intent i = new Intent(MainActivity.this, KotlinActivity.class);
-                finish();
-                startActivity(i);
-                break;
-            default:
-                break;
+        if (item.getItemId() == R.id.action_switch_kotlin) {
+            Intent i = new Intent(MainActivity.this, KotlinActivity.class);
+            finish();
+            startActivity(i);
         }
         return super.onOptionsItemSelected(item);
     }

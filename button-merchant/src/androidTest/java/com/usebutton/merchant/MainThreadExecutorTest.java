@@ -26,7 +26,6 @@
 package com.usebutton.merchant;
 
 import android.os.Looper;
-import android.support.test.InstrumentationRegistry;
 
 import org.junit.Test;
 
@@ -35,9 +34,11 @@ import java.util.concurrent.Executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+
 public class MainThreadExecutorTest {
 
-    private Executor executor = new MainThreadExecutor();
+    private final Executor executor = new MainThreadExecutor();
 
     @Test
     public void executor_shouldExecute() {

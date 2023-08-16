@@ -25,7 +25,7 @@
 
 package com.usebutton.merchant;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Internal model for post-install link server response.

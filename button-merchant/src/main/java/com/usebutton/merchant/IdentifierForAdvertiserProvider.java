@@ -27,8 +27,8 @@ package com.usebutton.merchant;
 
 import android.content.Context;
 import android.os.Looper;
-import android.support.annotation.Nullable;
-import android.support.annotation.WorkerThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
